@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "192574459429",
+    "firebase_url": "https://buildabrain-a8cce.firebaseio.com",
+    "project_id": "buildabrain-a8cce",
+    "storage_bucket": "buildabrain-a8cce.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:192574459429:android:62fa07569a0bfed921f9cc",
+        "android_client_info": {
+          "package_name": "example.buildabrain"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "192574459429-lrgnngg6roe5uptgi3ol2e3oaugqrr7a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "example.buildabrain",
+            "certificate_hash": "8ea5e9dffbb8f730bc873671b14252828bd11443"
+          }
+        },
+        {
+          "client_id": "192574459429-vc3r7boo8hvlcldqqk1mtahaltc1i4f4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBp2fCLeRxZArux70q21k29Uqx8NfWuac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "192574459429-vc3r7boo8hvlcldqqk1mtahaltc1i4f4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
