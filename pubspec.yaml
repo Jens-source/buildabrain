@@ -75,6 +75,9 @@ flutter:
 
 
   assets:
+    - lib/Assets/iq.png
+    - lib/Assets/mindmap.png
+    - lib/Assets/conversation.png
     - lib/Assets/hand.png
     - lib/Assets/qrcode.png
     - lib/Assets/bdblogo.jpg
@@ -85,40 +88,6 @@ flutter:
     - lib/Assets/skeleton.jpg
     - lib/Assets/bodyparts.png
     - lib/Assets/qr.png
-    - lib/Assets/promo1.jpg
-    - lib/Assets/promo2.jpg
-    - lib/Assets/promo3.jpg
-    - lib/Assets/stella.jpg
-    - lib/Assets/cat1.jpg
-    - lib/Assets/cat2.jpg
-    - lib/Assets/cat3.jpg
-    - lib/Assets/jun1.jpg
-    - lib/Assets/jun2.jpg
-    - lib/Assets/jun3.jpg
-    - lib/Assets/jun4.jpg
-    - lib/Assets/jun5.jpg
-    - lib/Assets/jun6.jpg
-    - lib/Assets/jun7.jpg
-    - lib/Assets/jun8.jpg
-    - lib/Assets/jun9.jpg
-    - lib/Assets/adv1.jpg
-    - lib/Assets/adv2.jpg
-    - lib/Assets/adv3.jpg
-    - lib/Assets/adv4.jpg
-    - lib/Assets/adv5.jpg
-    - lib/Assets/adv6.jpg
-    - lib/Assets/adv7.jpg
-    - lib/Assets/adv8.jpg
-    - lib/Assets/adv9.jpg
-    - lib/Assets/pre1.jpg
-    - lib/Assets/pre2.jpg
-    - lib/Assets/pre3.jpg
-    - lib/Assets/pre4.jpg
-    - lib/Assets/pre5.jpg
-    - lib/Assets/pre6.jpg
-    - lib/Assets/pre7.jpg
-    - lib/Assets/pre8.jpg
-    - lib/Assets/pre9.jpg
     - lib/Assets/chart.png
     - lib/Assets/googleIcon.png
     - lib/Assets/facebook.png
@@ -130,6 +99,12 @@ flutter:
     - lib/Assets/preschool.png
     - lib/Assets/junior.png
     - lib/Assets/advanced.png
+    - lib/Assets/art.png
+    - lib/Assets/science.png
+    - lib/Assets/home.png
+    - lib/Assets/schedule.png
+    - lib/Assets/settings.png
+    - lib/Assets/notify.png
 
 
 
