@@ -116,7 +116,8 @@ SingleTickerProviderStateMixin{
         ),
 
 
-        drawer: Drawer(
+        endDrawer: Drawer(
+
           // Add a ListView to the drawer. This ensures the user can scroll
           // through the options in the drawer if there isn't enough vertical
           // space to fit everything.
@@ -206,13 +207,13 @@ SingleTickerProviderStateMixin{
           ),
         ),
         backgroundColor: Colors.white,
-
         body:new TabBarView(
             controller: tabController,
             children: <Widget> [
         new CustomScrollView(
             slivers: <Widget>[
               SliverAppBar(
+
                 backgroundColor: Color.fromRGBO(23, 142, 137, 1),
                 pinned: true,
                 expandedHeight: height / 1.5,
@@ -227,14 +228,32 @@ SingleTickerProviderStateMixin{
                         }
                         setPhotoWidgets(context, snapshot.data);
 
+                        return Scaffold(
+                          extendBodyBehindAppBar: true,
+                          appBar: AppBar(
+                            leading: CircleAvatar(
+                              backgroundImage: Image.network(),
+                            )
 
-                        return Stack(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                bottom: Radius.circular(30),
+                              )
+                            ),
+
+                          ),
+                            backgroundColor: Color.fromRGBO(23, 142, 137, 1),
+                            body:
+                         Stack(
                     alignment: Alignment.topCenter,
                       children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(top: height/11),
+                          child:
                              CarouselSlider(
                               items: photoUrlList,
                               options: CarouselOptions(
-                                height: height/2.5,
+                                height: height/3,
                                   autoPlay: true,
                                   autoPlayInterval: Duration(seconds: 5),
                                   viewportFraction: 1.0,
@@ -246,8 +265,9 @@ SingleTickerProviderStateMixin{
                                   }
                               ),
                             ),
+                        ),
                         Positioned(
-                          bottom: height/3.36,
+                          bottom: 0,
                           child: Container(
                             color: Color.fromRGBO(23, 142, 137, 0.4),
                             width: width,
@@ -255,7 +275,7 @@ SingleTickerProviderStateMixin{
                           ),
                         ),
                         Positioned(
-                          bottom: height/3.36,
+                          bottom:0,
                           child:
                               Column(
                                 children: [
@@ -286,12 +306,14 @@ SingleTickerProviderStateMixin{
                               )
                         ),
                       ]
-                  );
+                  )
+                        );
                       }
                   ),
                 ),
               ),
               SliverList(
+
                   delegate: SliverChildListDelegate(
                       [
                         SizedBox(
@@ -445,7 +467,7 @@ SingleTickerProviderStateMixin{
                         ),
                         SizedBox(
                           height: 1000,
-                        ),
+                        )
 
 
                       ]
@@ -453,6 +475,7 @@ SingleTickerProviderStateMixin{
               )
             ]
         ),
+              Container(),
               Container(),
               Container(),
               Container(),
