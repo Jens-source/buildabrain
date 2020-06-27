@@ -1,16 +1,15 @@
 
 import 'package:buildabrain/Owner/ownerHome.dart';
-import 'package:buildabrain/ParentHome.dart';
-import 'package:buildabrain/ParentSignUp.dart';
-import 'package:buildabrain/leaderSignup.dart';
-import 'package:buildabrain/selectprofilepic.dart';
+import 'package:buildabrain/Parent/parentHome.dart';
+import 'package:buildabrain/Parent/parentSignup.dart';
+import 'package:buildabrain/Owner/leaderSignup.dart';
+
 import 'package:buildabrain/teacherOrParent.dart';
-import 'package:buildabrain/teacherSignup.dart';
+import 'package:buildabrain/Teacher/teacherSignup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'main.dart';
 import 'services/userManagement.dart';
-import 'signIn.dart';
 import 'signupPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

@@ -6,18 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Calendar extends StatefulWidget {
-  Calendar(this.identity);
-  final identity;
 
   @override
-  _CalendarState createState() => _CalendarState(this.identity);
+  _CalendarState createState() => _CalendarState();
 }
 
 class _CalendarState extends State<Calendar>
     with SingleTickerProviderStateMixin {
-  _CalendarState(this.identity);
+  _CalendarState();
 
-  final identity;
 
   DateTime startDate = DateTime.now().subtract(Duration(days: 20));
   DateTime endDate = DateTime.now().add(Duration(days: 20));

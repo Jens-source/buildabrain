@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:animated_splash/animated_splash.dart';
-import 'package:buildabrain/ParentHome.dart';
+import 'package:buildabrain/Parent/parentHome.dart';
 import 'package:buildabrain/calendar.dart';
-import 'package:buildabrain/gallery.dart';
+
 import 'package:buildabrain/Owner/ownerHome.dart';
 import 'package:buildabrain/profile.dart';
 import 'package:buildabrain/welcomePage.dart';
@@ -11,7 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import "mindmapLesson.dart";
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:async';
 
@@ -403,7 +403,7 @@ class _MyHomePageState extends State<MyHomePage>
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              Calendar(1))
+                              Calendar())
                   );
                 },
               ),
@@ -505,14 +505,7 @@ class _MyHomePageState extends State<MyHomePage>
                                                 child:
                                                 MaterialButton(
                                                   color: Colors.orange,
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                MindMapLesson())
-                                                    );
-                                                  },
+                                                  onPressed: () {},
                                                   child: Text("Mindmap", style: TextStyle(
                                                       fontSize: 20,
                                                       color: Colors.white
@@ -628,7 +621,7 @@ class _MyHomePageState extends State<MyHomePage>
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  Calendar(1))
+                                                  Calendar())
                                       );
                                     }, // handle your image tap here
                                     child: Image.asset(
@@ -658,12 +651,7 @@ class _MyHomePageState extends State<MyHomePage>
                                     builder: (BuildContext context) {
                                       return GestureDetector(
                                           onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        Gallery())
-                                            );
+
                                           },
                                           child:
                                           Container(

@@ -45,7 +45,7 @@ dependencies:
   path_provider:
   flutter_cache_manager:
   collection:
-
+  table_calendar: 2.2.3
   dio:
   basic_utils: ^2.5.3
   network_to_file_image:

@@ -1,11 +1,15 @@
 
 
 
+import 'package:buildabrain/Parent/parentCalendar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../calendar.dart';
 
 
 class ParentHome extends StatefulWidget {
@@ -17,10 +21,18 @@ class _ParentHomeState extends State<ParentHome> with
 SingleTickerProviderStateMixin {
 
 
+  List<Widget> photoUrlList = [];
+  List<String> descriptionList = [];
+  FirebaseUser user;
+  int tab;
+  String timeOfDay;
   QuerySnapshot promotions;
-
   int _current = 0;
   TabController tabController;
+
+
+
+
 
 
   Future getPromotions() async {
@@ -53,22 +65,15 @@ SingleTickerProviderStateMixin {
   }
 
 
-  List<Widget> photoUrlList = [];
-  List<String> descriptionList = [];
-
-
-  FirebaseUser user;
-  int tab;
-
-  String timeOfDay;
 
   @override
   void initState() {
-    // TODO: implement initState
+
     super.initState();
     tabController = new TabController(length: 5, vsync: this);
 
     tab = tabController.index;
+
 
     FirebaseAuth.instance.currentUser().then((value) {
       setState(() {
@@ -89,8 +94,12 @@ SingleTickerProviderStateMixin {
     });
   }
 
-
   DocumentSnapshot parent;
+  String status;
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -120,12 +129,17 @@ SingleTickerProviderStateMixin {
             );
           }
           parent = snapshot.data.documents[0];
+          if(parent.data['status'] == "Mother"){
+            status = "motherUid";
+          }
+          else if(parent.data['status'] == "Father"){
+            status = "fatherUid";
+
+          }
 
           return Scaffold(
               extendBodyBehindAppBar: true,
               appBar: AppBar(
-
-
                 actionsIconTheme: IconThemeData(color: Colors.white),
                 title: Row(
                     children: [
@@ -143,9 +157,19 @@ SingleTickerProviderStateMixin {
                       ),
 
 
-                      Text("${timeOfDay}... \n${parent['firstName']}"),
+                      Text(tab == 0 ? "${timeOfDay}... \n${parent['firstName']}" :
+
+                      tab == 1 ? "Schedule" :
+                      tab == 2 ? "Check-In" :
+                      tab == 3 ? "Notifications" :
+                      tab == 4 ? "Settings" : ""),
                     ]
                 ),
+
+
+
+
+
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(
                       bottom: Radius.circular(30),
@@ -157,9 +181,8 @@ SingleTickerProviderStateMixin {
 
               bottomNavigationBar: new Material(
                 color: Color.fromRGBO(153, 107, 55, 1),
-                borderRadius: BorderRadius.vertical(),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
                 child: TabBar(
-
                   onTap: (value){
                     setState(() {
                       tab = tabController.index;
@@ -651,7 +674,17 @@ SingleTickerProviderStateMixin {
                           )
                         ]
                     ),
-                    Container(),
+                    StreamBuilder<QuerySnapshot>(
+                      stream: Firestore.instance.collection('students').where(status, isEqualTo: parent.data['uid']).snapshots(),
+                      builder: (context, snapshot) {
+                        if(!snapshot.hasData){
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return ParentCalendar(snapshot);
+                      }
+                    ),
                     Container(),
                     Container(),
                     Container(),

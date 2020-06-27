@@ -1,11 +1,10 @@
 import 'dart:ui';
 
-import 'package:buildabrain/ParentSignUp.dart';
-import 'package:buildabrain/leaderSignup.dart';
-import 'package:buildabrain/selectprofilepic.dart';
-import 'package:buildabrain/teacherSignup.dart';
+import 'package:buildabrain/Parent/parentSignup.dart';
+import 'package:buildabrain/Owner/leaderSignup.dart';
+import 'package:buildabrain/Teacher/teacherSignup.dart';
 
-import 'authPage.dart';
+
 import 'main.dart';
 import 'welcomePage.dart';
 

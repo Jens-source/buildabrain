@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:buildabrain/ParentHome.dart';
+import 'package:buildabrain/Parent/parentHome.dart';
 import 'package:buildabrain/welcomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
 import 'ChildInfo.dart';
-import 'services/userManagement.dart';
+import '../services/userManagement.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
