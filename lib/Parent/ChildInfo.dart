@@ -23,7 +23,6 @@ class ChildInfo extends StatefulWidget {
 
   ChildInfo( this.document, this.picUrl);
 
-
   final document;
   final picUrl;
 
@@ -412,7 +411,7 @@ class _ChildInfoState extends State<ChildInfo> {
                               ),
 
                               Container(
-                                  width: width - 200,
+                                  width: width /1.9,
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.all(
@@ -473,7 +472,7 @@ class _ChildInfoState extends State<ChildInfo> {
                               ),
 
                               Container(
-                                  width: width - 200,
+                                  width: width /1.9,
                                   height: 35,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.all(
@@ -554,7 +553,7 @@ class _ChildInfoState extends State<ChildInfo> {
                                   },
                                   child:
                                   Container(
-                                    width: width - 200,
+                                    width: width /1.9,
                                     height: 35,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(

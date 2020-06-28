@@ -154,8 +154,6 @@ class _StaffInfo extends State<StaffInfo> with SingleTickerProviderStateMixin{
                   backgroundColor: Color.fromRGBO(240, 240, 240, 1),
                   body: ListView(
                     children: <Widget>[
-
-
                       Container(
                         padding: EdgeInsets.only(left: 15, top: 10),
                         child:

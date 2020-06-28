@@ -3,14 +3,12 @@ import 'package:buildabrain/Owner/ownerHome.dart';
 import 'package:buildabrain/Parent/parentHome.dart';
 import 'package:buildabrain/Parent/parentSignup.dart';
 import 'package:buildabrain/Owner/leaderSignup.dart';
-
-import 'package:buildabrain/teacherOrParent.dart';
+import 'package:buildabrain/chooseIdentity.dart';
 import 'package:buildabrain/Teacher/teacherSignup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'main.dart';
 import 'services/userManagement.dart';
-import 'signupPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -341,6 +339,7 @@ class _WelcomePageState extends State<WelcomePage> {
         .size
         .height;
     return new Scaffold(
+
       backgroundColor: Color.fromRGBO(23, 142, 137, 1),
       body: new Stack(
         children: <Widget>[
@@ -626,29 +625,42 @@ class _WelcomePageState extends State<WelcomePage> {
 
 
                         if(_email != null && _password != null){
-                          var sign;
-                          try {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                      title: Center(
-                                        child: CircularProgressIndicator(),
-                                      )
-                                  );
-                                }
-                            );
 
-                            sign = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                          var sign;
+
+
+                          try {
+
+                            if(sign == null) {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                        title: Center(
+                                          child: CircularProgressIndicator(),
+                                        )
+                                    );
+                                  }
+                              );
+                            }
+
+
+                            await FirebaseAuth.instance.signInWithEmailAndPassword(
                                 email: _email,
-                                password: _password);
+                                password: _password).then((value) {
+                               setState(() {
+                                 sign = value;
+                               });
+                            });
+
+
 
 
 
 
                           } on PlatformException catch (e){
 
-                            Navigator.of(context).pop();
+
 
                             showDialog(
                                 context: context,
@@ -658,6 +670,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                     actions: <Widget>[
                                       FlatButton(
                                         onPressed: () {
+                                          Navigator.of(context).pop();
                                           Navigator.of(context).pop();
                                         },
                                         child: Text(
@@ -714,6 +727,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                     ),),
                                     onPressed: (){
                                       Navigator.of(context).pop();
+                                      Navigator.of(context).pop();
                                     },
                                   ),
                                 );
@@ -752,7 +766,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       onPressed: (){
                         Navigator.push(
                             context, MaterialPageRoute(builder: (
-                            BuildContext context) => TorP()));
+                            BuildContext context) => ChooseIdentity()));
                       },
 
                     ),

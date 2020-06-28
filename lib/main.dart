@@ -4,6 +4,7 @@ import 'package:buildabrain/Parent/parentHome.dart';
 import 'package:buildabrain/calendar.dart';
 
 import 'package:buildabrain/Owner/ownerHome.dart';
+import 'package:buildabrain/chooseIdentity.dart';
 import 'package:buildabrain/profile.dart';
 import 'package:buildabrain/welcomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -62,6 +63,7 @@ void main() async {
         _defaultHome = MyHomePage()
       }
 
+
       else if(value.documents[0].data['identity'] == "Leader"){
         _defaultHome = OwnerHome()
       }
@@ -79,13 +81,14 @@ void main() async {
 
 
   else if(user == null && _currentUser == null){
-    _defaultHome = WelcomePage();
+    _defaultHome = ChooseIdentity();
   }
 
 
 
 
   runApp(new MaterialApp(
+    debugShowCheckedModeBanner: false,
     title: 'App',
     home: AnimatedSplash(
       imagePath: 'lib/Assets/bdblogo.jpg',
@@ -110,6 +113,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
       title: 'Buildabrain',
       theme: ThemeData(
 

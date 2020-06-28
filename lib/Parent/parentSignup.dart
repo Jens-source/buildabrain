@@ -146,7 +146,6 @@ class _ParentSignupState extends State<ParentSignup> {
           backgroundColor: Color.fromRGBO(23, 142, 137, 1),
           body: Stack(
 
-
               children: <Widget>[
 
 
@@ -310,19 +309,13 @@ class _ParentSignupState extends State<ParentSignup> {
 
                           GestureDetector(
                             onTap: (){
-                              if(status == null){
+                              if(status == null || status == false){
                                 setState(() {
                                   status = true;
                                   parent = "Mother";
                                 });
 
                               }
-
-                              else
-                                setState(() {
-                                  status = !status;
-
-                                });
                             },
                             child:
                           Container(
@@ -348,7 +341,7 @@ class _ParentSignupState extends State<ParentSignup> {
 
                           GestureDetector(
                             onTap: (){
-                              if(status == null){
+                              if(status == null || status == true){
                                 setState(() {
                                   status = false;
                                   parent = "Father";
@@ -356,11 +349,6 @@ class _ParentSignupState extends State<ParentSignup> {
 
                               }
 
-                              else
-                                setState(() {
-                                  status = !status;
-
-                                });
                             },
                             child:
                             Container(
@@ -922,7 +910,6 @@ class _ParentSignupState extends State<ParentSignup> {
                               });
 
                            if(changedName == true){
-
                               UserManagement.updateFirstName(name);
                            }
 
@@ -938,14 +925,27 @@ class _ParentSignupState extends State<ParentSignup> {
                                _district);
                             UserManagement.updateProvince(
                                _province);
+                            if(picUrl == null){
+                                picUrl = "https://t4.ftcdn.net/jpg/00/64/67/63/240_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg";
+                            }
                            await UserManagement.updateProfilePicture(
-                               picUrl);
+                               picUrl).then((val){
+                             Navigator.of(context).pop();
+                             Navigator.push(context,
+                                 MaterialPageRoute(
 
-                           Navigator.of(context).pop();
-                           Navigator.push(context,
-                               MaterialPageRoute(
-                                   builder: (BuildContext context) =>
-                                     MyChild(parent)));
+                                           builder: (context) {
+
+                                             return MyChild(parent);
+                                           }
+                                         ));
+                                 
+                                 
+
+                           });
+
+
+
 
                         }
                       },
@@ -1423,6 +1423,7 @@ class _MyChildState extends State<MyChild>
                   );
                 }),
 
+
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -1432,6 +1433,9 @@ class _MyChildState extends State<MyChild>
 
                 GestureDetector(
                   onTap: ()async {
+
+                    bool alreadyadded;
+
                     showDialog(
                       context: context,
                       builder: (context) =>
@@ -1490,7 +1494,6 @@ class _MyChildState extends State<MyChild>
                     }
 
                     if(parent == "Father"){
-
                       await Firestore.instance.document('students/${childId}')
                           .get()
                           .then((value) async {
@@ -1502,8 +1505,10 @@ class _MyChildState extends State<MyChild>
                         }
 
                         else {
-                          Navigator.of(context).pop();
-                          await showDialog(
+                          setState(() {
+                            alreadyadded = true;
+                          });
+                           showDialog(
                             context: context,
                             builder: (context) =>
                             new AlertDialog(
@@ -1530,6 +1535,7 @@ class _MyChildState extends State<MyChild>
 
                     }
 
+                    if(alreadyadded != true)
                    await  FirebaseAuth.instance.currentUser().then((user){
                        Firestore.instance.collection('users')
                           .where('uid', isEqualTo: user.uid)
@@ -1542,7 +1548,6 @@ class _MyChildState extends State<MyChild>
                        });
                     });
 
-                    Navigator.of(context).pop();
                     Navigator.of(context).pop();
                     Navigator.push(context,
                         MaterialPageRoute(
@@ -1612,7 +1617,7 @@ class _MyChildState extends State<MyChild>
                       ),),
                     )
                 )
-                ): null
+                ): Container()
 
               ],
             )
