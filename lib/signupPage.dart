@@ -16,12 +16,17 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 
 
-class SignUp extends StatefulWidget {
+class SignupPage extends StatefulWidget {
+  SignupPage(this.identity);
+  final identity;
+
   @override
-  _WelcomePageState createState() => _WelcomePageState();
+  _SignupPageState createState() => _SignupPageState(this.identity);
 }
 
-class _WelcomePageState extends State<WelcomePage> {
+class _SignupPageState extends State<SignupPage> {
+  _SignupPageState(this.identity);
+  final identity;
 
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -230,6 +235,7 @@ class _WelcomePageState extends State<WelcomePage> {
     return 'signInWithGoogle succeeded: $user';
   }
 
+
   void signOutGoogle() async {
     await googleSignIn.signOut();
 
@@ -409,7 +415,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
                   Container(
                     padding: EdgeInsets.only(top: 10),
-                    child: Text('Welcome',
+                    child: Text('Sign-up',
                         style: TextStyle(
                           fontFamily: 'Balsamiq',
                           color: Colors.white70,
@@ -541,67 +547,9 @@ class _WelcomePageState extends State<WelcomePage> {
 
                 ),
 
-
-                Container(
-                  child: FlatButton(
-                      child: Text("FORGOT PASSWORD?", style: TextStyle(
-                          fontFamily: 'Balsamiq',
-                          color: Colors.black
-                      ),),
-                      onPressed: () {
-                        String email;
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Enter your email address:'),
-                                content: Container(
-                                  height: 40,
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.only(
-                                          top: 5, left: 10),
-                                      hintText: "E-MAIL",
-                                      border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15))
-                                      ),
-
-                                    ),
-
-                                    onChanged: (value) {
-                                      setState(() {
-                                        email = value.trim();
-                                      });
-
-                                    },
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text("CANCEL", style: TextStyle(
-                                        color: Colors.blue
-                                    ),),
-                                  ),
-                                  FlatButton(
-                                    onPressed: () async{
-                                      validateEmail(email);
-                                    },
-                                    child: Text("OK", style: TextStyle(
-                                        color: Colors.blue
-                                    ),),
-                                  )
-                                ],
-                              );
-                            }
-                        );
-                      }
-                  ),
+                SizedBox(
+                  height: 20,
                 ),
-
 
 
                 Container(
@@ -616,7 +564,7 @@ class _WelcomePageState extends State<WelcomePage> {
                     child: Center(
                       child:
                       FlatButton(
-                        child: Text("LOGIN", style: TextStyle(
+                        child: Text("SIGN-UP", style: TextStyle(
                             fontFamily: 'Balsamiq',
                             fontSize: 18,
                             color: Colors.white
@@ -659,9 +607,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
 
                             } on PlatformException catch (e){
-
-
-
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -701,21 +646,10 @@ class _WelcomePageState extends State<WelcomePage> {
                                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
                                       BuildContext context) =>  OwnerHome()), (route) => false);
                                 }
-
-
-
-
                               });
-
-
                             }
                           }
-
-
-
-
                           else{
-
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -734,49 +668,16 @@ class _WelcomePageState extends State<WelcomePage> {
                                 }
                             );
                           }
-
-
                         },
-
                       ),
                     ),
                   ),
                 ),
-
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 100, right: 100),
-                  height: 30,
-
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(15)),
-                        color: Colors.white12
-                    ),
-                    child: Center(
-                      child:
-                      FlatButton(
-                        child: Text("REGISTER", style: TextStyle(
-                            fontFamily: 'Balsamiq',
-                            fontSize: 18,
-                            color: Colors.white
-                        ),),
-                        onPressed: (){
-                          Navigator.push(
-                              context, MaterialPageRoute(builder: (
-                              BuildContext context) => ChooseIdentity()));
-                        },
-
-                      ),
-                    ),
-                  ),
-                ),
-
-
+              SizedBox(
+                height: 20,
+              ),
                 FlatButton(
-                  child: Text("OR CONNECT USING", style: TextStyle(
+                  child: Text("OR SIGN-UP USING", style: TextStyle(
                       color: Colors.black,
                       fontFamily: 'Balsamiq'
                   ),),

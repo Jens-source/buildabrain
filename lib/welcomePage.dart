@@ -39,6 +39,8 @@ class _WelcomePageState extends State<WelcomePage> {
 
 
 
+
+
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
 
 
@@ -65,18 +67,19 @@ class _WelcomePageState extends State<WelcomePage> {
         }
     );
 
+    final FirebaseUser firebaseUser = Fire
 
     final FirebaseUser user = await _auth.signInWithCredential(credential);
-
-
-
 
 
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
 
+
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
+
+
 
 
 
@@ -87,7 +90,6 @@ class _WelcomePageState extends State<WelcomePage> {
     .where('uid', isEqualTo: user.uid)
     .getDocuments()
     .then((value) {
-      Navigator.of(context).pop();
       if(value.documents[0].data['identity'] == "Leader")
         {
           Navigator.push(
@@ -340,10 +342,33 @@ class _WelcomePageState extends State<WelcomePage> {
         .height;
     return new Scaffold(
 
-      backgroundColor: Color.fromRGBO(23, 142, 137, 1),
+      backgroundColor:      Color.fromRGBO(53, 172, 167, 1),
       body: new Stack(
         children: <Widget>[
 
+          Positioned(
+            top: 0,
+            child: Container(
+              height: height/13,
+              width: width,
+              color: Color.fromRGBO(23, 142, 137, 1),
+
+            ),
+          ),
+          Positioned(
+            top: height/13,
+            left: width/100,
+            child:
+          CustomPaint(
+            painter: DrawTriangle(
+    Color.fromRGBO(23, 142, 137, 1),
+
+            ),
+            size: Size(width, height/1.3),
+
+
+          ),
+          ),
           Container(
             width: width,
             height: height / 3,
@@ -827,5 +852,37 @@ class _WelcomePageState extends State<WelcomePage> {
         ],
       ),
     );
+  }
+}
+
+
+
+
+class DrawTriangle extends CustomPainter {
+  Paint _paint;
+
+  DrawTriangle(color) {
+    _paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size,) {
+    var path = Path();
+    path.moveTo( size.width, size.height);
+
+
+
+
+    path.lineTo( size.height, 0);
+    path.lineTo(0, 0);
+    path.close();
+    canvas.drawPath(path, _paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
   }
 }

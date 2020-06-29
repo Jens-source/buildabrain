@@ -6,6 +6,7 @@ import 'package:buildabrain/calendar.dart';
 import 'package:buildabrain/Owner/ownerHome.dart';
 import 'package:buildabrain/chooseIdentity.dart';
 import 'package:buildabrain/profile.dart';
+import 'package:buildabrain/signupPage.dart';
 import 'package:buildabrain/welcomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -81,7 +82,7 @@ void main() async {
 
 
   else if(user == null && _currentUser == null){
-    _defaultHome = ChooseIdentity();
+    _defaultHome =WelcomePage();
   }
 
 
