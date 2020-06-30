@@ -87,21 +87,65 @@ class UserManagement {
 
 
 
-  storeNewTeacher(user, context) {
-    Firestore.instance.collection('/users').add({
+  storeNewTeacher(user, context) async {
+    File qr;
+    var uri = (Uri.parse("https://pierre2106j-qrcode.p.rapidapi.com/api")
+    );
+    var response1;
+    response1 = await http.get(uri.replace(queryParameters: <String, String>{
+
+      "backcolor": "ffffff",
+      "pixel": "9",
+      "ecl": "L %7C M%7C Q %7C H",
+      "forecolor": "000000",
+      "type": "text %7C url %7C tel %7C sms %7C email",
+      "text": user.uid,
+
+
+    },), headers: {
+      "x-rapidapi-host": "pierre2106j-qrcode.p.rapidapi.com",
+      "x-rapidapi-key": "f9f7a1b65fmsh8040df99eaf90e5p164474jsn2ed53a118bcd"
+    });
+
+
+    print("response.body mother: ${response1.body}");
+
+
+
+
+
+
+
+
+    File file = await DefaultCacheManager().getSingleFile(response1.body);
+    var time = DateTime.now();
+    StorageUploadTask task;
+    print("File: ${file}");
+
+
+    final StorageReference firebaseStorageRef =
+    FirebaseStorage.instance.ref().child('teacherQrCodes/${user.uid}.png');
+    task = firebaseStorageRef.putFile(file);
+
+
+    StorageTaskSnapshot snapshot = await task.onComplete;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    print("DownloadUrl: ${downloadUrl}");
+
+
+
+
+  Firestore.instance.collection('/users').add({
       'email': user.email,
       'uid': user.uid,
       'number': 0,
-      'addressLine1' : 0,
-      'addressLine2': 0,
       'district': 0,
       'province': 0,
-      'zip': 0,
       'about': 0,
       'identity': "Teacher",
       'photoUrl': 0,
       'lastName': 0,
-      'assignedClass': 0
+      'qrCodeUrl': downloadUrl,
     }).then((value) {}).catchError((e) {
       print(e);
     });

@@ -81,7 +81,6 @@ class _TeacherSignupState extends State<TeacherSignup> {
     super.initState();
     FirebaseAuth.instance.currentUser().then((users) {
       setState(() {
-        picUrl = users.photoUrl;
         user = users;
         currentUid = users.uid;
 
@@ -190,8 +189,6 @@ class _TeacherSignupState extends State<TeacherSignup> {
                     ),
                   ),
                 ),
-
-
               ),
 
 
@@ -210,15 +207,13 @@ class _TeacherSignupState extends State<TeacherSignup> {
                   },
                   child:
                   Container(
-
-
                     width: 100.0,
                     height: 100.0,
                     decoration: BoxDecoration(
                         image: DecorationImage(
                             image: picUrl != null ? NetworkImage(
                                 picUrl) : AssetImage("lib/Assets/defaultPro.jpg"),
-                            fit: BoxFit.cover
+                            fit: BoxFit.fill
                         ),
 
                         borderRadius: BorderRadius.all(
@@ -312,7 +307,7 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                 ),
 
                                 Container(
-                                    width: width - 200,
+                                    width: width /2,
                                     height: 35,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(
@@ -371,7 +366,7 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                 ),
 
                                 Container(
-                                    width: width - 200,
+                                    width: width /2,
                                     height: 35,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(
@@ -451,7 +446,7 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                     },
                                     child:
                                     Container(
-                                      width: width - 200,
+                                      width: width /2,
                                       height: 35,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.all(Radius.circular(
@@ -516,7 +511,7 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                 ),
 
                                 Container(
-                                    width: width - 200,
+                                    width: width /2,
                                     height: 35,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(
@@ -591,7 +586,7 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                 ),
 
                                 Container(
-                                    width: width - 200,
+                                    width: width/2,
                                     height: 35,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(
@@ -650,7 +645,7 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                 ),
 
                                 Container(
-                                    width: width - 200,
+                                    width: width /2,
                                     height: 35,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(
@@ -709,7 +704,7 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                 ),
 
                                 Container(
-                                    width: width - 200,
+                                    width: width /2,
                                     height: 35,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(
@@ -750,6 +745,74 @@ class _TeacherSignupState extends State<TeacherSignup> {
                             ),
 
 
+                            Row(
+                              children: <Widget>[
+
+
+                                Container(
+                                  padding: EdgeInsets.only(left: 15),
+                                  child: Text("About: (40 words) ", style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold
+                                  ),),
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                SizedBox(
+                                  width: 15,
+                                ),
+
+
+
+                                Container(
+                                    width: width /1.4,
+                                    height: height/8,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(
+                                          15)),
+                                      color: Color.fromRGBO(220, 220, 220, 1),
+                                    ),
+
+                                    child: Center(
+                                      child: Container(
+                                        padding: EdgeInsets.only(left: 15, bottom: 3),
+                                        child: TextFormField(
+                                          maxLines: 4,
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            errorBorder: InputBorder.none,
+                                            disabledBorder: InputBorder.none,
+                                          ),
+
+
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontFamily: 'Balsamiq'
+                                          ),
+                                          onChanged: (value) {
+                                            about = value;
+                                          },
+                                        ),
+                                      ),
+                                    )
+
+
+                                )
+
+
+                              ],
+                            ),
+
+
 
                           ],
                         ),
@@ -763,7 +826,6 @@ class _TeacherSignupState extends State<TeacherSignup> {
                 right: 20,
                 child: Center(
                   child: Container(
-
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
@@ -772,13 +834,11 @@ class _TeacherSignupState extends State<TeacherSignup> {
 
                     ),
                     child:
-
                     IconButton(
-
                       onPressed: () async {
                         if(name == null || lastName == null || birthday == null
                             || _number == null || _street == null || _district == null
-                            || _province == null || status == null){
+                            || _province == null || about == null ){
                           await showDialog(
                               context: context,
                               builder: (context) {
@@ -793,7 +853,6 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                             onPressed: (){
                                               Navigator.of(context).pop();
                                             },
-
                                             child: Text("OK", style: TextStyle(
                                                 color: Colors.blue
                                             ),),
@@ -802,7 +861,6 @@ class _TeacherSignupState extends State<TeacherSignup> {
                                       );
                                     });
                               });
-
                         }
 
                         else{
@@ -821,7 +879,6 @@ class _TeacherSignupState extends State<TeacherSignup> {
                               });
 
                           if(changedName == true){
-
                             UserManagement.updateFirstName(name);
                           }
 
@@ -837,10 +894,12 @@ class _TeacherSignupState extends State<TeacherSignup> {
                               _district);
                           UserManagement.updateProvince(
                               _province);
-                          await UserManagement.updateProfilePicture(
+
+                          UserManagement.updateAbout(about);
+
+                           UserManagement.updateProfilePicture(
                               picUrl);
 
-                          Navigator.of(context).pop();
 
                           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
                               BuildContext context) => MyHomePage()), (route) => false);

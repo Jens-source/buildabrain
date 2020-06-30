@@ -80,7 +80,6 @@ class _ParentSignupState extends State<ParentSignup> {
     super.initState();
     FirebaseAuth.instance.currentUser().then((users) {
       setState(() {
-        picUrl = users.photoUrl;
         user = users;
         currentUid = users.uid;
 
@@ -401,7 +400,7 @@ class _ParentSignupState extends State<ParentSignup> {
                           ),
 
                           Container(
-                              width: width - 200,
+                              width: width /2,
                               height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(
@@ -460,7 +459,7 @@ class _ParentSignupState extends State<ParentSignup> {
                           ),
 
                           Container(
-                              width: width - 200,
+                              width: width /2,
                               height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(
@@ -540,7 +539,7 @@ class _ParentSignupState extends State<ParentSignup> {
                             },
                             child:
                           Container(
-                              width: width - 200,
+                              width: width /2,
                               height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(
@@ -605,7 +604,7 @@ class _ParentSignupState extends State<ParentSignup> {
                           ),
 
                           Container(
-                              width: width - 200,
+                              width: width /2,
                               height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(
@@ -680,7 +679,7 @@ class _ParentSignupState extends State<ParentSignup> {
                           ),
 
                           Container(
-                              width: width - 200,
+                              width: width /2,
                               height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(
@@ -739,7 +738,7 @@ class _ParentSignupState extends State<ParentSignup> {
                           ),
 
                           Container(
-                              width: width - 200,
+                              width: width /2,
                               height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(
@@ -798,7 +797,7 @@ class _ParentSignupState extends State<ParentSignup> {
                           ),
 
                           Container(
-                              width: width - 200,
+                              width: width /2,
                               height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(

@@ -67,7 +67,8 @@ class _WelcomePageState extends State<WelcomePage> {
         }
     );
 
-    final FirebaseUser firebaseUser = Fire
+
+
 
     final FirebaseUser user = await _auth.signInWithCredential(credential);
 
@@ -102,16 +103,12 @@ class _WelcomePageState extends State<WelcomePage> {
             context, MaterialPageRoute(builder: (
             BuildContext context) => MyHomePage()));
       }
-
       else if(value.documents[0].data['identity'] == "Parent")
       {
         Navigator.push(
             context, MaterialPageRoute(builder: (
             BuildContext context) =>ParentHome()));
       }
-
-
-
 
     }).catchError((e)async {
       FirebaseUser us = await FirebaseAuth.instance.currentUser();
@@ -137,7 +134,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                     UserManagement().storeNewTeacher(us,context);
                                     UserManagement.updateFirstName(us.displayName.split(" ")[0]);
                                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                                        BuildContext context) =>  TeacherSignup(us.displayName.split(" "), user.photoUrl)), (route) => false);
+                                        BuildContext context) =>  TeacherSignup(us.displayName.split(" ")[0], user.photoUrl)), (route) => false);
                                   },
                                 ),
                                 ListTile(
