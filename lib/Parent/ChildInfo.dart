@@ -164,6 +164,7 @@ class _ChildInfoState extends State<ChildInfo> {
                           color: Colors.white
                       ),),
 
+
                   ],
                 )
             ),
@@ -712,6 +713,11 @@ class _ChildInfoState extends State<ChildInfo> {
                           ),
 
 
+                          SizedBox(
+                            height: 15,
+                          ),
+
+
                           ListView.builder(
                               physics: NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
@@ -734,11 +740,11 @@ class _ChildInfoState extends State<ChildInfo> {
                                             fontSize: 18
                                         ),),
                                         SizedBox(
-                                          width: 50,
+                                          width: width/10,
                                         ),
 
                                         Container(
-                                            width: width - 200,
+                                            width: width/2,
                                             height: 35,
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.all(

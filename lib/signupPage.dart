@@ -40,6 +40,8 @@ class _SignupPageState extends State<SignupPage> {
 
   AuthCredential credential1;
 
+
+
   Future<String> signInWithGoogle() async {
 
 
@@ -247,16 +249,6 @@ class _SignupPageState extends State<SignupPage> {
 
 
   Future validateEmail(email) async {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              title: Center(
-                child: CircularProgressIndicator(),
-              )
-          );
-        }
-    );
 
     var sign;
 
@@ -297,7 +289,6 @@ class _SignupPageState extends State<SignupPage> {
     if(sign != null && sign.length == 0){
       Navigator.of(context).pop();
       Navigator.of(context).pop();
-
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -573,6 +564,9 @@ class _SignupPageState extends State<SignupPage> {
 
 
                           if(_email != null && _password != null){
+
+
+                            await validateEmail(_email);
 
                             var sign;
 

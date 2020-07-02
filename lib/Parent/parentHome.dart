@@ -139,6 +139,7 @@ SingleTickerProviderStateMixin {
 
           return Scaffold(
               extendBodyBehindAppBar: true,
+              extendBody: true,
               appBar: AppBar(
                 actionsIconTheme: IconThemeData(color: Colors.white),
                 title: Row(
@@ -165,11 +166,6 @@ SingleTickerProviderStateMixin {
                       tab == 4 ? "Settings" : ""),
                     ]
                 ),
-
-
-
-
-
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(
                       bottom: Radius.circular(30),
@@ -194,12 +190,12 @@ SingleTickerProviderStateMixin {
                   controller: tabController,
                   tabs: <Widget>[
 
-                    new Tab(child: Container(padding: EdgeInsets.only(top: 4),child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/home.png", height: 30, color: tab== 0? Colors.white : Colors.white70 , ), Text("HOME", style: TextStyle(fontSize: 9),)],),),),
-                    new Tab(child: Container(padding: EdgeInsets.only(top: 4),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/schedule.png", height: 30, color: tab == 1? Colors.white : Colors.white70  ), Text("SCHEDULE", style: TextStyle(fontSize: 9),)],),),),
-                    new Tab(child: Container(padding: EdgeInsets.only(top: 4),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/qrcode.png", height: 30, color: tab == 2? Colors.white : Colors.white70  ), Text("CHECK-IN", style: TextStyle(fontSize: 9),)],),),),
-                    new Tab(child: Container(padding: EdgeInsets.only(top: 4),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/notify.png", height: 30, color: tab == 3? Colors.white : Colors.white70  ), Text("NOTIFY", style: TextStyle(fontSize: 9),)],),),),
+                    new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/home.png", height: 25, color: tab== 0? Colors.white : Colors.white70 , ), Text("HOME", style: TextStyle(fontSize: 7),)],),),),
+                    new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/schedule.png", height: 25, color: tab == 1? Colors.white : Colors.white70  ), Text("SCHEDULE", style: TextStyle(fontSize: 7),)],),),),
+                    new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/qrcode.png", height: 30, color: tab == 2? Colors.white : Colors.white70  ), Text("CHECK-IN", style: TextStyle(fontSize: 7),)],),),),
+                    new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/notify.png", height: 25, color: tab == 3? Colors.white : Colors.white70  ), Text("NOTIFY", style: TextStyle(fontSize: 7),)],),),),
 
-                    new Tab(child: Container(padding: EdgeInsets.only(top: 4),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/settings.png", height: 30,  color: tab == 4? Colors.white : Colors.white70 ), Text("SETTINGS", style: TextStyle(fontSize: 9),)],),),),
+                    new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/settings.png", height: 25,  color: tab == 4? Colors.white : Colors.white70 ), Text("SETTINGS", style: TextStyle(fontSize: 7),)],),),),
                   ],
                 ),
               ),
@@ -249,7 +245,9 @@ SingleTickerProviderStateMixin {
 
                       ),
                       trailing: Icon(Icons.av_timer),
-                      onTap: () {},
+                      onTap: () {
+
+                      },
                     ),
 
 

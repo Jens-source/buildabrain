@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:buildabrain/Owner/ownerHome.dart';
 import 'package:buildabrain/Parent/parentHome.dart';
 import 'package:buildabrain/Parent/parentSignup.dart';
@@ -7,11 +9,13 @@ import 'package:buildabrain/chooseIdentity.dart';
 import 'package:buildabrain/Teacher/teacherSignup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'main.dart';
 import 'services/userManagement.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 
 
 
@@ -27,6 +31,8 @@ class _WelcomePageState extends State<WelcomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
   GoogleSignInAccount _currentUser;
+
+
 
 
 
@@ -644,15 +650,9 @@ class _WelcomePageState extends State<WelcomePage> {
                         color: Colors.white
                       ),),
                       onPressed: ()async {
-
-
                         if(_email != null && _password != null){
-
                           var sign;
-
-
                           try {
-
                             if(sign == null) {
                               showDialog(
                                   context: context,
@@ -665,8 +665,6 @@ class _WelcomePageState extends State<WelcomePage> {
                                   }
                               );
                             }
-
-
                             await FirebaseAuth.instance.signInWithEmailAndPassword(
                                 email: _email,
                                 password: _password).then((value) {
@@ -675,15 +673,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                });
                             });
 
-
-
-
-
-
                           } on PlatformException catch (e){
-
-
-
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -737,21 +727,23 @@ class _WelcomePageState extends State<WelcomePage> {
 
 
                         else{
-
                           showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
                                     title: Text("Please enter your credentials"),
-                                  content: FlatButton(
-                                    child: Text("OK", style: TextStyle(
-                                      color: Colors.blue
-                                    ),),
-                                    onPressed: (){
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
+                                  actions: [
+                                    FlatButton(
+                                      child: Text("OK", style: TextStyle(
+                                          color: Colors.blue
+                                      ),),
+                                      onPressed: (){
+                                        Navigator.of(context).pop();
+
+                                      },
+                                    ),
+                                  ],
+
                                 );
                               }
                           );
@@ -832,7 +824,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
                   GestureDetector(
                       onTap: (){
-
                       },
                     child:
                   Container(

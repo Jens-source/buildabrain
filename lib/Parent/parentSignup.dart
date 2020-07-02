@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:buildabrain/Parent/parentHome.dart';
+import 'package:buildabrain/main.dart';
 import 'package:buildabrain/welcomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -1416,6 +1417,21 @@ class _MyChildState extends State<MyChild>
 
                         ),
                         subtitle: Text(children[i].data['classType']),
+                        
+                        
+                        trailing: children[i].data['classType'] == "preschoolers" ?
+
+                        Image.asset("lib/Assets/preschool.png") :
+
+                        children[i].data['classType'] == "junior" ?
+
+                        Image.asset("lib/Assets/junior.png") :
+
+
+                        children[i].data['classType'] == "advanced" ?
+
+                        Image.asset("lib/Assets/advanced.png") :
+                            Container()
 
                       ),
                     ),
@@ -1496,6 +1512,7 @@ class _MyChildState extends State<MyChild>
                       await Firestore.instance.document('students/${childId}')
                           .get()
                           .then((value) async {
+                            child = value;
                         if(value.data['fatherUid'] == 0){
                           Firestore.instance.document('students/${childId}')
                               .updateData({
@@ -1507,6 +1524,8 @@ class _MyChildState extends State<MyChild>
                           setState(() {
                             alreadyadded = true;
                           });
+                          Navigator.of(context).pop();
+
                            showDialog(
                             context: context,
                             builder: (context) =>
@@ -1534,24 +1553,31 @@ class _MyChildState extends State<MyChild>
 
                     }
 
-                    if(alreadyadded != true)
-                   await  FirebaseAuth.instance.currentUser().then((user){
-                       Firestore.instance.collection('users')
-                          .where('uid', isEqualTo: user.uid)
-                           .getDocuments()
-                           .then((docs) {
-                             Firestore.instance.collection('users/${docs.documents[0].documentID}/children')
-                                 .add({
-                                    'childId': childId,
-                             });
-                       });
-                    });
+                    if(alreadyadded != true){
+                      await  FirebaseAuth.instance.currentUser().then((user){
+                        Firestore.instance.collection('users')
+                            .where('uid', isEqualTo: user.uid)
+                            .getDocuments()
+                            .then((docs) {
+                          Firestore.instance.collection('users/${docs.documents[0].documentID}/children')
+                              .add({
+                            'childId': childId,
+                          });
+                        });
+                      }).then((value) {
+                        Navigator.of(context).pop();
 
-                    Navigator.of(context).pop();
-                    Navigator.push(context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                ChildInfo(child, null)));
+                        if(child != null){
+                          Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      ChildInfo(child, null)));
+
+                        }
+
+                      });
+                    }
+
 
 
                   },
@@ -1591,7 +1617,7 @@ class _MyChildState extends State<MyChild>
                 GestureDetector(
                   onTap: (){
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                        BuildContext context) => ParentHome()), (route) => false);
+                        BuildContext context) => MyApp(ParentHome)), (route) => false);
                   },
                   child:
                 Container(
