@@ -310,7 +310,7 @@ class _ChildState extends State<Child> {
         .height;
 
     for(int i = 0; i < 8 - childTimestamps.documents.length; i++){
-      
+
     }
 
 
