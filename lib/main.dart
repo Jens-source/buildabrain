@@ -33,21 +33,21 @@ void main() async {
   });
 
 
-  if(user != null){
+  if(user.hashCode != null){
     await Firestore.instance.collection('users')
         .where('uid', isEqualTo: user.uid)
         .getDocuments()
-        .then((value) => {
+        .then((value)  {
           if(value.documents[0].data['identity'] == "Teacher"){
-            _defaultHome = WelcomePage()
+            _defaultHome = WelcomePage();
           }
 
           else if(value.documents[0].data['identity'] == "Leader"){
-            _defaultHome = OwnerHome()
+            _defaultHome = OwnerHome();
           }
 
           else if(value.documents[0].data['identity'] == "Parent"){
-              _defaultHome = ParentHome()
+              _defaultHome = ParentHome(value);
             }
     }).catchError((error){
         _defaultHome = WelcomePage();
@@ -71,7 +71,7 @@ void main() async {
 
 
       else if(value.documents[0].data['identity'] == "Parent"){
-          _defaultHome = ParentHome()
+          _defaultHome = ParentHome(value)
         }
 
 

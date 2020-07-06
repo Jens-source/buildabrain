@@ -113,7 +113,7 @@ class _WelcomePageState extends State<WelcomePage> {
       {
         Navigator.push(
             context, MaterialPageRoute(builder: (
-            BuildContext context) =>ParentHome()));
+            BuildContext context) =>ParentHome(value)));
       }
 
     }).catchError((e)async {
@@ -706,7 +706,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
                                   else if(value.documents[0].data['identity'] == "Parent")  {
                                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                                        BuildContext context) =>  ParentHome()), (route) => false);
+                                        BuildContext context) =>  ParentHome(value)), (route) => false);
                                   }
 
                                   else if(value.documents[0].data['identity'] == "Leader")  {

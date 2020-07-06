@@ -2,6 +2,7 @@
 
 
 import 'package:buildabrain/Parent/parentCalendar.dart';
+import 'package:buildabrain/Parent/scanChild.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,12 +14,18 @@ import '../calendar.dart';
 
 
 class ParentHome extends StatefulWidget {
+  ParentHome(this.parent);
+  final parent;
+
   @override
-  _ParentHomeState createState() => _ParentHomeState();
+  _ParentHomeState createState() => _ParentHomeState(this.parent);
 }
 
 class _ParentHomeState extends State<ParentHome> with
 SingleTickerProviderStateMixin {
+  _ParentHomeState(this.parent);
+  final parent;
+
 
 
   List<Widget> photoUrlList = [];
@@ -29,6 +36,15 @@ SingleTickerProviderStateMixin {
   QuerySnapshot promotions;
   int _current = 0;
   TabController tabController;
+  TabController _tabController;
+  List<Tab> tabs = [];
+  List<Widget> child = [];
+  QuerySnapshot childSchedules;
+  QuerySnapshot childTimestamps;
+  QuerySnapshot childrenSnapshot;
+
+
+
 
 
 
@@ -64,6 +80,44 @@ SingleTickerProviderStateMixin {
     photoUrlList = photoUrl;
   }
 
+  Future getDocs(QuerySnapshot childrenSnap) async{
+
+    for(int i = 0; i < childrenSnap.documents.length; i++){
+
+      tabs.add(Tab(child: Text(childrenSnap.documents[i].data['nickName'], style: TextStyle(
+          fontFamily: 'Balsamiq',
+          fontSize: 20
+      ),),));
+
+
+      await Firestore.instance.collection('students/${childrenSnap.documents[i].documentID}/schedules').getDocuments().then((value) {
+
+          childSchedules = value;
+
+
+      });
+      await Firestore.instance.collection('students/${childrenSnap.documents[i].documentID}/timestamps').getDocuments().then((volue) {
+
+          childTimestamps = volue;
+
+      });
+
+      if(childSchedules.documents.length != 0 ) {
+
+          child.add(Tab(
+              child: Child(childrenSnap.documents[i], childSchedules,
+                  childTimestamps))
+          );
+
+
+      }
+
+
+
+    }
+
+
+  }
 
 
   @override
@@ -71,13 +125,26 @@ SingleTickerProviderStateMixin {
 
     super.initState();
     tabController = new TabController(length: 5, vsync: this);
-
     tab = tabController.index;
 
 
-    FirebaseAuth.instance.currentUser().then((value) {
-      setState(() {
-        user = value;
+      if(parent.documents[0].data['status'] == "Mother"){
+        status = "motherUid";
+      }
+      else if(parent.documents[0].data['status'] == "Father"){
+        status = "fatherUid";
+
+      }
+
+      Firestore.instance.collection('students').where(
+          status, isEqualTo: parent.documents[0].data['uid'])
+          .getDocuments()
+          .then((value) {
+        setState(() {
+          childrenSnapshot = value;
+          getDocs(value);
+
+        });
       });
 
       setState(() {
@@ -91,12 +158,12 @@ SingleTickerProviderStateMixin {
           timeOfDay = "Good Afternoon";
         }
       });
-    });
+
+
+
   }
 
-  DocumentSnapshot parent;
   String status;
-
 
 
 
@@ -113,31 +180,10 @@ SingleTickerProviderStateMixin {
         .size
         .height;
 
-    if (user == null) {
-      return Center(
-          child: CircularProgressIndicator()
-      );
-    }
 
-    return StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance.collection('users').where(
-            'uid', isEqualTo: user.uid).snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          parent = snapshot.data.documents[0];
-          if(parent.data['status'] == "Mother"){
-            status = "motherUid";
-          }
-          else if(parent.data['status'] == "Father"){
-            status = "fatherUid";
 
-          }
 
-          return Scaffold(
+     return Scaffold(
               extendBodyBehindAppBar: true,
               extendBody: true,
               appBar: AppBar(
@@ -150,7 +196,7 @@ SingleTickerProviderStateMixin {
                         height: 50,
                         child:
                         CircleAvatar(
-                          backgroundImage: NetworkImage(parent['photoUrl']),
+                          backgroundImage: NetworkImage(parent.documents[0].data['photoUrl']),
                         ),
                       ),
                       SizedBox(
@@ -158,7 +204,7 @@ SingleTickerProviderStateMixin {
                       ),
 
 
-                      Text(tab == 0 ? "${timeOfDay}... \n${parent['firstName']}" :
+                      Text(tab == 0 ? "${timeOfDay}... \n${parent.documents[0].data['firstName']}" :
 
                       tab == 1 ? "Schedule" :
                       tab == 2 ? "Check-In" :
@@ -194,7 +240,6 @@ SingleTickerProviderStateMixin {
                     new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/schedule.png", height: 25, color: tab == 1? Colors.white : Colors.white70  ), Text("SCHEDULE", style: TextStyle(fontSize: 7),)],),),),
                     new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/qrcode.png", height: 30, color: tab == 2? Colors.white : Colors.white70  ), Text("CHECK-IN", style: TextStyle(fontSize: 7),)],),),),
                     new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/notify.png", height: 25, color: tab == 3? Colors.white : Colors.white70  ), Text("NOTIFY", style: TextStyle(fontSize: 7),)],),),),
-
                     new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/settings.png", height: 25,  color: tab == 4? Colors.white : Colors.white70 ), Text("SETTINGS", style: TextStyle(fontSize: 7),)],),),),
                   ],
                 ),
@@ -319,6 +364,13 @@ SingleTickerProviderStateMixin {
                                     }
                                     setPhotoWidgets(context, snapshot.data);
 
+                                    if(photoUrlList.length == 0){
+                                      return new Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+
+                                    else
 
                                     return Stack(
                                         alignment: Alignment.topCenter,
@@ -673,23 +725,16 @@ SingleTickerProviderStateMixin {
                           )
                         ]
                     ),
-                    StreamBuilder<QuerySnapshot>(
-                      stream: Firestore.instance.collection('students').where(status, isEqualTo: parent.data['uid']).snapshots(),
-                      builder: (context, snapshot) {
-                        if(!snapshot.hasData){
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return ParentCalendar(snapshot);
-                      }
-                    ),
-                    Container(),
+
+
+
+
+                  ParentCalendar(childrenSnapshot, child, _tabController,  tabs) ,
+
+                    ScanChild(childrenSnapshot, _tabController, tabs),
                     Container(),
                     Container(),
                   ])
           );
         }
-    );
   }
-}
