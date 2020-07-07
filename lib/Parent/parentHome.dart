@@ -3,6 +3,8 @@
 
 import 'package:buildabrain/Parent/parentCalendar.dart';
 import 'package:buildabrain/Parent/scanChild.dart';
+import 'package:buildabrain/aboutUs.dart';
+import 'package:buildabrain/welcomePage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -72,9 +74,14 @@ SingleTickerProviderStateMixin {
     List<Widget> photoUrl = [];
 
     for (int i = 0; i < snapshot.documents.length; i++) {
-      photoUrl.add(Image.network(
-        snapshot.documents[i].data['photoUrl'], fit: BoxFit.cover,
-        width: width,));
+      photoUrl.add(
+        FadeInImage.assetNetwork(
+          placeholder: 'assets/loading.gif',
+          placeholderScale: 1,
+          image:snapshot.documents[i].data['photoUrl'], fit: BoxFit.cover,
+          width: width,
+        ));
+
     }
 
     photoUrlList = photoUrl;
@@ -247,16 +254,15 @@ SingleTickerProviderStateMixin {
 
 
               endDrawer: Drawer(
-
                 child: ListView(
                   // Important: Remove any padding from the ListView.
                   padding: EdgeInsets.zero,
                   children: <Widget>[
                     DrawerHeader(
                       decoration: BoxDecoration(
-                          color: Colors.white,
+
                           image: DecorationImage(
-                              image: AssetImage("lib/Assets/bdblogo.jpg",)
+                              image: AssetImage("lib/Assets/bdblogo.png",)
 
                           )
                       ),
@@ -269,59 +275,35 @@ SingleTickerProviderStateMixin {
                       },
                     ),
                     ListTile(
-                      title: DropdownButton(
-                        hint: Text("Sign into classroom", style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                        ),),
-                        elevation: 0,
-                        underline: Container(
-                          height: 2,
-                          color: Colors.white12,
-                        ),
-
-                        icon: Container(),
-                        style: TextStyle(color: Colors.black),
-                        onChanged: (newValue) {
-                          setState(() {
-
-                          });
-                        },
-
-                      ),
-                      trailing: Icon(Icons.av_timer),
+                      title: Text('About Buildabrain'),
+                      trailing: Icon(Icons.info),
                       onTap: () {
-
-                      },
-                    ),
-
-
-                    ListTile(
-                      title: Text('Performance'),
-                      trailing: Icon(Icons.person),
-                      onTap: () {
-
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context, MaterialPageRoute(builder: (
+                            BuildContext context) => AboutUs()));
                       },
                     ),
                     ListTile(
-                      title: Text('Payment'),
-                      trailing: Icon(Icons.attach_money),
-                      onTap: () {
-
-                      },
-                    ),
-                    ListTile(
-                      title: Text("Calendar"),
-                      trailing: Icon(Icons.calendar_today),
+                      title: Text('Help Center'),
+                      trailing: Icon(Icons.help),
                       onTap: () {
                         Navigator.pop(context);
                       },
                     ),
                     ListTile(
-                      title: Text("Gallery"),
-                      trailing: Icon(Icons.image),
+                      title: Text('Contact Us'),
+                      trailing: Icon(Icons.location_on),
                       onTap: () {
+                        Navigator.pop(context);
 
+                      },
+                    ),
+                    ListTile(
+                      title: Text("Special Events"),
+                      trailing: Icon(Icons.event),
+                      onTap: () {
+                        Navigator.pop(context);
                       },
                     ),
 
@@ -329,6 +311,35 @@ SingleTickerProviderStateMixin {
                       title: Text("Sign Out"),
                       trailing: Icon(Icons.exit_to_app),
                       onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Are you sure yuo want to sign out?"),
+                                actions: [
+                                   FlatButton(
+                                    child: Text("OK", style: TextStyle(
+                                        color: Colors.blue
+                                    ),),
+                                    onPressed: (){
+                                      FirebaseAuth.instance.signOut();
+                                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
+                                          BuildContext context) =>  WelcomePage()), (route) => false);
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: Text("CANCEL", style: TextStyle(
+                                        color: Colors.blue
+                                    ),),
+                                    onPressed: (){
+                                     Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+
+                              );
+                            }
+                        );
 
                       },
                     )

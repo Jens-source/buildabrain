@@ -71,6 +71,10 @@ flutter:
         - asset: fonts/Balsamiq_Sans/BalsamiqSans-Italic.ttf
         - asset: fonts/Balsamiq_Sans/BalsamiqSans-Regular.ttf
 
+    - family: Alphin
+      fonts:
+        - asset: fonts/aboutus.ttf
+
 
 
 
@@ -80,7 +84,7 @@ flutter:
     - lib/Assets/conversation.png
     - lib/Assets/hand.png
     - lib/Assets/qrcode.png
-    - lib/Assets/bdblogo.jpg
+    - lib/Assets/bdblogo.png
     - lib/Assets/jungle.jpg
     - lib/Assets/face.jpg
     - lib/Assets/upper.png
@@ -105,6 +109,13 @@ flutter:
     - lib/Assets/schedule.png
     - lib/Assets/settings.png
     - lib/Assets/notify.png
+    - lib/Assets/aboutus1.jpg
+    - lib/Assets/aboutus2.jpg
+    - lib/Assets/aboutus3.jpg
+    - lib/Assets/aboutus4.png
+    - lib/Assets/aboutus5.png
+    - lib/Assets/aboutus6.jpg
+    - assets/loading.gif
 
 
 

@@ -33,7 +33,7 @@ void main() async {
   });
 
 
-  if(user.hashCode != null){
+  if(user != null){
     await Firestore.instance.collection('users')
         .where('uid', isEqualTo: user.uid)
         .getDocuments()

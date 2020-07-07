@@ -101,19 +101,20 @@ class _WelcomePageState extends State<WelcomePage> {
         {
           Navigator.push(
               context, MaterialPageRoute(builder: (
-              BuildContext context) => OwnerHome()));
+
+              BuildContext context) =>  MyApp(OwnerHome)));
         }
       else if(value.documents[0].data['identity'] == "Teacher")
       {
         Navigator.push(
             context, MaterialPageRoute(builder: (
-            BuildContext context) => MyHomePage()));
+            BuildContext context) => MyApp(MyHomePage)));
       }
       else if(value.documents[0].data['identity'] == "Parent")
       {
         Navigator.push(
             context, MaterialPageRoute(builder: (
-            BuildContext context) =>ParentHome(value)));
+            BuildContext context) =>MyApp(ParentHome(value))));
       }
 
     }).catchError((e)async {
@@ -407,7 +408,8 @@ class _WelcomePageState extends State<WelcomePage> {
                     new CircleAvatar(
                       backgroundImage: AssetImage(
 
-                        "lib/Assets/bdblogo.jpg",),
+                        "lib/Assets/bdblogo.png",),
+                      backgroundColor: Colors.white,
 
                     )
 
@@ -699,19 +701,20 @@ class _WelcomePageState extends State<WelcomePage> {
                                 .where('uid', isEqualTo: e.uid)
                                 .getDocuments()
                                 .then((value) {
+                              Navigator.of(context).pop();
                                   if(value.documents[0].data['identity'] == "Teacher")  {
                                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                                        BuildContext context) =>  MyHomePage()), (route) => false);
+                                        BuildContext context) => MyApp(MyHomePage)), (route) => false);
                                   }
 
                                   else if(value.documents[0].data['identity'] == "Parent")  {
                                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                                        BuildContext context) =>  ParentHome(value)), (route) => false);
+                                        BuildContext context) =>  MyApp(ParentHome(value))), (route) => false);
                                   }
 
                                   else if(value.documents[0].data['identity'] == "Leader")  {
                                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                                        BuildContext context) =>  OwnerHome()), (route) => false);
+                                        BuildContext context) =>  MyApp(OwnerHome)), (route) => false);
                                   }
 
 

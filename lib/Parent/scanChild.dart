@@ -76,7 +76,12 @@ class _ScanChildState extends State<ScanChild> with SingleTickerProviderStateMix
 
                   ),
                   child:  Container(
-                  child: Image.network(childrenSnap.documents[i].data['qrCodeUrl'] ,),
+                  child: FadeInImage.assetNetwork(
+                    placeholder: 'assets/loading.gif',
+                    image:childrenSnap.documents[i].data['qrCodeUrl'],
+                  )
+
+
                   )
 
                 )
