@@ -16,7 +16,9 @@ class UserManagement {
 
 
   storeNewUser(user, context) {
+
     Firestore.instance.collection('/users').add({
+      'signedUpDate': DateFormat("yyyy-MM-dd").format(DateTime.now()),
       'firstName': 0,
       'lastName': 0,
       'email': user.email,
@@ -38,6 +40,7 @@ class UserManagement {
 
   storeNewParent(user, context) {
     Firestore.instance.collection('/users').add({
+      'signedUpDate': DateFormat("yyyy-MM-dd").format(DateTime.now()),
       'firstName': 0,
       'lastName': 0,
       'email': user.email,
@@ -111,12 +114,6 @@ class UserManagement {
     print("response.body mother: ${response1.body}");
 
 
-
-
-
-
-
-
     File file = await DefaultCacheManager().getSingleFile(response1.body);
     var time = DateTime.now();
     StorageUploadTask task;
@@ -136,6 +133,7 @@ class UserManagement {
 
 
   Firestore.instance.collection('/users').add({
+    'signedUpDate': DateFormat("yyyy-MM-dd").format(DateTime.now()),
       'email': user.email,
       'uid': user.uid,
       'number': 0,

@@ -33,7 +33,11 @@ class _ParentCalendarState extends State<ParentCalendar> with SingleTickerProvid
 
 
 
-@override
+
+
+
+
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -112,6 +116,17 @@ class _ChildState extends State<Child> {
 
   CalendarController _calendarController;
   Map<DateTime, List> _events = {};
+  final Map<DateTime, List> _holidays = {
+    DateTime(2020, 7, 28): ["King Vajiralongkorn's Birthday"],
+    DateTime(2020, 8, 12): ["Her Majesty the Queen Mother's Birthday"],
+    DateTime(2020, 10, 13): ["Passing of His Majesty the Late King"],
+    DateTime(2020, 10, 23): ["Chulalongkorn Memorial Day"],
+    DateTime(2020, 12, 5): ["His Majesty the Late King's Birthday"],
+    DateTime(2020, 12, 7): ["His Majesty the Late King's Birthday Holiday"],
+    DateTime(2020, 12, 10): ["Constitution Day"],
+    DateTime(2020, 12, 25): ["Christmas Day"],
+  };
+
 
 
   Container _scheduleCard(title, className, weekDay, startTime, endTime,) {
@@ -232,28 +247,112 @@ class _ChildState extends State<Child> {
 
   DateTime now = DateTime.now();
 
+  Paint paint = Paint();
+
+
   @override
   initState() {
     super.initState();
+    paint.color = Colors.white38;
+    paint.strokeWidth = 10;
+    paint.style = PaintingStyle.fill;
+
     _calendarController = CalendarController();
     availableDates.clear();
     count = 8 - childTimestamps.documents.length;
     int listLength = childTimestamps.documents.length + 1;
 
+
+    List<String> previousTimestamps = [];
+    bool search = false;
+
+
+
+
+
+
+
+
+
+
+
     for(int i = 0; i  < childTimestamps.documents.length; i++){
-
       _events[DateTime.parse(childTimestamps.documents[i].data['date'])] = new List(i + 1);
-
+      previousTimestamps.add(childTimestamps.documents[i].data['date']);
     }
+
+
+    previousTimestamps.sort((a, b){
+      return a.compareTo(b);
+    });
+
+    print(previousTimestamps.last);
+    DateTime lastDay = DateTime.parse(previousTimestamps.last);
+    int missedDates = 0;
+
+
+
+    while(search == false) {
+      if (childSchedules.documents.length == 1) {
+        if (DateFormat("yyy-MM-dd").format(lastDay) ==
+            DateFormat("yyyy-MM-dd").format(DateTime.now())) {
+          search = true;
+        }
+
+        else {
+          lastDay = lastDay.add(Duration(days: 1));
+          if (DateFormat("EEEE").format(lastDay) ==
+              childSchedules.documents[0].data['classDay'].toString()) {
+            missedDates++;
+          }
+        }
+      }
+      if (childSchedules.documents.length == 2) {
+        if (DateFormat("yyy-MM-dd").format(lastDay) ==
+            DateFormat("yyyy-MM-dd").format(DateTime.now())) {
+          search = true;
+        }
+
+        else {
+          lastDay = lastDay.add(Duration(days: 1));
+          if (DateFormat("EEEE").format(lastDay) ==
+              childSchedules.documents[0].data['classDay'].toString() || DateFormat("EEEE").format(lastDay) ==childSchedules.documents[1].data['classDay'].toString()) {
+            missedDates++;
+          }
+        }
+      }
+    }
+
+    print(missedDates);
+
+
+    count = count - missedDates;
+    listLength = listLength + missedDates;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       while(count > 0 ){
         if(childSchedules.documents.length == 2){
+
           if(DateFormat("EEEE").format(now) ==  childSchedules.documents[0].data['classDay'] ||
               DateFormat("EEEE").format(now) == childSchedules.documents[1].data['classDay']
           ){
             setState(() {
               _events[now] = List(listLength);
               now =  now.add(Duration(days: 1));
+
+
               listLength=  listLength + 1;
 
             });
@@ -261,6 +360,7 @@ class _ChildState extends State<Child> {
           }
           else{
             now =  now.add(Duration(days: 1));
+
           }
         }
         if(childSchedules.documents.length == 1){
@@ -280,15 +380,9 @@ class _ChildState extends State<Child> {
         }
       }
 
-      print(_events.length);
-
-
-
+      print(_events);
 
     }
-
-
-
 
 
   @override
@@ -303,11 +397,8 @@ class _ChildState extends State<Child> {
 
 
     availableDates.clear();
-
-
     return Stack(
         children: [
-
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -331,7 +422,6 @@ class _ChildState extends State<Child> {
                       SizedBox(
                         height: 10,
                       ),
-
 
                       childSchedules.documents.length == 1 ? Row(
                         children: [
@@ -387,6 +477,8 @@ class _ChildState extends State<Child> {
                   child: TableCalendar(
                     formatAnimation: FormatAnimation.slide,
                     events: _events,
+                    holidays: _holidays,
+
 
                     builders: CalendarBuilders(
                       markersBuilder: (context, date, events, holidays) {
@@ -399,6 +491,15 @@ class _ChildState extends State<Child> {
                             ),
                           );
                         }
+                        if (holidays.isNotEmpty) {
+                          children.add(
+                            Positioned(
+                              right: -2,
+                              top: -2,
+                              child: _buildHolidaysMarker(),
+                            ),
+                          );
+                        }
 
 
 
@@ -406,6 +507,11 @@ class _ChildState extends State<Child> {
                       },
                     ),
                     calendarStyle: CalendarStyle(
+
+                      holidayStyle: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 20,
+                      ),
 
                       weekdayStyle: TextStyle(
                         color: Colors.white70,
@@ -487,6 +593,20 @@ class _ChildState extends State<Child> {
           ),
         ),
       ),
+    );
+  }
+  Widget _buildHolidaysMarker() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(1000)),
+        color: Colors.white
+      ),
+    );
+
+      Icon(
+      Icons.add_box,
+      size: 20.0,
+      color: Colors.blueGrey[800],
     );
   }
 }

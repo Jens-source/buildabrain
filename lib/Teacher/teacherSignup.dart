@@ -71,7 +71,6 @@ class _TeacherSignupState extends State<TeacherSignup> {
   String birthday = DateFormat('yyy-MM-dd').format(DateTime.now());
 
 
-
   bool status;
   String parent;
 
@@ -91,8 +90,6 @@ class _TeacherSignupState extends State<TeacherSignup> {
       print(e);
     });
   }
-
-
   Future<bool> _onBackPressed() async {
     showDialog(
       context: context,
@@ -104,13 +101,9 @@ class _TeacherSignupState extends State<TeacherSignup> {
               child: CircularProgressIndicator(),
             ),
           )
-
       ),
     );
-
-
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-
     await Firestore.instance.collection('users')
         .where('uid', isEqualTo: user.uid)
         .getDocuments()

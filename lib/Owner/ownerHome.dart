@@ -184,7 +184,7 @@ class _OwnerHome extends State<OwnerHome> {
   }
 
 
-
+//
   Future<void> scanning() async {
     setState(() {
       scanStudent = "";

@@ -1,4 +1,4 @@
-import 'dart:html';
+
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ class _AboutUsState extends State<AboutUs> {
       child:
       new CustomScrollView(
         dragStartBehavior: dragStartBehavior,
-       
+
 
           slivers: <Widget>[
 
@@ -323,6 +323,9 @@ class _AboutUsState extends State<AboutUs> {
                                     ),),
                                   ],
                                 ),
+                                SizedBox(
+                                  height: 40,
+                                )
 
 
                               ],
@@ -583,8 +586,6 @@ class _AboutUsState extends State<AboutUs> {
                                 ],
                               ),
                             ),
-
-
                             SizedBox(
                               height: 30,
                             )

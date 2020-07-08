@@ -92,7 +92,7 @@ void main() async {
     debugShowCheckedModeBanner: false,
     title: 'App',
     home: AnimatedSplash(
-      imagePath: 'lib/Assets/bdblogo.jpg',
+      imagePath: 'lib/Assets/bdblogo.png',
       home: MyApp(_defaultHome),
       duration: 2500,
       type: AnimatedSplashType.StaticDuration,
