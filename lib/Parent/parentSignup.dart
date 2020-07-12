@@ -275,573 +275,573 @@ class _ParentSignupState extends State<ParentSignup> {
                   padding: EdgeInsets.only(top: height / 4),
                   child: ListView(
                       children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.only(right: width / 10),
-                        child: Text(
-                          "Parent's Information: ", style: TextStyle(
-                            fontSize: 23
-                        ),),
-                      ),
-
-
-                      SizedBox(
-                        height: 5,
-                      ),
-
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 15,
-                          ),
-                          Text("Status", style: TextStyle(
-                              fontSize: 18
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(right: width / 10),
+                          child: Text(
+                            "Parent's Information: ", style: TextStyle(
+                              fontSize: 23
                           ),),
-                          SizedBox(
-                            width: 46,
-                          ),
+                        ),
 
 
+                        SizedBox(
+                          height: 5,
+                        ),
 
-                          GestureDetector(
-                            onTap: (){
-                              if(status == null || status == false){
-                                setState(() {
-                                  status = true;
-                                  parent = "Mother";
-                                });
 
-                              }
-                            },
-                            child:
-                          Container(
-                            width: width / 4.3,
-                            height: 35,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(
-                                  15)),
-                              color: status == true ? Colors.greenAccent : Color.fromRGBO(220, 220, 220, 1),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 15,
                             ),
-                            child: Center(
-                              child: Text("MOTHER", style: TextStyle(
-                                fontFamily: 'Balsamiq',
+                            Text("Status", style: TextStyle(
+                                fontSize: 18
+                            ),),
+                            SizedBox(
+                              width: 46,
+                            ),
 
-                              ),),
-                            )
-                          ),
-                          ),
 
-                          SizedBox(
-                            width: 10,
-                          ),
 
-                          GestureDetector(
-                            onTap: (){
-                              if(status == null || status == true){
-                                setState(() {
-                                  status = false;
-                                  parent = "Father";
-                                });
+                            GestureDetector(
+                              onTap: (){
+                                if(status == null || status == false){
+                                  setState(() {
+                                    status = true;
+                                    parent = "Mother";
+                                  });
 
-                              }
-
-                            },
-                            child:
+                                }
+                              },
+                              child:
                             Container(
-                                width: width / 4.3,
-                                height: 37,
+                              width: width / 4.3,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    15)),
+                                color: status == true ? Colors.greenAccent : Color.fromRGBO(220, 220, 220, 1),
+                              ),
+                              child: Center(
+                                child: Text("MOTHER", style: TextStyle(
+                                  fontFamily: 'Balsamiq',
+
+                                ),),
+                              )
+                            ),
+                            ),
+
+                            SizedBox(
+                              width: 10,
+                            ),
+
+                            GestureDetector(
+                              onTap: (){
+                                if(status == null || status == true){
+                                  setState(() {
+                                    status = false;
+                                    parent = "Father";
+                                  });
+
+                                }
+
+                              },
+                              child:
+                              Container(
+                                  width: width / 4.3,
+                                  height: 37,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(
+                                        15)),
+                                    color: status == false ? Colors.greenAccent : Color.fromRGBO(220, 220, 220, 1),
+                                  ),
+                                  child: Center(
+                                    child: Text("FATHER", style: TextStyle(
+                                      fontFamily: 'Balsamiq',
+
+                                    ),),
+                                  )
+                              ),
+                            ),
+
+
+
+
+
+
+
+
+
+
+                          ],
+                        ),
+
+                        SizedBox(
+                          height: 10,
+                        ),
+
+
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 15,
+                            ),
+
+                            Text("First Name", style: TextStyle(
+                                fontSize: 18
+                            ),),
+                            SizedBox(
+                              width: 10,
+                            ),
+
+                            Container(
+                                width: width /2,
+                                height: 35,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.all(Radius.circular(
                                       15)),
-                                  color: status == false ? Colors.greenAccent : Color.fromRGBO(220, 220, 220, 1),
+                                  color: Color.fromRGBO(220, 220, 220, 1),
                                 ),
+
                                 child: Center(
-                                  child: Text("FATHER", style: TextStyle(
-                                    fontFamily: 'Balsamiq',
+                                  child: Container(
+                                    padding: EdgeInsets.only(left: 15, bottom: 3),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                      ),
 
-                                  ),),
+                                      initialValue: name,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'Balsamiq'
+                                      ),
+                                      onChanged: (value) {
+                                        changedName = true;
+                                        name = value;
+                                      },
+                                    ),
+                                  ),
                                 )
+
+
+                            )
+
+
+                          ],
+                        ),
+
+
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 15,
                             ),
-                          ),
 
-
-
-
-
-
-
-
-
-
-                        ],
-                      ),
-
-                      SizedBox(
-                        height: 10,
-                      ),
-
-
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 15,
-                          ),
-
-                          Text("First Name", style: TextStyle(
-                              fontSize: 18
-                          ),),
-                          SizedBox(
-                            width: 10,
-                          ),
-
-                          Container(
-                              width: width /2,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    15)),
-                                color: Color.fromRGBO(220, 220, 220, 1),
-                              ),
-
-                              child: Center(
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 15, bottom: 3),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
-                                    ),
-
-                                    initialValue: name,
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'Balsamiq'
-                                    ),
-                                    onChanged: (value) {
-                                      changedName = true;
-                                      name = value;
-                                    },
-                                  ),
-                                ),
-                              )
-
-
-                          )
-
-
-                        ],
-                      ),
-
-
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 15,
-                          ),
-
-                          Text("Last Name", style: TextStyle(
-                              fontSize: 18
-                          ),),
-                          SizedBox(
-                            width: 12,
-                          ),
-
-                          Container(
-                              width: width /2,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    15)),
-                                color: Color.fromRGBO(220, 220, 220, 1),
-                              ),
-
-                              child: Center(
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 15, bottom: 3),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
-                                    ),
-
-
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'Balsamiq'
-                                    ),
-                                    onChanged: (value) {
-                                      lastName = value;
-                                    },
-                                  ),
-                                ),
-                              )
-
-
-                          )
-
-
-                        ],
-                      ),
-
-
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 15,
-                          ),
-
-                          Text("Birthday", style: TextStyle(
-                              fontSize: 18
-                          ),),
-                          SizedBox(
-                            width: 33,
-                          ),
-
-
-                          GestureDetector(
-                            onTap: (){
-
-                                Future<
-                                    DateTime> selectedDate = showDatePicker(
-
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(1970),
-                                  lastDate: DateTime.now(),
-
-                                ).then((val) {
-                                  setState(() {
-                                    birthday =
-                                        DateFormat('yyyy-MM-dd')
-                                            .format(val);
-                                  });
-                                });
-                            },
-                            child:
-                          Container(
-                              width: width /2,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    15)),
-                                color: Color.fromRGBO(220, 220, 220, 1),
-                              ),
-
-                              child: Center(
-                                child: Container(
-
-
-
-
-                                    child: Row(
-                                      children: <Widget>[
-
-                                        SizedBox(
-                                          width: 15,
-                                        ),
-                                        Text(birthday, style: TextStyle(
-                                          fontSize: 16
-                                        ),),
-
-                                        SizedBox(
-                                          width: 60,
-                                        ),
-
-                                       Icon(
-                                            Icons.edit, color: Colors.grey,
-                                            size: 20,),
-
-                                      ],
-                                    )
-
-
-),
-
-                                ),
-                              )
-
-
-                          )
-
-
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 15,
-                          ),
-
-                          Text("Phone", style: TextStyle(
-                              fontSize: 18
-                          ),),
-                          SizedBox(
-                            width: 48,
-                          ),
-
-                          Container(
-                              width: width /2,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    15)),
-                                color: Color.fromRGBO(220, 220, 220, 1),
-                              ),
-
-                              child: Center(
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 15, bottom: 3),
-                                  child: TextFormField(
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
-                                    ),
-
-
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'Balsamiq'
-                                    ),
-                                    onChanged: (value) {
-                                      _number = value;
-                                    },
-                                  ),
-                                ),
-                              )
-
-
-                          )
-
-
-                        ],
-                      ),
-
-
-                      Row(
-                        children: <Widget>[
-
-
-                          Container(
-                            padding: EdgeInsets.only(left: 15),
-                            child: Text("Address: ", style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold
+                            Text("Last Name", style: TextStyle(
+                                fontSize: 18
                             ),),
-                          ),
-                        ],
-                      ),
+                            SizedBox(
+                              width: 12,
+                            ),
 
-
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 15,
-                          ),
-
-                          Text("Street", style: TextStyle(
-                              fontSize: 18
-                          ),),
-                          SizedBox(
-                            width: 50,
-                          ),
-
-                          Container(
-                              width: width /2,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    15)),
-                                color: Color.fromRGBO(220, 220, 220, 1),
-                              ),
-
-                              child: Center(
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 15, bottom: 3),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
-                                    ),
-
-
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'Balsamiq'
-                                    ),
-                                    onChanged: (value) {
-                                      _street = value;
-                                    },
-                                  ),
+                            Container(
+                                width: width /2,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      15)),
+                                  color: Color.fromRGBO(220, 220, 220, 1),
                                 ),
-                              )
+
+                                child: Center(
+                                  child: Container(
+                                    padding: EdgeInsets.only(left: 15, bottom: 3),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                      ),
 
 
-                          )
-
-
-                        ],
-                      ),
-
-
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 15,
-                          ),
-
-                          Text("District", style: TextStyle(
-                              fontSize: 18
-                          ),),
-                          SizedBox(
-                            width: 42,
-                          ),
-
-                          Container(
-                              width: width /2,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    15)),
-                                color: Color.fromRGBO(220, 220, 220, 1),
-                              ),
-
-                              child: Center(
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 15, bottom: 3),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'Balsamiq'
+                                      ),
+                                      onChanged: (value) {
+                                        lastName = value;
+                                      },
                                     ),
-
-
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'Balsamiq'
-                                    ),
-                                    onChanged: (value) {
-                                      _district = value;
-                                    },
                                   ),
+                                )
+
+
+                            )
+
+
+                          ],
+                        ),
+
+
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 15,
+                            ),
+
+                            Text("Birthday", style: TextStyle(
+                                fontSize: 18
+                            ),),
+                            SizedBox(
+                              width: 33,
+                            ),
+
+
+                            GestureDetector(
+                              onTap: (){
+
+                                  Future<
+                                      DateTime> selectedDate = showDatePicker(
+
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(1970),
+                                    lastDate: DateTime.now(),
+
+                                  ).then((val) {
+                                    setState(() {
+                                      birthday =
+                                          DateFormat('yyyy-MM-dd')
+                                              .format(val);
+                                    });
+                                  });
+                              },
+                              child:
+                            Container(
+                                width: width /2,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      15)),
+                                  color: Color.fromRGBO(220, 220, 220, 1),
                                 ),
-                              )
+
+                                child: Center(
+                                  child: Container(
 
 
-                          )
 
 
-                        ],
-                      ),
+                                      child: Row(
+                                        children: <Widget>[
+
+                                          SizedBox(
+                                            width: 15,
+                                          ),
+                                          Text(birthday, style: TextStyle(
+                                            fontSize: 16
+                                          ),),
+
+                                          SizedBox(
+                                            width: 60,
+                                          ),
+
+                                         Icon(
+                                              Icons.edit, color: Colors.grey,
+                                              size: 20,),
+
+                                        ],
+                                      )
 
 
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 15,
-                          ),
+  ),
 
-                          Text("Province", style: TextStyle(
-                              fontSize: 18
-                          ),),
-                          SizedBox(
-                            width: 30,
-                          ),
-
-                          Container(
-                              width: width /2,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    15)),
-                                color: Color.fromRGBO(220, 220, 220, 1),
-                              ),
-
-                              child: Center(
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 15, bottom: 3),
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
-                                    ),
-
-
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: 'Balsamiq'
-                                    ),
-                                    onChanged: (value) {
-                                      _province = value;
-                                    },
                                   ),
+                                )
+
+
+                            )
+
+
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 15,
+                            ),
+
+                            Text("Phone", style: TextStyle(
+                                fontSize: 18
+                            ),),
+                            SizedBox(
+                              width: 48,
+                            ),
+
+                            Container(
+                                width: width /2,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      15)),
+                                  color: Color.fromRGBO(220, 220, 220, 1),
                                 ),
-                              )
+
+                                child: Center(
+                                  child: Container(
+                                    padding: EdgeInsets.only(left: 15, bottom: 3),
+                                    child: TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                      ),
 
 
-                          )
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'Balsamiq'
+                                      ),
+                                      onChanged: (value) {
+                                        _number = value;
+                                      },
+                                    ),
+                                  ),
+                                )
 
 
-                        ],
-                      ),
+                            )
+
+
+                          ],
+                        ),
+
+
+                        Row(
+                          children: <Widget>[
+
+
+                            Container(
+                              padding: EdgeInsets.only(left: 15),
+                              child: Text("Address: ", style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                              ),),
+                            ),
+                          ],
+                        ),
+
+
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 15,
+                            ),
+
+                            Text("Street", style: TextStyle(
+                                fontSize: 18
+                            ),),
+                            SizedBox(
+                              width: 50,
+                            ),
+
+                            Container(
+                                width: width /2,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      15)),
+                                  color: Color.fromRGBO(220, 220, 220, 1),
+                                ),
+
+                                child: Center(
+                                  child: Container(
+                                    padding: EdgeInsets.only(left: 15, bottom: 3),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                      ),
+
+
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'Balsamiq'
+                                      ),
+                                      onChanged: (value) {
+                                        _street = value;
+                                      },
+                                    ),
+                                  ),
+                                )
+
+
+                            )
+
+
+                          ],
+                        ),
+
+
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 15,
+                            ),
+
+                            Text("District", style: TextStyle(
+                                fontSize: 18
+                            ),),
+                            SizedBox(
+                              width: 42,
+                            ),
+
+                            Container(
+                                width: width /2,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      15)),
+                                  color: Color.fromRGBO(220, 220, 220, 1),
+                                ),
+
+                                child: Center(
+                                  child: Container(
+                                    padding: EdgeInsets.only(left: 15, bottom: 3),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                      ),
+
+
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'Balsamiq'
+                                      ),
+                                      onChanged: (value) {
+                                        _district = value;
+                                      },
+                                    ),
+                                  ),
+                                )
+
+
+                            )
+
+
+                          ],
+                        ),
+
+
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 15,
+                            ),
+
+                            Text("Province", style: TextStyle(
+                                fontSize: 18
+                            ),),
+                            SizedBox(
+                              width: 30,
+                            ),
+
+                            Container(
+                                width: width /2,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(
+                                      15)),
+                                  color: Color.fromRGBO(220, 220, 220, 1),
+                                ),
+
+                                child: Center(
+                                  child: Container(
+                                    padding: EdgeInsets.only(left: 15, bottom: 3),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                      ),
+
+
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'Balsamiq'
+                                      ),
+                                      onChanged: (value) {
+                                        _province = value;
+                                      },
+                                    ),
+                                  ),
+                                )
+
+
+                            )
+
+
+                          ],
+                        ),
 
 
 
-                    ],
-                  ),
+                      ],
+                    ),
                 ]
                 )
                 ),

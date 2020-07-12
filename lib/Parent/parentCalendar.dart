@@ -127,8 +127,6 @@ class _ChildState extends State<Child> {
     DateTime(2020, 12, 25): ["Christmas Day"],
   };
 
-
-
   Container _scheduleCard(title, className, weekDay, startTime, endTime,) {
     String _title;
     AssetImage assetImage;
@@ -334,14 +332,6 @@ class _ChildState extends State<Child> {
 
 
 
-
-
-
-
-
-
-
-
       while(count > 0 ){
         if(childSchedules.documents.length == 2){
 
@@ -471,9 +461,8 @@ class _ChildState extends State<Child> {
 
 
               Container(
-                  padding: EdgeInsets.only(bottom: 40),
+                  padding: EdgeInsets.only(bottom: 45),
                   color: Color.fromRGBO(23, 142, 137, 1),
-
                   child: TableCalendar(
                     formatAnimation: FormatAnimation.slide,
                     events: _events,
@@ -492,25 +481,29 @@ class _ChildState extends State<Child> {
                           );
                         }
                         if (holidays.isNotEmpty) {
-                          children.add(
-                            Positioned(
-                              right: -2,
-                              top: -2,
-                              child: _buildHolidaysMarker(),
+                          children.add((
+                              Center(
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(100)),
+                                  color: Colors.white38
+
+                                ),
+                              )
+                              )
                             ),
                           );
                         }
-
-
-
                         return children;
                       },
                     ),
                     calendarStyle: CalendarStyle(
 
+
                       holidayStyle: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 20,
+
+
                       ),
 
                       weekdayStyle: TextStyle(
@@ -562,7 +555,8 @@ class _ChildState extends State<Child> {
                       weekendStyle: TextStyle(color: Colors.white),
                     ),
                   )
-              )
+              ),
+
 
 
             ],
@@ -595,19 +589,6 @@ class _ChildState extends State<Child> {
       ),
     );
   }
-  Widget _buildHolidaysMarker() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(1000)),
-        color: Colors.white
-      ),
-    );
 
-      Icon(
-      Icons.add_box,
-      size: 20.0,
-      color: Colors.blueGrey[800],
-    );
-  }
 }
 

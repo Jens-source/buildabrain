@@ -512,9 +512,6 @@ class _OwnerHome extends State<OwnerHome> {
                     onTap: () async{
                       scanning();
 
-
-
-
                     },
                       child:
                       Container(

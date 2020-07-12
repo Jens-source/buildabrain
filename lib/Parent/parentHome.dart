@@ -2,6 +2,7 @@
 
 
 import 'package:buildabrain/Parent/parentCalendar.dart';
+import 'package:buildabrain/Parent/parentProfile.dart';
 import 'package:buildabrain/Parent/scanChild.dart';
 import 'package:buildabrain/aboutUs.dart';
 import 'package:buildabrain/welcomePage.dart';
@@ -44,6 +45,7 @@ SingleTickerProviderStateMixin {
   QuerySnapshot childSchedules;
   QuerySnapshot childTimestamps;
   QuerySnapshot childrenSnapshot;
+  QuerySnapshot parentSnapshot;
 
 
 
@@ -198,14 +200,25 @@ SingleTickerProviderStateMixin {
                 title: Row(
                     children: [
 
-                      Container(
-                        width: 50,
-                        height: 50,
-                        child:
-                        CircleAvatar(
-                          backgroundImage: NetworkImage(parent.documents[0].data['photoUrl']),
+                      FlatButton(
+                        onPressed: (){
+                          Navigator.push(
+                              context, MaterialPageRoute(builder: (
+                              BuildContext context) => ParentProfile(parent, childrenSnapshot)));
+                        },
+                       child:  Container(
+                          width: 50,
+                          height: 50,
+                          child:
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(parent.documents[0].data['photoUrl']),
+                          ),
                         ),
+
                       ),
+
+
+
                       SizedBox(
                         width: 20,
                       ),
@@ -578,11 +591,8 @@ SingleTickerProviderStateMixin {
                             ),
                           ),
                           SliverList(
-
                               delegate: SliverChildListDelegate(
                                   [
-
-
                                     Container(
                                         padding: EdgeInsets.only(top: 20,),
                                         child:
@@ -669,16 +679,12 @@ SingleTickerProviderStateMixin {
                                                             width: width / 2.35,
                                                             child: Stack(
                                                                 children: [
-
-
-
                                                                   Positioned(
                                                                     right: width/5,
                                                                     bottom: height/30,
                                                                     height: height/6.5,
                                                                     child: Image.asset("lib/Assets/art.png", color: Colors.white,),
                                                                   ),
-
                                                                   Column(
                                                                     mainAxisAlignment: MainAxisAlignment.end,
                                                                     children: [
@@ -703,7 +709,6 @@ SingleTickerProviderStateMixin {
                                                                             wordSpacing: 2,
                                                                           ),),
                                                                       ),
-
                                                                     ],
                                                                   ),
                                                                 ]
@@ -721,8 +726,6 @@ SingleTickerProviderStateMixin {
                                                             ),
                                                           ),
                                                                         ])
-
-
                                                     ],
                                                   )
                                                 ]
