@@ -284,12 +284,12 @@ class _ChildState extends State<Child> {
       return a.compareTo(b);
     });
 
-    print(previousTimestamps.last);
+
     DateTime lastDay = DateTime.parse(previousTimestamps.last);
     int missedDates = 0;
 
 
-
+    
     while(search == false) {
       if (childSchedules.documents.length == 1) {
         if (DateFormat("yyy-MM-dd").format(lastDay) ==

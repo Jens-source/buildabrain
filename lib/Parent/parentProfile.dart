@@ -53,15 +53,264 @@ class _ParentProfileState extends State<ParentProfile> with
   var squareScaleB = 0.5;
   var squareScaleC = 0.5;
   List<double> squareScaleList = new List();
+  int _selectedIndex = 0;
 
   TabController tabController;
 
   List <AnimationController> _controllerList = new List();
+  List<Widget> childrenWidget = [];
+
+
+    void initChildrenWidgets(childrenLength, height, width) {
+
+     childrenWidget.clear();
+
+
+     for(int i = 0; i < childrenLength; i++)
+     childrenWidget.add(
+         StreamBuilder<QuerySnapshot>(
+             stream: Firestore.instance.collection("students/${childrenSnap.documents[i].documentID}/schedules").snapshots(),
+             builder: (context, snapshot) {
+               if(!snapshot.hasData){
+                 return new Center(
+                   child: CircularProgressIndicator(),
+                 );
+               }
+
+               return Container(
+                 child: ListView(
+                   children: <Widget>[
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.start,
+                       children: <Widget>[
+                         SizedBox(
+                           width: 15,
+                         ),
+
+                         Text("First Name", style: TextStyle(
+                             fontSize: 18
+                         ),),
+                         SizedBox(
+                           width: 10,
+                         ),
+
+                         Container(
+                             width: width /1.9,
+                             height: 35,
+                             decoration: BoxDecoration(
+                               borderRadius: BorderRadius.all(
+                                   Radius.circular(
+                                       15)),
+                               color: Color.fromRGBO(220, 220, 220, 1),
+                             ),
+
+                             child: Center(
+                               child: Container(
+                                 padding: EdgeInsets.only(
+                                     left: 15, bottom: 3),
+                                 child: TextFormField(
+                                   decoration: InputDecoration(
+                                     border: InputBorder.none,
+                                     focusedBorder: InputBorder.none,
+                                     enabledBorder: InputBorder.none,
+                                     errorBorder: InputBorder.none,
+                                     disabledBorder: InputBorder.none,
+                                   ),
+
+
+                                   style: TextStyle(
+                                       fontSize: 18,
+                                       fontFamily: 'Balsamiq'
+                                   ),
+                                   initialValue:  childrenSnap.documents[i].data['firstName'],
+                                   onChanged: (value) {
+                                     changedName = true;
+
+                                   },
+                                 ),
+                               ),
+                             )
+
+
+                         )
+
+
+                       ],
+                     ),
+
+
+                     SizedBox(
+                       height: 10,
+                     ),
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.start,
+                       children: <Widget>[
+                         SizedBox(
+                           width: 15,
+                         ),
+
+                         Text("Last Name", style: TextStyle(
+                             fontSize: 18
+                         ),),
+                         SizedBox(
+                           width: 12,
+                         ),
+
+                         Container(
+                             width: width /1.9,
+                             height: 35,
+                             decoration: BoxDecoration(
+                               borderRadius: BorderRadius.all(
+                                   Radius.circular(
+                                       15)),
+                               color: Color.fromRGBO(220, 220, 220, 1),
+                             ),
+
+                             child: Center(
+                               child: Container(
+                                 padding: EdgeInsets.only(
+                                     left: 15, bottom: 3),
+                                 child: TextFormField(
+                                   decoration: InputDecoration(
+
+                                     border: InputBorder.none,
+                                     focusedBorder: InputBorder.none,
+                                     enabledBorder: InputBorder.none,
+                                     errorBorder: InputBorder.none,
+                                     disabledBorder: InputBorder.none,
+                                   ),
+
+
+                                   style: TextStyle(
+                                       fontSize: 18,
+                                       fontFamily: 'Balsamiq'
+                                   ),
+                                   initialValue: childrenSnap.documents[i].data['lastName'],
+                                   onChanged: (value) {
+                                     lastName = value;
+                                   },
+                                 ),
+                               ),
+                             )
+
+
+                         )
+
+
+                       ],
+                     ),
+
+
+
+                     SizedBox(
+                       height: 40,
+                       child: ListTile(
+
+                         title: Text("Classes", style: TextStyle(
+                             fontSize: 20,
+                             fontWeight: FontWeight.bold
+                         ),),
+
+                       ),
+                     ),
+
+
+                     Container(
+                       padding: EdgeInsets.only(left: 20, top: 5),
+                       child:
+                       Row(
+                         children: <Widget>[
+                           Text(snapshot.data.documents[0].data['classDay'],
+                             style: TextStyle(
+                                 fontSize: 16
+                             ),),
+                           SizedBox(
+                             width: 15,
+                           ),
+                           Text(snapshot.data.documents[0].data['classStartTime'], style: TextStyle(
+                               fontSize: 16
+                           ),),
+                           SizedBox(
+                             width: 7,
+                           ),
+                           Text("-", style: TextStyle(
+                               fontSize: 16
+                           ),),
+                           SizedBox(
+                             width: 7,
+                           ),
+                           Text(snapshot.data.documents[0].data['classEndTime'], style: TextStyle(
+                               fontSize: 16
+                           ),),
+
+
+                         ],
+                       ),
+                     ),
+
+
+                     snapshot.data.documents.length == 2 ?
+                     Container(
+                       padding: EdgeInsets.only(left: 20, top: 5),
+                       child:
+                       Row(
+                         children: <Widget>[
+                           Text("${snapshot.data.documents[1].data['classDay']}",
+                             style: TextStyle(
+                                 fontSize: 16
+                             ),),
+                           SizedBox(
+                             width: 15,
+                           ),
+                           Text("${snapshot.data.documents[1].data['classStartTime']}", style: TextStyle(
+                               fontSize: 16
+                           ),),
+                           SizedBox(
+                             width: 7,
+                           ),
+                           Text("-", style: TextStyle(
+                               fontSize: 16
+                           ),),
+                           SizedBox(
+                             width: 7,
+                           ),
+                           Text("${snapshot.data.documents[0].data['classEndTime']}", style: TextStyle(
+                               fontSize: 16
+                           ),),
+
+
+                         ],
+                       ),
+                     ) : Container(),
+
+
+
+
+
+                     SizedBox(
+                       height: 15,
+                     ),
+
+
+
+
+
+                   ],
+                 ),
+
+               );
+             })
+     );
+
+
+  }
 
 
 
   @override
   void initState() {
+    
+    
     setState(() {
       parent = user.documents[0];
       _number = user.documents[0].data['number'];
@@ -72,12 +321,18 @@ class _ParentProfileState extends State<ParentProfile> with
       _street = parent['street'];
       _province = parent['province'];
       _district = parent['district'];
+
+
+
+
     });
+    
+    
+    
     // TODO: implement initState
     tabController = new TabController(length: childrenSnap.documents.length + 1, vsync: this,);
 
     for(int i = 0; i < tabController.length; i++){
-
       if(i == 0) {
         tabList.add(
             Tab(
@@ -123,6 +378,12 @@ class _ParentProfileState extends State<ParentProfile> with
       }
     }
 
+    tabController.addListener(() {
+      setState(() {
+        _selectedIndex = tabController.index;
+      });
+    });
+
     super.initState();
   }
 
@@ -146,6 +407,10 @@ class _ParentProfileState extends State<ParentProfile> with
         .of(context)
         .size
         .height;
+
+    initChildrenWidgets(childrenSnap.documents.length, height, width);
+
+
 
 
 
@@ -212,9 +477,16 @@ class _ParentProfileState extends State<ParentProfile> with
 
                         child:
                         CircleAvatar(
-                          backgroundImage: NetworkImage(parent['photoUrl']),
+                          backgroundImage: tabController.index == 0 ? NetworkImage(parent['photoUrl']) :
+                          tabController.index == 1 ? NetworkImage(childrenSnap.documents[0].data['photoUrl']) :
+                          tabController.index == 2 ?NetworkImage(childrenSnap.documents[1].data['photoUrl'])  :
+                          tabController.index == 3 ? NetworkImage(childrenSnap.documents[2].data['photoUrl'])  :
 
-                          child: Container(
+
+                          NetworkImage(childrenSnap.documents[3].data['photoUrl']),
+
+
+                            child: Container(
                             padding: EdgeInsets.only(
                                 left: width / 4, top: width / 4),
                             child:
@@ -256,7 +528,7 @@ class _ParentProfileState extends State<ParentProfile> with
 
 
                 Positioned(
-                  bottom: 0,
+                  top: height/2.7,
                   width: width,
                   height: height / 1.55,
                   child:
@@ -802,14 +1074,12 @@ class _ParentProfileState extends State<ParentProfile> with
 
                                 ],
                               ),
-                              Container(
-                                height: 100,
-                                width: width,
-                              ),
-                              Container(
-                                height: 100,
-                                width: width,
-                              )
+                                childrenWidget.length == 1 ?
+                                    childrenWidget[0]
+                                    :
+                                childrenWidget[0],
+                              childrenWidget[1]
+
                             ]
                         )
                         ),
