@@ -274,6 +274,7 @@ class _ParentSignupState extends State<ParentSignup> {
                 Container(
                   padding: EdgeInsets.only(top: height / 4),
                   child: ListView(
+
                       children: <Widget>[
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,

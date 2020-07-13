@@ -116,6 +116,10 @@ flutter:
     - lib/Assets/aboutus5.png
     - lib/Assets/aboutus6.jpg
     - assets/loading.gif
+    - lib/Assets/girl.png
+    - lib/Assets/boy.png
+    - lib/Assets/father.png
+    - lib/Assets/mother.png
 
 
 

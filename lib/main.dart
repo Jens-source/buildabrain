@@ -27,17 +27,24 @@ void main() async {
   GoogleSignInAccount _currentUser;
   Widget _defaultHome;
   String name;
+  Stream<QuerySnapshot> userSnap;
+
   FirebaseUser user = await FirebaseAuth.instance.currentUser();
   googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
     _currentUser = account;
   });
 
 
+
   if(user != null){
-    await Firestore.instance.collection('users')
-        .where('uid', isEqualTo: user.uid)
-        .getDocuments()
-        .then((value)  {
+
+
+
+    await Firestore.instance.collection("users")
+    .where("uid", isEqualTo: user.uid)
+    .getDocuments()
+    .then((value) {
+
           if(value.documents[0].data['identity'] == "Teacher"){
             _defaultHome = WelcomePage();
           }
@@ -49,10 +56,12 @@ void main() async {
           else if(value.documents[0].data['identity'] == "Parent"){
               _defaultHome = ParentHome(value);
             }
-    }).catchError((error){
-        _defaultHome = WelcomePage();
+
     });
-  }
+
+    }
+
+
 
 
   if(_currentUser != null){
