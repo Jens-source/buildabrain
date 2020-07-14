@@ -5,6 +5,7 @@ import 'package:buildabrain/Parent/parentCalendar.dart';
 import 'package:buildabrain/Parent/parentProfile.dart';
 import 'package:buildabrain/Parent/scanChild.dart';
 import 'package:buildabrain/aboutUs.dart';
+import 'package:buildabrain/helpCenter.dart';
 import 'package:buildabrain/welcomePage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -311,6 +312,9 @@ SingleTickerProviderStateMixin {
                           trailing: Icon(Icons.help),
                           onTap: () {
                             Navigator.pop(context);
+                            Navigator.push(
+                                context, MaterialPageRoute(builder: (
+                                BuildContext context) => HelpCenter()));
                           },
                         ),
                         ListTile(

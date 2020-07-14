@@ -120,6 +120,7 @@ flutter:
     - lib/Assets/boy.png
     - lib/Assets/father.png
     - lib/Assets/mother.png
+    - lib/Assets/chatIcon.png
 
 
 

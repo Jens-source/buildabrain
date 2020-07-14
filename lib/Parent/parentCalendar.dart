@@ -289,7 +289,7 @@ class _ChildState extends State<Child> {
     int missedDates = 0;
 
 
-    
+
     while(search == false) {
       if (childSchedules.documents.length == 1) {
         if (DateFormat("yyy-MM-dd").format(lastDay) ==
