@@ -1,6 +1,3 @@
-
-
-
 import 'package:buildabrain/Parent/parentCalendar.dart';
 import 'package:buildabrain/Parent/parentProfile.dart';
 import 'package:buildabrain/Parent/scanChild.dart';
@@ -12,6 +9,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
+
+import 'chat.dart';
 
 
 
@@ -238,7 +237,7 @@ SingleTickerProviderStateMixin {
 
                           tab == 1 ? "Schedule" :
                           tab == 2 ? "Check-In" :
-                          tab == 3 ? "Notifications" :
+                          tab == 3 ? "Chat" :
                           tab == 4 ? "Settings" : ""),
                         ]
                     ),
@@ -269,7 +268,7 @@ SingleTickerProviderStateMixin {
                         new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/home.png", height: 25, color: tab== 0? Colors.white : Colors.white70 , ), Text("HOME", style: TextStyle(fontSize: 7),)],),),),
                         new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/schedule.png", height: 25, color: tab == 1? Colors.white : Colors.white70  ), Text("SCHEDULE", style: TextStyle(fontSize: 7),)],),),),
                         new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/qrcode.png", height: 30, color: tab == 2? Colors.white : Colors.white70  ), Text("CHECK-IN", style: TextStyle(fontSize: 7),)],),),),
-                        new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/notify.png", height: 25, color: tab == 3? Colors.white : Colors.white70  ), Text("NOTIFY", style: TextStyle(fontSize: 7),)],),),),
+                        new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/notify.png", height: 30, color: tab == 3? Colors.white : Colors.white70  ), Text("CHAT", style: TextStyle(fontSize: 7),)],),),),
                         new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/settings.png", height: 25,  color: tab == 4? Colors.white : Colors.white70 ), Text("SETTINGS", style: TextStyle(fontSize: 7),)],),),),
                       ],
                     ),
@@ -759,9 +758,10 @@ SingleTickerProviderStateMixin {
                       ParentCalendar(childrenSnapshot, child, _tabController,  tabs) ,
 
                         ScanChild(childrenSnapshot, _tabController, tabs),
+                        Chat(),
                         Container(),
-                        Container(),
-                      ])
+                      ],
+                  )
               );
        }
      );

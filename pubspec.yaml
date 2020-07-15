@@ -50,6 +50,7 @@ dependencies:
   basic_utils: ^2.5.3
   network_to_file_image:
   url_launcher: ^5.4.1
+  custom_navigator: ^0.2.0
 
 
 dev_dependencies:
@@ -121,6 +122,8 @@ flutter:
     - lib/Assets/father.png
     - lib/Assets/mother.png
     - lib/Assets/chatIcon.png
+    - lib/Assets/chatGroup.png
+    - lib/Assets/chatHelp.png
 
 
 
