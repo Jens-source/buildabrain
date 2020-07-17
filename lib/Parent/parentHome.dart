@@ -758,7 +758,7 @@ SingleTickerProviderStateMixin {
                       ParentCalendar(childrenSnapshot, child, _tabController,  tabs) ,
 
                         ScanChild(childrenSnapshot, _tabController, tabs),
-                        Chat(),
+                        Chat(parent.documents[0]),
                         Container(),
                       ],
                   )
