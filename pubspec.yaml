@@ -124,6 +124,8 @@ flutter:
     - lib/Assets/chatIcon.png
     - lib/Assets/chatGroup.png
     - lib/Assets/chatHelp.png
+    - lib/Assets/camera.png
+
 
 
 

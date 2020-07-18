@@ -294,6 +294,10 @@ SingleTickerProviderStateMixin {
                           trailing: Icon(Icons.account_circle),
                           onTap: () {
                             Navigator.pop(context);
+                            Navigator.push(
+                                context, MaterialPageRoute(builder: (
+                                BuildContext context) => ParentProfile(parent, childrenSnapshot)));
+
                           },
                         ),
                         ListTile(
