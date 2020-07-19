@@ -1,9 +1,10 @@
 
+
+import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:buildabrain/Parent/chatAdmin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,128 +15,26 @@ import 'package:intl/intl.dart';
 
 
 
-class Chat extends StatefulWidget {
-  Chat(this.user, this.chatGroup);
-  final user;
-  final chatGroup;
-  @override
-  _ChatState createState() => _ChatState(this.user, this.chatGroup);
-}
-
-class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
-
-  _ChatState(this.user, this.chatGroup);
-  final DocumentSnapshot user;
-
-  bool chatGroup;
-
-  TabController _tabController;
 
 
-
-  void _toggleTab(index) {
-    _tabController.animateTo(index);
-  }
-
-
-  @override
-  void initState() {
-    _tabController = TabController(vsync: this, length: 3);
-    super.initState();
-  }
-  @override
-  Widget build(BuildContext context) {
-      return TabBarView(
-        physics: NeverScrollableScrollPhysics(),
-        controller: _tabController,
-        children: <Widget>[
-
-        Container(
-          padding: EdgeInsets.only(left: 15, right: 15),
-          child: ListView(
-            children: [
-
-
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                child: Card(
-                  color: Colors.white70,
-                  child: ListTile(
-                      onTap: (){
-                        _toggleTab(2);
-
-                      },
-                      title: Text("Chat with admin"),
-                      leading: Container(
-                        height: 50,
-                        width: 50,
-                        child: CircleAvatar(
-                          backgroundImage: AssetImage(
-                              "lib/Assets/chatHelp.png"),
-                        ),
-                      )
-
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Container(
-                child: Card(
-                  color: Colors.white70,
-                  child: ListTile(
-                      onTap:  (){
-                        _toggleTab(1);
-
-                      },
-
-                      title: Text("Chat with group"),
-                      leading: Container(
-                        height: 50,
-                        width: 50,
-                        child: CircleAvatar(
-                          backgroundImage: AssetImage(
-                              "lib/Assets/chatGroup.png"),
-                        ),
-                      )
-
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-        ),
-    ChatGroup(user),
-    ChatAdmin(user)
-
-        ],
-      );
-
-
-  }
-}
-
-class ChatGroup extends StatefulWidget {
-  ChatGroup(this.user);
+class ChatAdmin extends StatefulWidget {
+  ChatAdmin(this.user);
   final user;
   @override
-  _ChatGroupState createState() => _ChatGroupState(this.user);
+  _ChatAdminState createState() => _ChatAdminState(this.user);
 }
 
-class _ChatGroupState extends State<ChatGroup> {
-  _ChatGroupState(this.user);
+class _ChatAdminState extends State<ChatAdmin> {
+  
+  _ChatAdminState(this.user);
   final DocumentSnapshot user;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Firestore _firestore = Firestore.instance;
   TextEditingController messageController = TextEditingController();
   ScrollController scrollController = ScrollController();
   List <bool> expanded;
+
   bool onPressed = false;
-  PageController pageController;
 
 
 
@@ -146,7 +45,9 @@ class _ChatGroupState extends State<ChatGroup> {
 
   Future<void> callback() async {
     if (messageController.text.trim().length > 0 ) {
-      await _firestore.collection('parentGroupChat')
+      await _firestore.collection('parentAdmin')
+      .document(user.data['uid'])
+      .collection("messages")
           .add({
         'photoUrl': user.data['photoUrl'],
         'text': messageController.text,
@@ -176,7 +77,9 @@ class _ChatGroupState extends State<ChatGroup> {
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
-                      .collection('parentGroupChat')
+                      .collection('parentAdmin')
+                      .document(user.data['uid'])
+                      .collection("messages")
                       .orderBy('date')
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -299,27 +202,27 @@ class _ChatGroupState extends State<ChatGroup> {
                 child: ListTile(
 
                     leading:
-                        GestureDetector(
-                          onTap: (){
-                            Navigator.push(context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        ImageEdit(user)));
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    ImageEdit(user)));
 
-                          },
-              child:
-                    Container(
+                      },
+                      child:
+                      Container(
 
-                      height: 29,
-                      width: 40,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage("lib/Assets/camera.png")
+                        height: 29,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage("lib/Assets/camera.png")
 
-                          )
+                            )
+                        ),
                       ),
                     ),
-    ),
                     title: Container(
                       height: 35,
                       decoration: BoxDecoration(
@@ -334,7 +237,7 @@ class _ChatGroupState extends State<ChatGroup> {
                         decoration: InputDecoration(
                           hintText: "Enter a Message...",
                           hintStyle: TextStyle(
-                            color: Colors.black26
+                              color: Colors.black26
                           ),
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
@@ -465,19 +368,19 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
                 ),
 
                 text.contains("https://firebasestorage.googleapis.com/v0/b/") ?
-                    Container(
-                      
-                      constraints: BoxConstraints(minWidth: 100, maxWidth: 170, minHeight: 100, maxHeight: 200),
-                      decoration: BoxDecoration(
-                        
+                Container(
+
+                  constraints: BoxConstraints(minWidth: 100, maxWidth: 170, minHeight: 100, maxHeight: 200),
+                  decoration: BoxDecoration(
 
 
-                        image: DecorationImage(
-                          
-                          image: NetworkImage(text),
-                        )
-                      ),
-                    ) :
+
+                      image: DecorationImage(
+
+                        image: NetworkImage(text),
+                      )
+                  ),
+                ) :
                 Material(
                   color: Colors.black12,
                   borderRadius: BorderRadius.circular(10.0),
@@ -534,14 +437,16 @@ class _ImageEditState extends State<ImageEdit> {
 
 
   Future<void> callback(downloadUrl) async {
-      await Firestore.instance.collection('parentGroupChat')
-          .add({
-        'imageUrl': downloadUrl,
-        'photoUrl': user.data['photoUrl'],
-        'from': user.data['firstName'],
-        'date': DateTime.now()
-      });
-    }
+    await Firestore.instance.collection('parentAdmin')
+        .document(user.data['uid'])
+        .collection("messages")
+        .add({
+      'imageUrl': downloadUrl,
+      'photoUrl': user.data['photoUrl'],
+      'from': user.data['firstName'],
+      'date': DateTime.now()
+    });
+  }
 
   Future<void> _pickImage(ImageSource source) async{
     File selected = await ImagePicker.pickImage(source: source);
@@ -738,7 +643,7 @@ class _ImageEditState extends State<ImageEdit> {
                       wait = true;
                       FirebaseUser user = await FirebaseAuth.instance.currentUser();
 
-                      filePath = 'parentGroupChat/${DateTime.now()}.png';
+                      filePath = 'parentAdmin/${user.uid}/${DateTime.now()}.png';
                       setState(() {
                         _uploadTask = _storage.ref().child(filePath).putFile(_imageFile);
 
@@ -749,11 +654,6 @@ class _ImageEditState extends State<ImageEdit> {
                       String downloadUrl =  await snapshot.ref.getDownloadURL();
 
                       callback(downloadUrl);
-
-
-
-
-
 
                       Navigator.of(context).pop();
 

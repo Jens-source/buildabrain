@@ -3,6 +3,7 @@ import 'package:buildabrain/Parent/parentProfile.dart';
 import 'package:buildabrain/Parent/scanChild.dart';
 import 'package:buildabrain/aboutUs.dart';
 import 'package:buildabrain/helpCenter.dart';
+import 'package:buildabrain/main.dart';
 import 'package:buildabrain/welcomePage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,23 +16,24 @@ import 'chat.dart';
 
 
 class ParentHome extends StatefulWidget {
-  ParentHome(this.parent);
+  ParentHome(this.parent, this.index);
   final parent;
+  final index;
 
   @override
-  _ParentHomeState createState() => _ParentHomeState(this.parent);
+  _ParentHomeState createState() => _ParentHomeState(this.parent, this.index);
 }
 
 class _ParentHomeState extends State<ParentHome> with
 SingleTickerProviderStateMixin {
-  _ParentHomeState(this.parent);
+  _ParentHomeState(this.parent, this.index);
   QuerySnapshot parent;
+  final int index;
 
 
 
   List<Widget> photoUrlList = [];
   List<String> descriptionList = [];
-  FirebaseUser user;
   int tab;
   String timeOfDay;
   QuerySnapshot promotions;
@@ -131,7 +133,7 @@ SingleTickerProviderStateMixin {
   void initState() {
 
     super.initState();
-    tabController = new TabController(length: 5, vsync: this);
+    tabController = new TabController(length: 5, vsync: this, initialIndex: index);
     tab = tabController.index;
 
 
@@ -205,11 +207,19 @@ SingleTickerProviderStateMixin {
                   extendBodyBehindAppBar: true,
                   extendBody: true,
                   appBar: AppBar(
+                    leading:  tab != 0 ? IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white,),
+                      onPressed: () {
+                        Navigator.push(
+                            context, MaterialPageRoute(builder: (
+                            BuildContext context) => MyApp(ParentHome(parent, 0))));
+                      },
+                    ) : null,
                     actionsIconTheme: IconThemeData(color: Colors.white),
                     title: Row(
                         children: [
 
-                          FlatButton(
+                          tab == 0 ? FlatButton(
                             onPressed: (){
                               Navigator.push(
                                   context, MaterialPageRoute(builder: (
@@ -224,7 +234,7 @@ SingleTickerProviderStateMixin {
                               ),
                             ),
 
-                          ),
+                          ) : Container(),
 
 
 
@@ -317,7 +327,7 @@ SingleTickerProviderStateMixin {
                             Navigator.pop(context);
                             Navigator.push(
                                 context, MaterialPageRoute(builder: (
-                                BuildContext context) => HelpCenter()));
+                                BuildContext context) => HelpCenter(parent)));
                           },
                         ),
                         ListTile(
@@ -377,12 +387,14 @@ SingleTickerProviderStateMixin {
                   ),
                   backgroundColor: Colors.white,
                   body: new TabBarView(
+
                       controller: tabController,
                       children: <Widget>[
                         new CustomScrollView(
 
                             slivers: <Widget>[
                               SliverAppBar(
+                                leading: null,
                                 backgroundColor: Color.fromRGBO(23, 142, 137, 1),
                                 actionsIconTheme: IconThemeData(
                                     color: Color.fromRGBO(0, 0, 0, 0)
@@ -762,7 +774,7 @@ SingleTickerProviderStateMixin {
                       ParentCalendar(childrenSnapshot, child, _tabController,  tabs) ,
 
                         ScanChild(childrenSnapshot, _tabController, tabs),
-                        Chat(parent.documents[0]),
+                        Chat(parent.documents[0], false),
                         Container(),
                       ],
                   )

@@ -1,13 +1,23 @@
+import 'package:buildabrain/Parent/parentHome.dart';
 import 'package:flutter/material.dart';
+
+import 'Parent/chat.dart';
 
 
 
 class HelpCenter extends StatefulWidget {
+  HelpCenter(this.user);
+  final user;
+
   @override
-  _HelpCenterState createState() => _HelpCenterState();
+  _HelpCenterState createState() => _HelpCenterState(this.user);
 }
 
 class _HelpCenterState extends State<HelpCenter> {
+  _HelpCenterState(this.user);
+  final user;
+
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery
@@ -143,6 +153,12 @@ class _HelpCenterState extends State<HelpCenter> {
                                   ]
                               ),
                               child: FlatButton(
+                                onPressed: (){
+                                  Navigator.push(context,
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                             ParentHome(user, 3)));
+                                },
                                 child: Text("START", style: TextStyle(
                                   color: Colors.white
                                 ),),
