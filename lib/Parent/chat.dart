@@ -15,16 +15,20 @@ import 'package:intl/intl.dart';
 
 
 class Chat extends StatefulWidget {
-  Chat(this.user, this.chatGroup);
+  Chat(this.user, this.chatGroup, this.index);
+  final index;
   final user;
   final chatGroup;
   @override
-  _ChatState createState() => _ChatState(this.user, this.chatGroup);
+  _ChatState createState() => _ChatState(this.user, this.chatGroup, this.index);
 }
 
 class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
 
-  _ChatState(this.user, this.chatGroup);
+  _ChatState(this.user, this.chatGroup, this.index);
+
+  final index;
+
   final DocumentSnapshot user;
 
   bool chatGroup;
@@ -40,22 +44,20 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
 
   @override
   void initState() {
-    _tabController = TabController(vsync: this, length: 3);
+    _tabController = TabController(vsync: this, length: 3, initialIndex: index);
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
       return TabBarView(
+
         physics: NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: <Widget>[
-
         Container(
           padding: EdgeInsets.only(left: 15, right: 15),
           child: ListView(
             children: [
-
-
               SizedBox(
                 height: 20,
               ),

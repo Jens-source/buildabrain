@@ -16,17 +16,21 @@ import 'chat.dart';
 
 
 class ParentHome extends StatefulWidget {
-  ParentHome(this.parent, this.index);
+  ParentHome(this.parent, this.index, this.chatIndex);
   final parent;
   final index;
+  final chatIndex;
+
 
   @override
-  _ParentHomeState createState() => _ParentHomeState(this.parent, this.index);
+  _ParentHomeState createState() => _ParentHomeState(this.parent, this.index, this.chatIndex);
 }
 
 class _ParentHomeState extends State<ParentHome> with
 SingleTickerProviderStateMixin {
-  _ParentHomeState(this.parent, this.index);
+  _ParentHomeState(this.parent, this.index, this.chatIndex);
+
+  final chatIndex;
   QuerySnapshot parent;
   final int index;
 
@@ -207,12 +211,24 @@ SingleTickerProviderStateMixin {
                   extendBodyBehindAppBar: true,
                   extendBody: true,
                   appBar: AppBar(
-                    leading:  tab != 0 ? IconButton(
+                    leading: tab != 0 ? IconButton(
                       icon: Icon(Icons.arrow_back, color: Colors.white,),
                       onPressed: () {
+                        tab == 3 ?
                         Navigator.push(
                             context, MaterialPageRoute(builder: (
-                            BuildContext context) => MyApp(ParentHome(parent, 0))));
+                            BuildContext context) => MyApp(ParentHome(parent, 3, 0)))) :
+
+
+
+                        chatIndex  == 0 ?
+                        Navigator.push(
+                            context, MaterialPageRoute(builder: (
+                            BuildContext context) => MyApp(ParentHome(parent, 0, 0)))) :
+
+                        Navigator.push(
+                            context, MaterialPageRoute(builder: (
+                            BuildContext context) => MyApp(ParentHome(parent, index, 0)))) ;
                       },
                     ) : null,
                     actionsIconTheme: IconThemeData(color: Colors.white),
@@ -774,7 +790,7 @@ SingleTickerProviderStateMixin {
                       ParentCalendar(childrenSnapshot, child, _tabController,  tabs) ,
 
                         ScanChild(childrenSnapshot, _tabController, tabs),
-                        Chat(parent.documents[0], false),
+                        Chat(parent.documents[0], false, chatIndex),
                         Container(),
                       ],
                   )

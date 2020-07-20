@@ -1,8 +1,6 @@
 import 'package:buildabrain/Parent/parentHome.dart';
 import 'package:flutter/material.dart';
 
-import 'Parent/chat.dart';
-
 
 
 class HelpCenter extends StatefulWidget {
@@ -48,7 +46,11 @@ class _HelpCenterState extends State<HelpCenter> {
 
 
       ),
-      body: new Column(
+      body: SingleChildScrollView(
+        child:
+
+      new Column(
+
         children: [
 
           SizedBox(
@@ -157,7 +159,7 @@ class _HelpCenterState extends State<HelpCenter> {
                                   Navigator.push(context,
                                       MaterialPageRoute(
                                           builder: (BuildContext context) =>
-                                             ParentHome(user, 3)));
+                                             ParentHome(user, 3, 2)));
                                 },
                                 child: Text("START", style: TextStyle(
                                   color: Colors.white
@@ -179,11 +181,91 @@ class _HelpCenterState extends State<HelpCenter> {
               )
 
             ],
-          )
+          ),
+
+
+          SizedBox(
+            height: 15,
+          ),
+
+
+          ListTile(
+            title: Text("Frequently asked questions".toUpperCase(), style: TextStyle(
+              fontSize: 18
+            ),),
+          ),
+          ListTile(
+            title: Text("How to change my date?".toUpperCase(), style: TextStyle(
+                fontSize: 16
+            ),),
+            trailing: Container(
+              padding: EdgeInsets.only(bottom: 10),
+              child: Icon(Icons.keyboard_arrow_right, color: Colors.black,size: 35,),
+            ),
+            subtitle: Divider(
+                color: Colors.black,
+              thickness: 1,
+            ),
+            onTap: (){
+
+            },
+          ),
+          ListTile(
+            title: Text("How to book the course?".toUpperCase(), style: TextStyle(
+                fontSize: 16
+            ),),
+            trailing: Container(
+              padding: EdgeInsets.only(bottom: 10),
+              child: Icon(Icons.keyboard_arrow_right, color: Colors.black,size: 35,),
+            ),
+            subtitle: Divider(
+              color: Colors.black,
+              thickness: 1,
+            ),
+            onTap: (){
+
+            },
+          ),
+          ListTile(
+            title: Text("How to add my child?".toUpperCase(), style: TextStyle(
+                fontSize: 16
+            ),),
+            trailing: Container(
+              padding: EdgeInsets.only(bottom: 10),
+              child: Icon(Icons.keyboard_arrow_right, color: Colors.black,size: 35,),
+            ),
+            subtitle: Divider(
+              color: Colors.black,
+              thickness: 1,
+            ),
+            onTap: (){
+
+            },
+          ),
+          ListTile(
+            title: Text("How to change my course?".toUpperCase(), style: TextStyle(
+                fontSize: 16
+            ),),
+            trailing: Container(
+              padding: EdgeInsets.only(bottom: 10),
+              child: Icon(Icons.keyboard_arrow_right, color: Colors.black,size: 35,),
+            ),
+            subtitle: Divider(
+              color: Colors.black,
+              thickness: 1,
+            ),
+            onTap: (){
+
+            },
+          ),
+
+
+
 
 
 
         ],
+      ),
       ),
 
     );
