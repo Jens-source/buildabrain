@@ -118,6 +118,8 @@ class _LeaderSignupState extends State<LeaderSignup> {
   bool status;
   String parent;
 
+  QuerySnapshot userFinal;
+
 
   @override
   void initState() {
@@ -128,7 +130,14 @@ class _LeaderSignupState extends State<LeaderSignup> {
         user = users;
         currentUid = users.uid;
 
-
+        Firestore.instance.collection('users')
+        .where('uid', isEqualTo: users.uid)
+        .getDocuments()
+        .then((value) {
+          setState(() {
+            userFinal = value;
+          });
+        });
         print(user.photoUrl);
       });
     }).catchError((e) {
@@ -159,6 +168,7 @@ class _LeaderSignupState extends State<LeaderSignup> {
         .where('uid', isEqualTo: user.uid)
         .getDocuments()
         .then((value) {
+
       Firestore.instance.document("users/${value.documents[0].documentID}")
           .delete();
     });
@@ -684,7 +694,7 @@ class _LeaderSignupState extends State<LeaderSignup> {
 
                           Navigator.of(context).pop();
                           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                              BuildContext context) =>  OwnerHome()), (route) => false);
+                              BuildContext context) =>  OwnerHome(userFinal)), (route) => false);
 
                         }
                       },

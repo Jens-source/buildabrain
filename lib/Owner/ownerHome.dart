@@ -1,3 +1,4 @@
+import 'package:buildabrain/Owner/dashboard.dart';
 import 'package:buildabrain/Owner/ownerCalendar.dart';
 import 'package:buildabrain/Owner/staffInfo.dart';
 import 'package:buildabrain/Owner/studentInfo.dart';
@@ -10,18 +11,48 @@ import 'package:qrscan/qrscan.dart' as scanner;
 
 
 class OwnerHome extends StatefulWidget {
+  OwnerHome(this.user);
+  final user;
   @override
-  _OwnerHome createState() => _OwnerHome();
+  _OwnerHome createState() => _OwnerHome(this.user);
 }
 
-class _OwnerHome extends State<OwnerHome> {
+class _OwnerHome extends State<OwnerHome> with SingleTickerProviderStateMixin{
 
 
+  _OwnerHome(this.user);
+  final user;
 
   bool change;
   String scanStudent;
   String scanTeacherIn;
   String scanTeacherOut;
+  int tab;
+  TabController tabController;
+
+  @override
+  void initState() {
+    tabController = new TabController(length: 3, vsync: this);
+    tab = tabController.index;
+
+
+    setState(() {
+      if (DateTime
+          .now()
+          .hour < 12) {
+        timeOfDay = "Good Morning";
+      }
+
+      else {
+        timeOfDay = "Good Afternoon";
+      }
+    });
+
+    super.initState();
+  }
+
+
+
 
 
   void _scanOutDialog(scanTeacherOut) {
@@ -183,7 +214,7 @@ class _OwnerHome extends State<OwnerHome> {
     );
   }
 
-
+  String timeOfDay;
 //
   Future<void> scanning() async {
     setState(() {
@@ -443,317 +474,374 @@ class _OwnerHome extends State<OwnerHome> {
         .size
         .height;
     // TODO: implement build
-    return new Scaffold(
-      backgroundColor: Color.fromRGBO(219, 220, 224, 1),
-      appBar: AppBar(
-        title: Text("Buildabrain"),
-      ),
-      body: new Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('schedule')
+        .where('classDay', isEqualTo: DateFormat('EEEE').format(DateTime.now()))
+        .snapshots(),
+      builder: (context, snapshot) {
 
-            children: <Widget>[
-              Container(
-                  padding: EdgeInsets.all(15),
-                  child:
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) {
-                                return StudentAv();
-                              }
-                          )
-                      );
-                    },
+        if(!snapshot.hasData){
+          return new Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        else
+        return new Scaffold(
+
+          backgroundColor: Colors.white,
+
+          appBar: AppBar(
+
+            actionsIconTheme: IconThemeData(color: Colors.white),
+            title: Row(
+                children: [
+
+                  tab == 0 ? FlatButton(
+
+                    child:  Container(
+                      width: 50,
+                      height: 50,
                       child:
-                      Container(
-                        height: height / 4,
-                        width: width / 2.5,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(3)),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey,
-                                  blurRadius: 20,
-                                  spreadRadius: 1,
-                                  offset: Offset(
-                                      5,
-                                      5
-                                  )
-                              )
-                            ]
-                        ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child: Icon(Icons.date_range, size: 50,),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(top: 15),
-                                child: Text("Schedule", style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold
-                                ),),
-                              )
-                            ],
-                          ),
-
-                        ),
-                      )),
-              Container(
-                  padding: EdgeInsets.all(15),
-                  child:
-                  GestureDetector(
-                    onTap: () async{
-                      scanning();
-
-                    },
-                      child:
-                      Container(
-                        height: height / 4,
-                        width: width / 2.5,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(3)),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey,
-                                  blurRadius: 20,
-                                  spreadRadius: 1,
-                                  offset: Offset(
-                                      5,
-                                      5
-                                  )
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              child: Icon(Icons.account_box, size: 50,),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 15),
-                              child: Text("Scan", style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold
-                              ),),
-                            )
-                          ],
-                        ),
-                      ))),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-
-            children: <Widget>[
-              Container(
-                  padding: EdgeInsets.all(15),
-                  child:
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) {
-                                return Preschoolers();
-                              }
-                          )
-                      );
-                    },
-                    child:
-                    Container(
-                      height: height / 4,
-                      width: width / 2.5,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(3)),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey,
-                                blurRadius: 20,
-                                spreadRadius: 1,
-                                offset: Offset(
-                                    5,
-                                    5
-                                )
-                            )
-                          ]
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(user.documents[0].data['photoUrl']),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            child: Icon(Icons.child_care, size: 50,),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 15),
-                            child: Text("Unset students", style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold
-                            ),),
-                          )
-                        ],
-                      ),
-
                     ),
-                  )),
-              Container(
-                  padding: EdgeInsets.all(15),
-                  child:
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (context) {
-                                  return  StaffInfo();
-                                }
-                            )
-                        );
-                      },
-                      child:
-                      Container(
-                        height: height / 4,
-                        width: width / 2.5,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(3)),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey,
-                                  blurRadius: 20,
-                                  spreadRadius: 1,
-                                  offset: Offset(
-                                      5,
-                                      5
-                                  )
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              child: Icon(Icons.face, size: 50,),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 15),
-                              child: Text("Staff Info", style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold
-                              ),),
-                            )
-                          ],
-                        ),
-                      ))),
-            ],
+
+                  ) : Container(),
+
+
+
+                  SizedBox(
+                    width: 20,
+                  ),
+
+
+                  Text(tab == 0 ? "${timeOfDay}... \n${user.documents[0].data['firstName']}" :
+
+                  tab == 1 ? "Schedule" :
+                  tab == 2 ? "Check-In" :
+                  tab == 3 ? "Chat" :
+                  tab == 4 ? "Settings" : ""),
+                ]
+            ),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(30),
+                )
+            ),
+
+
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-
-            children: <Widget>[
-              Container(
-                  padding: EdgeInsets.all(15),
-                  child:
-                  GestureDetector(
-                    onTap: () {},
-                    child:
-                    Container(
-                      height: height / 4,
-                      width: width / 2.5,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(3)),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey,
-                                blurRadius: 20,
-                                spreadRadius: 1,
-                                offset: Offset(
-                                    5,
-                                    5
-                                )
-                            )
-                          ]
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            child: Icon(Icons.payment, size: 50,),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 15),
-                            child: Text("Payment", style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold
-                            ),),
-                          )
-                        ],
-                      ),
-
-                    ),
-                  )),
-              Container(
-                  padding: EdgeInsets.all(15),
-                  child:
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (context) {
-                                  return Lessons();
-                                }
-                            )
-                        );
-
-
-                      },
-                      child:
-                      Container(
-                        height: height / 4,
-                        width: width / 2.5,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(3)),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey,
-                                  blurRadius: 20,
-                                  spreadRadius: 1,
-                                  offset: Offset(
-                                      5,
-                                      5
-                                  )
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              child: Icon(Icons.assignment, size: 50,),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 15),
-                              child: Text("Lessons", style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold
-                              ),),
-                            )
-                          ],
-                        ),
-                      ))),
-            ],
-          )
-        ],
-      ),
+          body: Dashboard()
+//
+//          new Column(
+//            crossAxisAlignment: CrossAxisAlignment.center,
+//            children: <Widget>[
+//              Row(
+//                mainAxisAlignment: MainAxisAlignment.center,
+//
+//                children: <Widget>[
+//                  Container(
+//                      padding: EdgeInsets.all(15),
+//                      child:
+//                      GestureDetector(
+//                        onTap: () {
+//                          Navigator.of(context).push(
+//                              MaterialPageRoute(
+//                                  builder: (context) {
+//                                    return StudentAv();
+//                                  }
+//                              )
+//                          );
+//                        },
+//                          child:
+//                          Container(
+//                            height: height / 4,
+//                            width: width / 2.5,
+//                            decoration: BoxDecoration(
+//                                borderRadius: BorderRadius.all(Radius.circular(3)),
+//                                color: Colors.white,
+//                                boxShadow: [
+//                                  BoxShadow(
+//                                      color: Colors.grey,
+//                                      blurRadius: 20,
+//                                      spreadRadius: 1,
+//                                      offset: Offset(
+//                                          5,
+//                                          5
+//                                      )
+//                                  )
+//                                ]
+//                            ),
+//                              child: Column(
+//                                mainAxisAlignment: MainAxisAlignment.center,
+//                                children: <Widget>[
+//                                  Container(
+//                                    child: Icon(Icons.date_range, size: 50,),
+//                                  ),
+//                                  Container(
+//                                    padding: EdgeInsets.only(top: 15),
+//                                    child: Text("Schedule", style: TextStyle(
+//                                      fontSize: 15,
+//                                      fontWeight: FontWeight.bold
+//                                    ),),
+//                                  )
+//                                ],
+//                              ),
+//
+//                            ),
+//                          )),
+//                  Container(
+//                      padding: EdgeInsets.all(15),
+//                      child:
+//                      GestureDetector(
+//                        onTap: () async{
+//                          scanning();
+//
+//                        },
+//                          child:
+//                          Container(
+//                            height: height / 4,
+//                            width: width / 2.5,
+//                            decoration: BoxDecoration(
+//                                borderRadius: BorderRadius.all(Radius.circular(3)),
+//                                color: Colors.white,
+//                                boxShadow: [
+//                                  BoxShadow(
+//                                      color: Colors.grey,
+//                                      blurRadius: 20,
+//                                      spreadRadius: 1,
+//                                      offset: Offset(
+//                                          5,
+//                                          5
+//                                      )
+//                                  )
+//                                ]
+//                            ),
+//                            child: Column(
+//                              mainAxisAlignment: MainAxisAlignment.center,
+//                              children: <Widget>[
+//                                Container(
+//                                  child: Icon(Icons.account_box, size: 50,),
+//                                ),
+//                                Container(
+//                                  padding: EdgeInsets.only(top: 15),
+//                                  child: Text("Scan", style: TextStyle(
+//                                      fontSize: 15,
+//                                      fontWeight: FontWeight.bold
+//                                  ),),
+//                                )
+//                              ],
+//                            ),
+//                          ))),
+//                ],
+//              ),
+//              Row(
+//                mainAxisAlignment: MainAxisAlignment.center,
+//
+//                children: <Widget>[
+//                  Container(
+//                      padding: EdgeInsets.all(15),
+//                      child:
+//                      GestureDetector(
+//                        onTap: () {
+//                          Navigator.of(context).push(
+//                              MaterialPageRoute(
+//                                  builder: (context) {
+//                                    return Preschoolers();
+//                                  }
+//                              )
+//                          );
+//                        },
+//                        child:
+//                        Container(
+//                          height: height / 4,
+//                          width: width / 2.5,
+//                          decoration: BoxDecoration(
+//                              borderRadius: BorderRadius.all(Radius.circular(3)),
+//                              color: Colors.white,
+//                              boxShadow: [
+//                                BoxShadow(
+//                                    color: Colors.grey,
+//                                    blurRadius: 20,
+//                                    spreadRadius: 1,
+//                                    offset: Offset(
+//                                        5,
+//                                        5
+//                                    )
+//                                )
+//                              ]
+//                          ),
+//                          child: Column(
+//                            mainAxisAlignment: MainAxisAlignment.center,
+//                            children: <Widget>[
+//                              Container(
+//                                child: Icon(Icons.child_care, size: 50,),
+//                              ),
+//                              Container(
+//                                padding: EdgeInsets.only(top: 15),
+//                                child: Text("Unset students", style: TextStyle(
+//                                    fontSize: 15,
+//                                    fontWeight: FontWeight.bold
+//                                ),),
+//                              )
+//                            ],
+//                          ),
+//
+//                        ),
+//                      )),
+//                  Container(
+//                      padding: EdgeInsets.all(15),
+//                      child:
+//                      GestureDetector(
+//                          onTap: () {
+//                            Navigator.of(context).push(
+//                                MaterialPageRoute(
+//                                    builder: (context) {
+//                                      return  StaffInfo();
+//                                    }
+//                                )
+//                            );
+//                          },
+//                          child:
+//                          Container(
+//                            height: height / 4,
+//                            width: width / 2.5,
+//                            decoration: BoxDecoration(
+//                                borderRadius: BorderRadius.all(Radius.circular(3)),
+//                                color: Colors.white,
+//                                boxShadow: [
+//                                  BoxShadow(
+//                                      color: Colors.grey,
+//                                      blurRadius: 20,
+//                                      spreadRadius: 1,
+//                                      offset: Offset(
+//                                          5,
+//                                          5
+//                                      )
+//                                  )
+//                                ]
+//                            ),
+//                            child: Column(
+//                              mainAxisAlignment: MainAxisAlignment.center,
+//                              children: <Widget>[
+//                                Container(
+//                                  child: Icon(Icons.face, size: 50,),
+//                                ),
+//                                Container(
+//                                  padding: EdgeInsets.only(top: 15),
+//                                  child: Text("Staff Info", style: TextStyle(
+//                                      fontSize: 15,
+//                                      fontWeight: FontWeight.bold
+//                                  ),),
+//                                )
+//                              ],
+//                            ),
+//                          ))),
+//                ],
+//              ),
+//              Row(
+//                mainAxisAlignment: MainAxisAlignment.center,
+//
+//                children: <Widget>[
+//                  Container(
+//                      padding: EdgeInsets.all(15),
+//                      child:
+//                      GestureDetector(
+//                        onTap: () {},
+//                        child:
+//                        Container(
+//                          height: height / 4,
+//                          width: width / 2.5,
+//                          decoration: BoxDecoration(
+//                              borderRadius: BorderRadius.all(Radius.circular(3)),
+//                              color: Colors.white,
+//                              boxShadow: [
+//                                BoxShadow(
+//                                    color: Colors.grey,
+//                                    blurRadius: 20,
+//                                    spreadRadius: 1,
+//                                    offset: Offset(
+//                                        5,
+//                                        5
+//                                    )
+//                                )
+//                              ]
+//                          ),
+//                          child: Column(
+//                            mainAxisAlignment: MainAxisAlignment.center,
+//                            children: <Widget>[
+//                              Container(
+//                                child: Icon(Icons.payment, size: 50,),
+//                              ),
+//                              Container(
+//                                padding: EdgeInsets.only(top: 15),
+//                                child: Text("Payment", style: TextStyle(
+//                                    fontSize: 15,
+//                                    fontWeight: FontWeight.bold
+//                                ),),
+//                              )
+//                            ],
+//                          ),
+//
+//                        ),
+//                      )),
+//                  Container(
+//                      padding: EdgeInsets.all(15),
+//                      child:
+//                      GestureDetector(
+//                          onTap: () {
+//                            Navigator.of(context).push(
+//                                MaterialPageRoute(
+//                                    builder: (context) {
+//                                      return Lessons();
+//                                    }
+//                                )
+//                            );
+//
+//
+//                          },
+//                          child:
+//                          Container(
+//                            height: height / 4,
+//                            width: width / 2.5,
+//                            decoration: BoxDecoration(
+//                                borderRadius: BorderRadius.all(Radius.circular(3)),
+//                                color: Colors.white,
+//                                boxShadow: [
+//                                  BoxShadow(
+//                                      color: Colors.grey,
+//                                      blurRadius: 20,
+//                                      spreadRadius: 1,
+//                                      offset: Offset(
+//                                          5,
+//                                          5
+//                                      )
+//                                  )
+//                                ]
+//                            ),
+//                            child: Column(
+//                              mainAxisAlignment: MainAxisAlignment.center,
+//                              children: <Widget>[
+//                                Container(
+//                                  child: Icon(Icons.assignment, size: 50,),
+//                                ),
+//                                Container(
+//                                  padding: EdgeInsets.only(top: 15),
+//                                  child: Text("Lessons", style: TextStyle(
+//                                      fontSize: 15,
+//                                      fontWeight: FontWeight.bold
+//                                  ),),
+//                                )
+//                              ],
+//                            ),
+//                          ))),
+//                ],
+//              )
+//            ],
+//          ),
+        );
+      }
     );
   }
 

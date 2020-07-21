@@ -106,6 +106,7 @@ class _HelpCenterState extends State<HelpCenter> {
           SizedBox(
             height: 30,
           ),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

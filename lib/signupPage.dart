@@ -99,7 +99,7 @@ class _SignupPageState extends State<SignupPage> {
       {
         Navigator.push(
             context, MaterialPageRoute(builder: (
-            BuildContext context) => OwnerHome()));
+            BuildContext context) => OwnerHome(value)));
       }
       else if(value.documents[0].data['identity'] == "Teacher")
       {
@@ -561,18 +561,10 @@ class _SignupPageState extends State<SignupPage> {
                             color: Colors.white
                         ),),
                         onPressed: ()async {
-
-
                           if(_email != null && _password != null){
-
-
                             await validateEmail(_email);
-
                             var sign;
-
-
                             try {
-
                               if(sign == null) {
                                 showDialog(
                                     context: context,
@@ -585,8 +577,6 @@ class _SignupPageState extends State<SignupPage> {
                                     }
                                 );
                               }
-
-
                               await FirebaseAuth.instance.signInWithEmailAndPassword(
                                   email: _email,
                                   password: _password).then((value) {
@@ -594,11 +584,6 @@ class _SignupPageState extends State<SignupPage> {
                                   sign = value;
                                 });
                               });
-
-
-
-
-
 
                             } on PlatformException catch (e){
                               showDialog(
@@ -638,7 +623,7 @@ class _SignupPageState extends State<SignupPage> {
 
                                 else if(value.documents[0].data['identity'] == "Leader")  {
                                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                                      BuildContext context) =>  OwnerHome()), (route) => false);
+                                      BuildContext context) =>  OwnerHome(value)), (route) => false);
                                 }
                               });
                             }
