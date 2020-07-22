@@ -86,13 +86,6 @@ class _WelcomePageState extends State<WelcomePage> {
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
 
-
-
-
-
-
-
-
     await Firestore.instance.collection('users')
     .where('uid', isEqualTo: user.uid)
     .getDocuments()
@@ -102,7 +95,7 @@ class _WelcomePageState extends State<WelcomePage> {
           Navigator.push(
               context, MaterialPageRoute(builder: (
 
-              BuildContext context) =>  MyApp(OwnerHome)));
+              BuildContext context) =>  MyApp(OwnerHome(user))));
         }
       else if(value.documents[0].data['identity'] == "Teacher")
       {
@@ -827,6 +820,26 @@ class _WelcomePageState extends State<WelcomePage> {
 
                   GestureDetector(
                       onTap: (){
+//                        facebookLogin.logIn(['email', 'public_profile'])
+//                            .then((result) {
+//                              switch(result.status){
+//                                case FacebookLoginStatus.loggedIn :
+//                                  FirebaseAuth.instance.signInWithCustomToken(token: result.accessToken.token)
+//                                      .then((value) {
+//
+//                                  });
+//                                  break;
+//                                case FacebookLoginStatus.cancelledByUser:
+//                                  // TODO: Handle this case.
+//                                  break;
+//                                case FacebookLoginStatus.error:
+//                                  // TODO: Handle this case.
+//                                  break;
+//                              }
+//                        })
+//                            .catchError((e){
+//                              print(e);
+//                        });
                       },
                     child:
                   Container(
