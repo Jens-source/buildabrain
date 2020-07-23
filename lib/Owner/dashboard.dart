@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -14,14 +15,66 @@ with SingleTickerProviderStateMixin{
   List<Container> todayCards = [];
   int _current = 0;
   TabController tabController;
+  int initialDateIndex = 0;
+  String weekDay;
 
 
+  Future <String> wd(num){
+    switch(num){
+      case 0 : {
+        weekDay = "Monday";
+      }
+      break;
+      case 1 : {
+        weekDay = "Tuesday";
+      }
+      break;
+      case 2 : {
+        weekDay = "Wednesday";
+      }
+      break;
+      case 3 : {
+        weekDay = "Thursday";
+      }
+      break;
+      case 4 : {
+        weekDay = "Friday";
+      }
+      break;
+      case 5 : {
+        weekDay = "Saturday";
+      }
+      break;
+      case 6 : {
+        weekDay = "Sunday";
+      }
+      break;
+    }
+  }
 
   @override
   void initState() {
+    initialDateIndex = DateTime.now().weekday - 1;
 
-    tabController = new TabController(length: 3, vsync: this);
+
+
+
+
+    tabController = new TabController(length: 7, vsync: this, initialIndex: initialDateIndex);
+    wd(tabController.index);
+
+
+
+
+
     super.initState();
+  }
+
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
   }
 
 
@@ -37,6 +90,7 @@ with SingleTickerProviderStateMixin{
         .of(context)
         .size
         .height;
+
 
 
 
@@ -271,43 +325,91 @@ with SingleTickerProviderStateMixin{
             SizedBox(
               height: 20,
             ),
-            Container(
-              color: ,
-              child: TabBar(
-                controller: tabController,
-                tabs: [
-                  Tab(
-                    icon: Icon(Icons.add),
+            Stack(
+              children: [
+
+                Container(
+                  height: 47.5,
+                  width: (width * 3/7) -15,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Color.fromRGBO(23, 142, 137, 1),
                   ),
-                  Tab(
-                    icon: Icon(Icons.add),
+                ),
+
+                Container(
+                  width: width -30,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Colors.black26,
                   ),
-                  Tab(
-                    icon: Icon(Icons.add),
+
+                  child: TabBar(
+                    controller: tabController,
+                    labelPadding: EdgeInsets.only(left: 1, right: 1),
+
+                    indicator: CustomTabIndicator(),
+                    labelStyle: TextStyle(
+                        fontSize: 18
+                    ),
+                    tabs: [
+                      Container(
+                        child: Tab(
+                          text: "Mon",
+                        ),
+                      ),
+                      Tab(
+                        text: "Tue",
+                      ),
+                      Tab(
+                        text: "Wed",
+                      ),
+                      Tab(
+                        text: "Thu",
+                      ),
+                      Tab(
+                        text: "Fri",
+                      ),
+                      Tab(
+                        text: "Sat",
+                      ),
+                      Tab(
+                        text: "Sun",
+                      ),
+
+
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+
+              ],
             ),
 
 
 
+            SizedBox(
+              height: 15,
+            ),
+
 
             Container(
-              height: 100,
+              height: 200,
               width: width,
-              color: Colors.blue,
+          
               child: TabBarView(
                 controller: tabController,
+
                 children: [
-                  Tab(
-                    icon: Icon(Icons.add),
-                  ),
-                  Tab(
-                    icon: Icon(Icons.add),
-                  ),
-                  Tab(
-                    icon: Icon(Icons.add),
-                  ),
+
+
+                 Container(child: Text(weekDay),),
+                 Container(child: Text(weekDay),),
+                 Container(child: Text(weekDay),),
+                 Container(child: Text(weekDay),),
+                 Container(child: Text(weekDay),),
+                 Container(child: Text(weekDay),),
+                 Container(child: Text(weekDay),),
 
                 ],
               )
@@ -320,4 +422,37 @@ with SingleTickerProviderStateMixin{
 
     );
   }
+
+}
+class CustomTabIndicator extends Decoration {
+
+  @override
+  _CustomPainter createBoxPainter([VoidCallback onChanged]) {
+    return new _CustomPainter(this, onChanged);
+  }
+
+}
+
+class _CustomPainter extends BoxPainter {
+
+  final CustomTabIndicator decoration;
+
+  _CustomPainter(this.decoration, VoidCallback onChanged)
+      : assert(decoration != null),
+        super(onChanged);
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
+    assert(configuration != null);
+    assert(configuration.size != null);
+
+    //offset is the position from where the decoration should be drawn.
+    //configuration.size tells us about the height and width of the tab.
+    final Rect rect = offset & configuration.size;
+    final Paint paint = Paint();
+    paint.color = Colors.orangeAccent;
+    paint.style = PaintingStyle.fill;
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(15.0)), paint);
+  }
+
 }
