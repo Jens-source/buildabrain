@@ -10,7 +10,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard>
-with SingleTickerProviderStateMixin{
+with TickerProviderStateMixin{
 
   List<Container> todayCards = [];
   int _current = 0;
@@ -18,7 +18,114 @@ with SingleTickerProviderStateMixin{
   int initialDateIndex = 0;
   String weekDay;
 
+  TabController _tabController;
+  int tab = 0;
 
+
+  StreamBuilder scheduleList(weekDay, height){
+    return  StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection('schedule').where('classDay', isEqualTo: weekDay).snapshots(),
+        builder: (context, snapshot) {
+
+          if(!snapshot.hasData){
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+
+          else {
+
+
+            return ListView.builder(
+                itemCount: snapshot.data.documents.length,
+                itemBuilder: (BuildContext context, i){
+                  DocumentSnapshot schedule = snapshot.data.documents[i];
+                  return new Container(
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                    margin: EdgeInsets.only(left: 20, right: 20, bottom: 5, top: 10),
+                    height: height/6,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        color: Color.fromRGBO(20, 20, 20, 0.15)
+                    ),
+                    child: Row(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("${schedule['startTime']} \n   -\n${schedule['endTime']}", style: TextStyle(
+                                fontSize: 18
+                            ),)
+                          ],
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+
+                        VerticalDivider(
+                          color: Colors.black,
+                          thickness: 2,
+                        ),
+
+
+                        Container(
+                          margin: EdgeInsets.all(5),
+                          height: height/7,
+                          width: height/7,
+                          child: CircleAvatar(
+                              backgroundImage:
+                                  schedule['subject'].split(' ').length == 3 ?
+                              schedule['subject'].split(' ')[0] == "IQ" ? AssetImage("lib/Assets/iq.png") :
+                              schedule['subject'].split(' ')[0] == "mindmap" ? AssetImage("lib/Assets/mindmap.png") :
+                              schedule['subject'].split(' ')[0] == "phonics" ? AssetImage("lib/Assets/phonics.png") :
+                              null :
+                                  schedule['subject'].split(',')[0] == "IQ" ? AssetImage("lib/Assets/iq.png") :
+                                  schedule['subject'].split(',')[0] == "mindmap" ? AssetImage("lib/Assets/mindmap.png") :
+                                  schedule['subject'].split(',')[0] == "phonics" ? AssetImage("lib/Assets/phonics.png") :
+                                      null,
+
+
+                              backgroundColor:
+                              schedule['class'] == "preschoolers" ? Color.fromRGBO(
+                                  53, 172, 167, 1) :
+                              schedule['class'] == "junior" ?Color.fromRGBO(
+                                  157, 120, 94, 1) :
+                              schedule['class'] == "advanced" ? Color.fromRGBO(
+                                  173, 228, 109, 1) :
+                              Colors.green
+
+                          ),
+                        ),
+
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("${ schedule['subject'].split(" ")[0]}\n${schedule['class'] == "preschoolers" ? "Preschool" :
+                            schedule['class'] == "junior" ? "Junior" :
+                            schedule['class'] == "advanced" ? "Advanced" :
+                            " "
+                            }" , style: TextStyle(
+                              fontSize: 22,
+
+                            ),),
+
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              child: Text("Students ${schedule['studentAmount'].toString()}", style: TextStyle(
+                                  fontSize: 18
+                              ),),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                });
+          }
+        }
+    );
+  }
   Future <String> wd(num){
     switch(num){
       case 0 : {
@@ -55,13 +162,13 @@ with SingleTickerProviderStateMixin{
   @override
   void initState() {
     initialDateIndex = DateTime.now().weekday - 1;
+    _tabController = new TabController(length: 5, vsync: this, initialIndex: initialDateIndex);
 
-
-
-
+    tab = _tabController.index;
 
     tabController = new TabController(length: 7, vsync: this, initialIndex: initialDateIndex);
     wd(tabController.index);
+    tabController.addListener(controllerListener);
 
 
 
@@ -70,6 +177,11 @@ with SingleTickerProviderStateMixin{
     super.initState();
   }
 
+  void controllerListener(){
+    setState(() {
+      wd(tabController.index);
+    });
+  }
 
   @override
   void dispose() {
@@ -300,8 +412,42 @@ with SingleTickerProviderStateMixin{
     }
 
 
-    return Container(
-      padding: EdgeInsets.only(top: 15),
+    return
+      Scaffold(
+
+        bottomNavigationBar: new Material(
+          color: Color.fromRGBO(153, 107, 55, 1),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+          child: TabBar(
+            onTap: (value){
+              setState(() {
+                tab = _tabController.index;
+              });
+            },
+            unselectedLabelColor: Colors.white70,
+            labelColor: Colors.white,
+            indicatorColor: Colors.white,
+            controller: _tabController,
+            tabs: <Widget>[
+
+              new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/home.png", height: 25, color: tab== 0? Colors.white : Colors.white70 , ), Text("HOME", style: TextStyle(fontSize: 7),)],),),),
+              new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/schedule.png", height: 25, color: tab == 1? Colors.white : Colors.white70  ), Text("SCHEDULE", style: TextStyle(fontSize: 7),)],),),),
+              new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/qrcode.png", height: 30, color: tab == 2? Colors.white : Colors.white70  ), Text("CHECK-IN", style: TextStyle(fontSize: 7),)],),),),
+              new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/notify.png", height: 30, color: tab == 3? Colors.white : Colors.white70  ), Text("CHAT", style: TextStyle(fontSize: 7),)],),),),
+              new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/settings.png", height: 25,  color: tab == 4? Colors.white : Colors.white70 ), Text("SETTINGS", style: TextStyle(fontSize: 7),)],),),),
+            ],
+          ),
+        ),
+
+        body:
+
+            TabBarView(
+              controller: _tabController,
+              children: [
+
+
+      Container(
+      padding: EdgeInsets.only(top: 15, ),
 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -330,7 +476,7 @@ with SingleTickerProviderStateMixin{
 
                 Container(
                   height: 47.5,
-                  width: (width * 3/7) -15,
+                    width: ((width-30) * (initialDateIndex+1)/7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(15)),
                     color: Color.fromRGBO(23, 142, 137, 1),
@@ -394,23 +540,20 @@ with SingleTickerProviderStateMixin{
 
 
             Container(
-              height: 200,
+              height: height/3.1,
               width: width,
           
               child: TabBarView(
                 controller: tabController,
 
                 children: [
-
-
-                 Container(child: Text(weekDay),),
-                 Container(child: Text(weekDay),),
-                 Container(child: Text(weekDay),),
-                 Container(child: Text(weekDay),),
-                 Container(child: Text(weekDay),),
-                 Container(child: Text(weekDay),),
-                 Container(child: Text(weekDay),),
-
+                scheduleList(weekDay, height),
+                scheduleList(weekDay, height),
+                scheduleList(weekDay, height),
+                scheduleList(weekDay, height),
+                scheduleList(weekDay, height),
+                scheduleList(weekDay, height),
+                scheduleList(weekDay, height)
                 ],
               )
             )
@@ -419,6 +562,13 @@ with SingleTickerProviderStateMixin{
 
           ],
         ),
+      ),
+                Container(),
+                Container(),
+                Container(),
+                Container(),
+              ],
+            )
 
     );
   }
