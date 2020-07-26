@@ -24,7 +24,7 @@ with TickerProviderStateMixin{
 
   StreamBuilder scheduleList(weekDay, height){
     return  StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance.collection('schedule').where('classDay', isEqualTo: weekDay).snapshots(),
+        stream: Firestore.instance.collection('schedule').where('classDay', isEqualTo: weekDay).orderBy('startTime', descending: false).snapshots(),
         builder: (context, snapshot) {
 
           if(!snapshot.hasData){
@@ -162,7 +162,7 @@ with TickerProviderStateMixin{
   @override
   void initState() {
     initialDateIndex = DateTime.now().weekday - 1;
-    _tabController = new TabController(length: 5, vsync: this, initialIndex: initialDateIndex);
+    _tabController = new TabController(length: 5, vsync: this);
 
     tab = _tabController.index;
 
@@ -432,7 +432,7 @@ with TickerProviderStateMixin{
 
               new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/home.png", height: 25, color: tab== 0? Colors.white : Colors.white70 , ), Text("HOME", style: TextStyle(fontSize: 7),)],),),),
               new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/schedule.png", height: 25, color: tab == 1? Colors.white : Colors.white70  ), Text("SCHEDULE", style: TextStyle(fontSize: 7),)],),),),
-              new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/qrcode.png", height: 30, color: tab == 2? Colors.white : Colors.white70  ), Text("CHECK-IN", style: TextStyle(fontSize: 7),)],),),),
+              new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/qrcode.png", height: 30, color: tab == 2? Colors.white : Colors.white70  ), Text("SCAN", style: TextStyle(fontSize: 7),)],),),),
               new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/notify.png", height: 30, color: tab == 3? Colors.white : Colors.white70  ), Text("CHAT", style: TextStyle(fontSize: 7),)],),),),
               new Tab(child: Container(padding: EdgeInsets.only(top: 4, bottom: 3),child:Column(mainAxisAlignment: MainAxisAlignment.center, children: [Image.asset("lib/Assets/settings.png", height: 25,  color: tab == 4? Colors.white : Colors.white70 ), Text("SETTINGS", style: TextStyle(fontSize: 7),)],),),),
             ],
