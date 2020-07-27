@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-
 class Dashboard extends StatefulWidget {
   @override
   _DashboardState createState() => _DashboardState();
@@ -12,7 +11,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard>
 with TickerProviderStateMixin{
 
-  List<Container> todayCards = [];
+  List<Widget> todayCards = [];
   int _current = 0;
   TabController tabController;
   int initialDateIndex = 0;
@@ -159,16 +158,274 @@ with TickerProviderStateMixin{
     }
   }
 
+  Future initSign(height, width) async {
+    todayCards.clear();
+
+    await Firestore.instance.collection('schedule').where(
+        'classDay', isEqualTo: DateFormat("EEEE").format(DateTime.now()))
+        .getDocuments()
+        .then((value) {
+      setState(()  {
+        for (int i = 0; i < value.documents.length; i++) {
+          todayCards.add(
+              StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance.collection(
+                      'schedule/${value.documents[i].documentID}/students')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return new Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    int classAv = 0;
+                    for (int i = 0; i < snapshot.data.documents.length; i++) {
+                      if(Firestore.instance.collection("students/${snapshot.data.documents[i].documentID}/timestamps").where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now())) != null){
+                        classAv = classAv + 1;
+                      }
+                    }
+                    print(classAv);
+
+
+                    return Container(
+                        padding: EdgeInsets.only(top: width / 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                          color: Color.fromRGBO(153, 107, 55, 1),
+                        ),
+                        height: height / 3,
+                        width: width - 80,
+                        child: Stack(
+                          children: [
+
+
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+
+                                    SizedBox(
+                                      width: width / 20,
+                                    ),
+                                    Container(
+                                      height: width / 4,
+                                      width: width / 4,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(100)),
+                                          color: Colors.white30
+                                      ),
+                                      child: Center(
+                                        child: Image.asset(
+                                          "lib/Assets/iq.png",),
+                                      ),
+
+                                    ),
+
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+
+
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment
+                                          .start,
+                                      children: [
+                                        Container(
+                                          child: Text("Mon 09:00-10:00 AM",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 17
+                                            ),),
+
+                                        ),
+                                        Container(
+                                          child: Text(
+                                            "IQ Junior", style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 30
+                                          ),),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              child: Text(
+                                                "Teacher", style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 25
+                                              ),),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+
+                                            Container(
+                                              child: Text(
+                                                "Jens", style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 25
+                                              ),),
+                                            ),
+                                          ],
+                                        ),
+                                        Container(
+                                          child: Text(
+                                            "Assistant Bee", style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20
+                                          ),),
+                                        ),
+
+
+                                      ],
+                                    )
+
+                                  ],
+                                ),
+
+                                SizedBox(
+                                  height: 15,
+                                ),
+
+
+                              ],
+                            ),
+
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(
+                                padding: EdgeInsets.only(top: 10, left: 25),
+                                height: height / 8,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(15)),
+                                  color: Color.fromRGBO(243, 197, 145, 1),
+                                ),
+
+
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .start,
+                                      children: [
+                                        Container(
+                                          child: Text("Students in class",
+                                            style: TextStyle(
+                                                fontSize: 20
+                                            ),),
+                                        ),
+                                        SizedBox(
+                                          width: 80,
+                                        ),
+                                        Container(
+                                          child: Text("8", style: TextStyle(
+                                              fontSize: 20
+                                          ),),
+                                        ),
+
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .start,
+                                      children: [
+                                        Container(
+                                          child: Text(
+                                            "Checked in", style: TextStyle(
+                                              fontSize: 20
+                                          ),),
+                                        ),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        Container(
+                                          width: 30,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(100)),
+                                              color: Colors.white
+                                          ),
+                                          child: Center(
+                                            child: Text("6", style: TextStyle(
+                                                fontSize: 20
+                                            ),),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        Container(
+                                          child: Text(
+                                            "Absent", style: TextStyle(
+                                              fontSize: 20
+                                          ),),
+                                        ),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+
+                                        Container(
+                                          width: 30,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(100)),
+                                              color: Colors.white
+                                          ),
+                                          child: Center(
+                                            child: Text("2", style: TextStyle(
+                                                fontSize: 20
+                                            ),),
+                                          ),
+                                        ),
+
+
+                                      ],
+                                    ),
+                                  ],
+                                ),
+
+
+                              ),
+                            )
+
+                          ],
+                        )
+                    );
+                  })
+
+
+          );
+        }
+      });
+    });
+
+  }
+
   @override
   void initState() {
-    initialDateIndex = DateTime.now().weekday - 1;
+    initialDateIndex = DateTime
+        .now()
+        .weekday - 1;
     _tabController = new TabController(length: 5, vsync: this);
 
     tab = _tabController.index;
 
-    tabController = new TabController(length: 7, vsync: this, initialIndex: initialDateIndex);
+    tabController =
+    new TabController(length: 7, vsync: this, initialIndex: initialDateIndex);
     wd(tabController.index);
     tabController.addListener(controllerListener);
+
+
+
+
+    todayCards.clear();
+    List<StreamBuilder> signedInStudents = [];
+
 
 
 
@@ -204,212 +461,11 @@ with TickerProviderStateMixin{
         .height;
 
 
-
-
-    todayCards.clear();
-
-
-    for(int i = 0; i < 3; i++){
-      todayCards.add(
-
-          Container(
-              padding: EdgeInsets.only(top: width/20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(15)),
-                color: Color.fromRGBO(153, 107, 55, 1),
-              ),
-              height: height/3,
-              width: width - 80,
-              child: Stack(
-                children: [
-
-
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-
-                          SizedBox(
-                            width: width/20,
-                          ),
-                          Container(
-                            height: width/4,
-                            width: width/4,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(100)),
-                                color: Colors.white30
-                            ),
-                            child: Center(
-                              child: Image.asset("lib/Assets/iq.png",),
-                            ),
-
-                          ),
-
-                          SizedBox(
-                            width: 20,
-                          ),
-
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                child: Text("Mon 09:00-10:00 AM", style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 17
-                                ),),
-
-                              ),
-                              Container(
-                                child: Text("IQ Junior", style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 30
-                                ),),
-                              ),
-                              Row(
-                                children: [
-                                  Container(
-                                    child: Text("Teacher", style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 25
-                                    ),),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-
-                                  Container(
-                                    child: Text("Jens", style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 25
-                                    ),),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                child: Text("Assistant Bee", style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20
-                                ),),
-                              ),
-
-
-                            ],
-                          )
-
-                        ],
-                      ),
-
-                      SizedBox(
-                        height: 15,
-                      ),
+    initSign(height, width);
 
 
 
 
-
-                    ],
-                  ),
-
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child:  Container(
-                      padding: EdgeInsets.only(top: 10, left: 25),
-                      height: height/8,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(15)),
-                        color: Color.fromRGBO(243, 197, 145, 1),
-                      ),
-
-
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                child: Text("Students in class", style: TextStyle(
-                                    fontSize: 20
-                                ),),
-                              ),
-                              SizedBox(
-                                width: 80,
-                              ),
-                              Container(
-                                child: Text("8", style: TextStyle(
-                                    fontSize: 20
-                                ),),
-                              ),
-
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                child: Text("Checked in", style: TextStyle(
-                                    fontSize: 20
-                                ),),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              Container(
-                                width: 30,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                                    color: Colors.white
-                                ),
-                                child: Center(
-                                  child: Text("6", style: TextStyle(
-                                      fontSize: 20
-                                  ),),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              Container(
-                                child: Text("Absent", style: TextStyle(
-                                    fontSize: 20
-                                ),),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-
-                              Container(
-                                width: 30,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                                    color: Colors.white
-                                ),
-                                child: Center(
-                                  child: Text("2", style: TextStyle(
-                                      fontSize: 20
-                                  ),),
-                                ),
-                              ),
-
-
-                            ],
-                          ),
-                        ],
-                      ),
-
-
-                    ),
-                  )
-
-                ],
-              )
-          )
-      );
-    }
 
 
     return
