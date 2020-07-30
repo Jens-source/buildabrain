@@ -125,6 +125,8 @@ with TickerProviderStateMixin{
         }
     );
   }
+
+
   Future <String> wd(num){
     switch(num){
       case 0 : {
@@ -158,43 +160,79 @@ with TickerProviderStateMixin{
     }
   }
 
-  Future initSign(height, width) async {
-    todayCards.clear();
+  int initialPlaceholder = 0;
 
+  Future initSign(height, width,) async {
+
+    QuerySnapshot schedules;
+
+    QuerySnapshot timestampStreams;
+
+    
+    
     await Firestore.instance.collection('schedule').where(
         'classDay', isEqualTo: DateFormat("EEEE").format(DateTime.now()))
+        .orderBy("startTime", descending: false)
+        .getDocuments().then((value) async{
+          schedules = value;
+          for(int j = 0; j < value.documents.length; j++){
+            await Firestore.instance.collection('schedule/${value.documents[j].documentID}/students')
+                .getDocuments()
+                .then((students)async {
+                  for(int k = 0; k < students.documents.length; k++){
+                    await Firestore.instance.collection('students/${students.documents[k].documentID}/timestamps')
+                    .where("date", isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()))
+                        .snapshots().listen((event) {
+                          timestampStreams = event;
+                    });
+                  }
+
+            });
+          }
+          
+    });
+
+
+
+
+    
+    
+    await Firestore.instance.collection('schedule').where(
+        'classDay', isEqualTo: DateFormat("EEEE").format(DateTime.now()))
+        .orderBy("startTime", descending: false)
         .getDocuments()
         .then((value) {
+          
+        
+
+
+
       setState(()  {
+
+
         for (int i = 0; i < value.documents.length; i++) {
+          var format = DateFormat("HH:mm");
+          var one = format.parse(DateFormat("HH:mm").format(DateTime.now()));
+          var two = format.parse(value.documents[i].data['endTime']);
+          if(two.difference(one).inMinutes < 0 && initialPlaceholder != value.documents.length-1){
+            initialPlaceholder = initialPlaceholder + 1;
+          }
+
           todayCards.add(
-              StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance.collection(
-                      'schedule/${value.documents[i].documentID}/students')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return new Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    int classAv = 0;
-                    for (int i = 0; i < snapshot.data.documents.length; i++) {
-                      if(Firestore.instance.collection("students/${snapshot.data.documents[i].documentID}/timestamps").where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now())) != null){
-                        classAv = classAv + 1;
-                      }
-                    }
-                    print(classAv);
 
 
-                    return Container(
+
+
+
+                     Container(
                         padding: EdgeInsets.only(top: width / 20),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(15)),
                           color: Color.fromRGBO(153, 107, 55, 1),
                         ),
-                        height: height / 3,
-                        width: width - 80,
+
+
+
                         child: Stack(
                           children: [
 
@@ -216,8 +254,34 @@ with TickerProviderStateMixin{
                                           color: Colors.white30
                                       ),
                                       child: Center(
-                                        child: Image.asset(
-                                          "lib/Assets/iq.png",),
+                                        child:   Container(
+                                          margin: EdgeInsets.all(5),
+                                          height: height/7,
+                                          width: height/7,
+                                          child: CircleAvatar(
+                                              backgroundImage:
+                                              value.documents[i]['subject'].toString().split(' ').length == 3 ?
+                                              value.documents[i]['subject'].toString().split(' ')[0] == "IQ" ? AssetImage("lib/Assets/iq.png") :
+                                              value.documents[i]['subject'].toString().split(' ')[0] == "mindmap" ? AssetImage("lib/Assets/mindmap.png") :
+                                              value.documents[i]['subject'].toString().split(' ')[0] == "phonics" ? AssetImage("lib/Assets/phonics.png") :
+                                              null :
+                                              value.documents[i]['subject'].toString().split(',')[0] == "IQ" ? AssetImage("lib/Assets/iq.png") :
+                                              value.documents[i]['subject'].toString().split(',')[0] == "mindmap" ? AssetImage("lib/Assets/mindmap.png") :
+                                              value.documents[i]['subject'].toString().split(',')[0] == "phonics" ? AssetImage("lib/Assets/phonics.png") :
+                                              null,
+
+
+                                              backgroundColor:
+                                              value.documents[i]['class'] == "preschoolers" ? Color.fromRGBO(
+                                                  53, 172, 167, 1) :
+                                              value.documents[i]['class'] == "junior" ?Color.fromRGBO(
+                                                  157, 120, 94, 1) :
+                                              value.documents[i]['class'] == "advanced" ? Color.fromRGBO(
+                                                  173, 228, 109, 1) :
+                                              Colors.green
+
+                                          ),
+                                        ),
                                       ),
 
                                     ),
@@ -232,18 +296,33 @@ with TickerProviderStateMixin{
                                           .start,
                                       children: [
                                         Container(
-                                          child: Text("Mon 09:00-10:00 AM",
+                                          child: Text("${value.documents[i].data['classDay'].toString().substring(0, 3)}"
+                                              " ${value.documents[i].data['startTime'].toString()} -"
+                                              " ${value.documents[i].data['endTime'].toString()}",
+
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 17
                                             ),),
 
+
+
+//                                          child: Text("Mon 09:00-10:00 AM",
+//                                            style: TextStyle(
+//                                                color: Colors.white,
+//                                                fontSize: 17
+//                                            ),),
+
                                         ),
                                         Container(
-                                          child: Text(
-                                            "IQ Junior", style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 30
+                                          child:  Text("${ value.documents[i]['subject'].split(" ")[0]} ${value.documents[i]['class'] == "preschoolers" ? "Preschool" :
+                                          value.documents[i]['class'] == "junior" ? "Junior" :
+                                          value.documents[i]['class'] == "advanced" ? "Advanced" :
+                                          " "
+                                          }" , style: TextStyle(
+                                            fontSize: 22,
+                                            color: Colors.white
+
                                           ),),
                                         ),
                                         Row(
@@ -350,9 +429,11 @@ with TickerProviderStateMixin{
                                               color: Colors.white
                                           ),
                                           child: Center(
-                                            child: Text("6", style: TextStyle(
-                                                fontSize: 20
-                                            ),),
+                                            child:  Text("6", style: TextStyle(
+                                                    fontSize: 20
+                                                )
+
+                                            ),
                                           ),
                                         ),
                                         SizedBox(
@@ -395,8 +476,8 @@ with TickerProviderStateMixin{
 
                           ],
                         )
-                    );
-                  })
+                    )
+
 
 
           );
@@ -408,6 +489,9 @@ with TickerProviderStateMixin{
 
   @override
   void initState() {
+
+
+
     initialDateIndex = DateTime
         .now()
         .weekday - 1;
@@ -420,11 +504,6 @@ with TickerProviderStateMixin{
     wd(tabController.index);
     tabController.addListener(controllerListener);
 
-
-
-
-    todayCards.clear();
-    List<StreamBuilder> signedInStudents = [];
 
 
 
@@ -461,12 +540,20 @@ with TickerProviderStateMixin{
         .height;
 
 
-    initSign(height, width);
 
 
 
 
 
+
+
+
+    if(todayCards.length == 0){
+      initSign(height , width);
+      return new Center(
+        child: new CircularProgressIndicator(),
+      );
+    }
 
     return
       Scaffold(
@@ -514,7 +601,7 @@ with TickerProviderStateMixin{
                 options: CarouselOptions(
                   aspectRatio: 16/9,
                   viewportFraction: 0.8,
-                  initialPage: 0,
+                  initialPage: initialPlaceholder,
                   enableInfiniteScroll: false,
 
                   autoPlay: false,
