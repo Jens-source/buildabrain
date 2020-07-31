@@ -53,6 +53,7 @@ dependencies:
   custom_navigator: ^0.2.0
 
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
