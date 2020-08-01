@@ -22,6 +22,8 @@ with TickerProviderStateMixin {
 
   TabController _tabController;
   int tab = 0;
+  List<int> signedIn;
+  int initialPlaceholder;
 
 
   StreamBuilder scheduleList(weekDay, height) {
@@ -193,7 +195,6 @@ with TickerProviderStateMixin {
   }
 
   QuerySnapshot schedules;
-  int initialPlaceholder = 0;
   String cool;
 
 
@@ -211,360 +212,17 @@ with TickerProviderStateMixin {
 
 
   Future initSign(height, width,) async {
+
+
     List<int> signedIn;
     await Firestore.instance.collection('schedule').where(
         'classDay', isEqualTo: DateFormat("EEEE").format(DateTime.now()))
         .orderBy("startTime", descending: false)
         .getDocuments()
         .then((value) async {
-      signedIn = new List(value.documents.length);
-      todayCards = List(value.documents.length);
 
 
-      for (int i = 0; i < value.documents.length; i++) {
-        signedIn[i] = 0;
-        var format = DateFormat("HH:mm");
-        var one = format.parse(DateFormat("HH:mm").format(DateTime.now()));
-        var two = format.parse(value.documents[i].data['endTime']);
 
-
-        if (two.difference(one)
-            .inMinutes < 0 &&
-            initialPlaceholder != value.documents.length - 1) {
-          initialPlaceholder = initialPlaceholder + 1;
-
-
-          QuerySnapshot studentSnapshot = await Firestore.instance.collection(
-              'schedule/${value.documents[i].documentID}/students')
-              .getDocuments();
-
-          List <int> finals = new List(studentSnapshot.documents.length);
-
-          print(studentSnapshot.documents.length);
-
-
-          for (int k = 0; k < studentSnapshot.documents.length; k++) {
-            finals[k] = 0;
-          }
-
-
-          await Firestore.instance.collection(
-              'students/${studentSnapshot.documents[i].data['uid']}/timestamps')
-              .where('date',
-              isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()))
-              .snapshots().listen((event) {
-            finals[i] = event.documents.length;
-            for (int j = 0; j < finals.length; j++) {
-              setState(() {
-                signedIn[initialPlaceholder] =
-                    signedIn[initialPlaceholder] + finals[j];
-              });
-              print("Signed ${signedIn}");
-            }
-          });
-        }
-
-
-        todayCards[i] =
-            Container(
-                padding: EdgeInsets.only(top: width / 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  color: Color.fromRGBO(153, 107, 55, 1),
-                ),
-
-
-                child: Stack(
-                  children: [
-
-
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-
-                            SizedBox(
-                              width: width / 20,
-                            ),
-                            Container(
-                              height: width / 4,
-                              width: width / 4,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(100)),
-                                  color: Colors.white30
-                              ),
-                              child: Center(
-                                child: Container(
-                                  margin: EdgeInsets.all(5),
-                                  height: height / 7,
-                                  width: height / 7,
-                                  child: CircleAvatar(
-                                      backgroundImage:
-                                      value.documents[i]['subject']
-                                          .toString()
-                                          .split(' ')
-                                          .length == 3 ?
-                                      value.documents[i]['subject']
-                                          .toString()
-                                          .split(' ')[0] == "IQ" ? AssetImage(
-                                          "lib/Assets/iq.png") :
-                                      value.documents[i]['subject']
-                                          .toString()
-                                          .split(' ')[0] == "mindmap"
-                                          ? AssetImage("lib/Assets/mindmap.png")
-                                          :
-                                      value.documents[i]['subject']
-                                          .toString()
-                                          .split(' ')[0] == "phonics"
-                                          ? AssetImage("lib/Assets/phonics.png")
-                                          :
-                                      null :
-                                      value.documents[i]['subject']
-                                          .toString()
-                                          .split(',')[0] == "IQ" ? AssetImage(
-                                          "lib/Assets/iq.png") :
-                                      value.documents[i]['subject']
-                                          .toString()
-                                          .split(',')[0] == "mindmap"
-                                          ? AssetImage("lib/Assets/mindmap.png")
-                                          :
-                                      value.documents[i]['subject']
-                                          .toString()
-                                          .split(',')[0] == "phonics"
-                                          ? AssetImage("lib/Assets/phonics.png")
-                                          :
-                                      null,
-
-
-                                      backgroundColor:
-                                      value.documents[i]['class'] ==
-                                          "preschoolers" ? Color.fromRGBO(
-                                          53, 172, 167, 1) :
-                                      value.documents[i]['class'] == "junior"
-                                          ? Color.fromRGBO(
-                                          157, 120, 94, 1)
-                                          :
-                                      value.documents[i]['class'] == "advanced"
-                                          ? Color.fromRGBO(
-                                          173, 228, 109, 1)
-                                          :
-                                      Colors.green
-
-                                  ),
-                                ),
-                              ),
-
-                            ),
-
-                            SizedBox(
-                              width: 20,
-                            ),
-
-
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment
-                                  .start,
-                              children: [
-                                Container(
-                                  child: Text(
-                                    "${value.documents[i].data['classDay']
-                                        .toString()
-                                        .substring(0, 3)}"
-                                        " ${value.documents[i].data['startTime']
-                                        .toString()} -"
-                                        " ${value.documents[i].data['endTime']
-                                        .toString()}",
-
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 17
-                                    ),),
-
-
-//                                          child: Text("Mon 09:00-10:00 AM",
-//                                            style: TextStyle(
-//                                                color: Colors.white,
-//                                                fontSize: 17
-//                                            ),),
-
-                                ),
-                                Container(
-                                  child: Text(
-                                    "${ value.documents[i]['subject'].split(
-                                        " ")[0]} ${value
-                                        .documents[i]['class'] == "preschoolers"
-                                        ? "Preschool"
-                                        :
-                                    value.documents[i]['class'] == "junior"
-                                        ? "Junior"
-                                        :
-                                    value.documents[i]['class'] == "advanced"
-                                        ? "Advanced"
-                                        :
-                                    " "
-                                    }", style: TextStyle(
-                                      fontSize: 22,
-                                      color: Colors.white
-
-                                  ),),
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      child: Text(
-                                        "Teacher", style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 25
-                                      ),),
-                                    ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-
-                                    Container(
-                                      child: Text(
-                                        "Jens", style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 25
-                                      ),),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  child: Text(
-                                    "Assistant Bee", style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20
-                                  ),),
-                                ),
-
-
-                              ],
-                            )
-
-                          ],
-                        ),
-
-                        SizedBox(
-                          height: 15,
-                        ),
-
-
-                      ],
-                    ),
-
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: EdgeInsets.only(top: 10, left: 25),
-                        height: height / 8,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(15)),
-                          color: Color.fromRGBO(243, 197, 145, 1),
-                        ),
-
-
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .start,
-                              children: [
-                                Container(
-                                  child: Text("Students in class",
-                                    style: TextStyle(
-                                        fontSize: 20
-                                    ),),
-                                ),
-                                SizedBox(
-                                  width: 80,
-                                ),
-                                Container(
-                                  child: Text("8", style: TextStyle(
-                                      fontSize: 20
-                                  ),),
-                                ),
-
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .start,
-                              children: [
-                                Container(
-                                  child: Text(
-                                    "Checked in", style: TextStyle(
-                                      fontSize: 20
-                                  ),),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(100)),
-                                      color: Colors.white
-                                  ),
-                                  child: Center(
-                                    child: Text(signedIn[i].toString(),
-                                        style: TextStyle(
-                                            fontSize: 20
-                                        )
-
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Container(
-                                  child: Text(
-                                    "Absent", style: TextStyle(
-                                      fontSize: 20
-                                  ),),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-
-                                Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(100)),
-                                      color: Colors.white
-                                  ),
-                                  child: Center(
-                                    child: Text("2", style: TextStyle(
-                                        fontSize: 20
-                                    ),),
-                                  ),
-                                ),
-
-
-                              ],
-                            ),
-                          ],
-                        ),
-
-
-                      ),
-                    )
-
-                  ],
-                )
-
-
-            );
-      }
     });
   }
 
@@ -611,17 +269,6 @@ with TickerProviderStateMixin {
         .size
         .height;
 
-
-    if (todayCards[0] == null) {
-      setState(() {
-        initSign(height, width);
-      });
-
-
-      return new Center(
-        child: new CircularProgressIndicator(),
-      );
-    }
 
     return
       Scaffold(
@@ -699,19 +346,399 @@ with TickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
 
-                    CarouselSlider(
-                        items: todayCards,
-                        options: CarouselOptions(
-                          aspectRatio: 16 / 9,
-                          viewportFraction: 0.8,
-                          initialPage: initialPlaceholder,
-                          enableInfiniteScroll: false,
+                    StreamBuilder<QuerySnapshot>(
+                      stream: Firestore.instance.collection('schedule').where(
+                          'classDay', isEqualTo: DateFormat("EEEE").format(DateTime.now()))
+                          .orderBy("startTime", descending: false).snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return new Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        else {
+                          signedIn = new List(snapshot.data.documents.length);
+                          todayCards = List(snapshot.data.documents.length);
 
-                          autoPlay: false,
-                          autoPlayCurve: Curves.fastOutSlowIn,
-                          enlargeCenterPage: true,
-                          scrollDirection: Axis.horizontal,
-                        )
+
+
+                          return CarouselSlider.builder(
+
+
+                            itemCount: snapshot.data.documents.length,
+                            itemBuilder: (BuildContext context, int i) {
+
+
+                              var format = DateFormat("HH:mm");
+                              var one = format.parse(
+                                  DateFormat("HH:mm").format(DateTime.now()));
+                              var two = format.parse(snapshot.data.documents[i].data['endTime']);
+
+
+                              if (two.difference(one)
+                                  .inMinutes < 0 &&
+                                  initialPlaceholder !=
+                                      snapshot.data.documents.length - 1) {
+                                initialPlaceholder = initialPlaceholder + 1;
+                              }
+
+
+                                return StreamBuilder<QuerySnapshot>(
+                                  stream: Firestore.instance.collection(
+                                      'students/${snapshot.data.documents[i]
+                                          .data['uid']}/timestamps')
+                                      .where('date',
+                                      isEqualTo: DateFormat("yyyy-MM-dd").format(
+                                          DateTime.now()))
+                                      .snapshots(),
+                                  builder: (context, snap) {
+                                    if (!snapshot.hasData) {
+                                      return new Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+
+                                    List <int> finals = new List(
+                                        snap.data.documents.length);
+                                    for (int k = 0; k <
+                                        snap.data.documents.length; k++) {
+                                      finals[k] = 0;
+                                    }
+
+
+                                    for (int j = 0; j < snap.data.documents.length; j++) {
+                                      setState(() {
+                                        signedIn[initialPlaceholder] =
+                                            signedIn[initialPlaceholder] + finals[j];
+                                      });
+                                      print("Signed ${signedIn}");
+                                    }
+
+
+
+
+
+                                    return Container(
+                                        padding: EdgeInsets.only(top: width / 20),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                                          color: Color.fromRGBO(153, 107, 55, 1),
+                                        ),
+
+
+                                        child: Stack(
+                                          children: [
+
+
+                                            Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+
+                                                    SizedBox(
+                                                      width: width / 20,
+                                                    ),
+                                                    Container(
+                                                      height: width / 4,
+                                                      width: width / 4,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.all(
+                                                              Radius.circular(100)),
+                                                          color: Colors.white30
+                                                      ),
+                                                      child: Center(
+                                                        child: Container(
+                                                          margin: EdgeInsets.all(5),
+                                                          height: height / 7,
+                                                          width: height / 7,
+                                                          child: CircleAvatar(
+                                                              backgroundImage:
+                                                              snapshot.data.documents[i]['subject']
+                                                                  .toString()
+                                                                  .split(' ')
+                                                                  .length == 3 ?
+                                                              snapshot.data.documents[i]['subject']
+                                                                  .toString()
+                                                                  .split(' ')[0] == "IQ" ? AssetImage(
+                                                                  "lib/Assets/iq.png") :
+                                                              snapshot.data.documents[i]['subject']
+                                                                  .toString()
+                                                                  .split(' ')[0] == "mindmap"
+                                                                  ? AssetImage("lib/Assets/mindmap.png")
+                                                                  :
+                                                              snapshot.data.documents[i]['subject']
+                                                                  .toString()
+                                                                  .split(' ')[0] == "phonics"
+                                                                  ? AssetImage("lib/Assets/phonics.png")
+                                                                  :
+                                                              null :
+                                                              snapshot.data.documents[i]['subject']
+                                                                  .toString()
+                                                                  .split(',')[0] == "IQ" ? AssetImage(
+                                                                  "lib/Assets/iq.png") :
+                                                              snapshot.data.documents[i]['subject']
+                                                                  .toString()
+                                                                  .split(',')[0] == "mindmap"
+                                                                  ? AssetImage("lib/Assets/mindmap.png")
+                                                                  :
+                                                              snapshot.data.documents[i]['subject']
+                                                                  .toString()
+                                                                  .split(',')[0] == "phonics"
+                                                                  ? AssetImage("lib/Assets/phonics.png")
+                                                                  :
+                                                              null,
+
+
+                                                              backgroundColor:
+                                                              snapshot.data.documents[i]['class'] ==
+                                                                  "preschoolers" ? Color.fromRGBO(
+                                                                  53, 172, 167, 1) :
+                                                              snapshot.data.documents[i]['class'] == "junior"
+                                                                  ? Color.fromRGBO(
+                                                                  157, 120, 94, 1)
+                                                                  :
+                                                              snapshot.data.documents[i]['class'] == "advanced"
+                                                                  ? Color.fromRGBO(
+                                                                  173, 228, 109, 1)
+                                                                  :
+                                                              Colors.green
+
+                                                          ),
+                                                        ),
+                                                      ),
+
+                                                    ),
+
+                                                    SizedBox(
+                                                      width: 20,
+                                                    ),
+
+
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment
+                                                          .start,
+                                                      children: [
+                                                        Container(
+                                                          child: Text(
+                                                            "${ snapshot.data.documents[i].data['classDay']
+                                                                .toString()
+                                                                .substring(0, 3)}"
+                                                                " ${ snapshot.data.documents[i].data['startTime']
+                                                                .toString()} -"
+                                                                " ${ snapshot.data.documents[i].data['endTime']
+                                                                .toString()}",
+
+                                                            style: TextStyle(
+                                                                color: Colors.white,
+                                                                fontSize: 17
+                                                            ),),
+
+
+//                                          child: Text("Mon 09:00-10:00 AM",
+//                                            style: TextStyle(
+//                                                color: Colors.white,
+//                                                fontSize: 17
+//                                            ),),
+
+                                                        ),
+                                                        Container(
+                                                          child: Text(
+                                                            "${  snapshot.data.documents[i]['subject'].split(
+                                                                " ")[0]} ${ snapshot.data
+                                                                .documents[i]['class'] == "preschoolers"
+                                                                ? "Preschool"
+                                                                :
+                                                            snapshot.data.documents[i]['class'] == "junior"
+                                                                ? "Junior"
+                                                                :
+                                                            snapshot.data.documents[i]['class'] == "advanced"
+                                                                ? "Advanced"
+                                                                :
+                                                            " "
+                                                            }", style: TextStyle(
+                                                              fontSize: 22,
+                                                              color: Colors.white
+
+                                                          ),),
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Container(
+                                                              child: Text(
+                                                                "Teacher", style: TextStyle(
+                                                                  color: Colors.black,
+                                                                  fontSize: 25
+                                                              ),),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 5,
+                                                            ),
+
+                                                            Container(
+                                                              child: Text(
+                                                                "Jens", style: TextStyle(
+                                                                  color: Colors.white,
+                                                                  fontSize: 25
+                                                              ),),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Container(
+                                                          child: Text(
+                                                            "Assistant Bee", style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 20
+                                                          ),),
+                                                        ),
+
+
+                                                      ],
+                                                    )
+
+                                                  ],
+                                                ),
+
+                                                SizedBox(
+                                                  height: 15,
+                                                ),
+
+
+                                              ],
+                                            ),
+
+                                            Positioned(
+                                              bottom: 0,
+                                              left: 0,
+                                              right: 0,
+                                              child: Container(
+                                                padding: EdgeInsets.only(top: 10, left: 25),
+                                                height: height / 8,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.all(
+                                                      Radius.circular(15)),
+                                                  color: Color.fromRGBO(243, 197, 145, 1),
+                                                ),
+
+
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment
+                                                          .start,
+                                                      children: [
+                                                        Container(
+                                                          child: Text("Students in class",
+                                                            style: TextStyle(
+                                                                fontSize: 20
+                                                            ),),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 80,
+                                                        ),
+                                                        Container(
+                                                          child: Text("8", style: TextStyle(
+                                                              fontSize: 20
+                                                          ),),
+                                                        ),
+
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment
+                                                          .start,
+                                                      children: [
+                                                        Container(
+                                                          child: Text(
+                                                            "Checked in", style: TextStyle(
+                                                              fontSize: 20
+                                                          ),),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 20,
+                                                        ),
+                                                        Container(
+                                                          width: 30,
+                                                          height: 30,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius.all(
+                                                                  Radius.circular(100)),
+                                                              color: Colors.white
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(signedIn[i].toString().toString(),
+                                                                style: TextStyle(
+                                                                    fontSize: 20
+                                                                )
+
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 20,
+                                                        ),
+                                                        Container(
+                                                          child: Text(
+                                                            "Absent", style: TextStyle(
+                                                              fontSize: 20
+                                                          ),),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 20,
+                                                        ),
+
+                                                        Container(
+                                                          width: 30,
+                                                          height: 30,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius.all(
+                                                                  Radius.circular(100)),
+                                                              color: Colors.white
+                                                          ),
+                                                          child: Center(
+                                                            child: Text("2", style: TextStyle(
+                                                                fontSize: 20
+                                                            ),),
+                                                          ),
+                                                        ),
+
+
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+
+
+                                              ),
+                                            )
+
+                                          ],
+                                        )
+
+
+                                    );
+                                  }
+                                );
+
+                        },
+
+                            
+                            options: CarouselOptions(
+                            aspectRatio: 16 / 9,
+                            viewportFraction: 0.8,
+                            initialPage: initialPlaceholder,
+                            enableInfiniteScroll: false,
+
+                            autoPlay: false,
+                            autoPlayCurve: Curves.fastOutSlowIn,
+                            enlargeCenterPage: true,
+                            scrollDirection: Axis.horizontal,
+                          ),
+                        );
+
+                        }
+
+                      }
+
                     ),
 
                     SizedBox(
