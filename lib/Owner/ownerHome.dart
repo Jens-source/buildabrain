@@ -487,7 +487,7 @@ class _OwnerHome extends State<OwnerHome> with SingleTickerProviderStateMixin{
         }
         else
         return new Scaffold(
-
+            extendBody: true,
           backgroundColor: Colors.white,
 
           appBar: AppBar(
