@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -6,82 +7,71 @@ import 'package:table_calendar/table_calendar.dart';
 
 class Schedule extends StatefulWidget {
 
-  Schedule(this.promoQuery);
+  Schedule(this.promoQuery, this.holidayQuery);
 
+  final holidayQuery;
   final promoQuery;
 
   @override
-  _ScheduleState createState() => _ScheduleState(this.promoQuery);
+  _ScheduleState createState() => _ScheduleState(this.promoQuery, this.holidayQuery);
 }
 
 class _ScheduleState extends State<Schedule> {
 
-  _ScheduleState(this.promoQuery);
+  _ScheduleState(this.promoQuery, this.holidayQuery);
   final QuerySnapshot promoQuery;
+  final QuerySnapshot holidayQuery;
 
-  CalendarController _calendarController;
-  Map<DateTime, List> _events = {};
-  final Map<DateTime, List> _holidays = {
-    DateTime(2020, 7, 28): ["King Vajiralongkorn's Birthday"],
-    DateTime(2020, 8, 12): ["Her Majesty the Queen Mother's Birthday"],
-    DateTime(2020, 10, 13): ["Passing of His Majesty the Late King"],
-    DateTime(2020, 10, 23): ["Chulalongkorn Memorial Day"],
-    DateTime(2020, 12, 5): ["His Majesty the Late King's Birthday"],
-    DateTime(2020, 12, 7): ["His Majesty the Late King's Birthday Holiday"],
-    DateTime(2020, 12, 10): ["Constitution Day"],
-    DateTime(2020, 12, 25): ["Christmas Day"],
-  };
+   CalendarController _calendarController;
+   Map<DateTime, List> _events ;
+   Map<DateTime, List> _holidays;
 
 
-
-  List<DateTime> promoDates;
+   String selectedDate;
+   List<DocumentSnapshot> selectedDocs;
 
 
 
 
 
 
+   void onSelected(DateTime date, List name){
 
+     print(date);
+     print(name);
 
-
+   }
 
 
   @override
   void initState() {
     _calendarController = CalendarController();
-
-
-
-
-
-    for (int i = 0; i < promoQuery.documents.length; i++){
-
-      promoDates.add(DateTime.parse(promoQuery.documents[i].data['date']));
-    }
-
-
-    print(promoDates);
-
+    var holidayItems = holidayQuery.documents;
+    var grouped = groupBy(holidayItems, (item) => item['date']);
+    var map = grouped.map((date, item) => MapEntry(DateTime.parse(date), List.generate(item.length, (int index) => item[index]['name'])));
+    var items = promoQuery.documents;
+    var promoGrouped = groupBy(items, (item) => item['date']);
+    var promoMap = promoGrouped.map((date, item) => MapEntry(DateTime.parse(date), List.generate(item.length, (int index) => item[index]['detail'])));
+    print(map);
+    _events = promoMap;
+    _holidays = map;
+    selectedDate = DateFormat("yMMMMd").format(DateTime.now());
 
     super.initState();
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
 
-
-
-
     return Scaffold(
-
       extendBody: true,
       body: Center(
         child: Container(
           child: Stack(
-
-
             children: [
-
           Positioned(
             child: Container(
               margin: EdgeInsets.only(top: 10),
@@ -100,76 +90,7 @@ class _ScheduleState extends State<Schedule> {
                       child: IconButton(
                         icon: Icon(Icons.add, color: Colors.white,),
                         onPressed: (){
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: new Text("Add an event "),
-                                  content: Container(
-                                    height: 300,
-                                    child: Column(
-                                      children: [
-                                        new TextField(
-                                          decoration: InputDecoration(
-                                            hintText: "Enter your event",
-                                            hintStyle: TextStyle(
-                                              fontSize: 20
-                                            ),
 
-                                            disabledBorder: InputBorder.none,
-                                            border: InputBorder.none,
-                                            errorBorder: InputBorder.none,
-                                            enabledBorder: InputBorder.none,
-
-                                          ),
-
-                                          onChanged: (value) {
-                                            setState(() {
-
-                                            });
-                                          },
-                                        ),
-
-
-
-                                        Container(
-                                          child: Text("Choose date"),
-                                        ),
-
-                                        Container(
-                                          child: Text("${DateFormat("EEEE").format(DateTime.now())}, "
-                                              "}, "
-                                              ""),
-                                        ),
-
-
-
-                                      ],
-                                    ),
-                                  ),
-
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      onPressed: () {
-                                      },
-                                      child: Text("ADD", style: TextStyle(
-                                          color: Colors.blue
-                                      ),),
-                                    ),
-
-                                    FlatButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text("CANCEL", style: TextStyle(
-                                          color: Colors.blue
-                                      ),),
-                                    ),
-                                  ],
-
-
-                                );
-                              });
                         },
                       ),
                     ),
@@ -191,12 +112,13 @@ class _ScheduleState extends State<Schedule> {
                         formatAnimation: FormatAnimation.slide,
                         events: _events,
                         holidays: _holidays,
+                        onDaySelected: onSelected,
+
 
 
                         builders: CalendarBuilders(
                           markersBuilder: (context, date, events, holidays) {
                             final children = <Widget>[];
-
                             if (events.isNotEmpty) {
                               children.add(
                                 Positioned(
@@ -206,16 +128,19 @@ class _ScheduleState extends State<Schedule> {
                             }
                             if (holidays.isNotEmpty) {
                               children.add((
-                                  Center(
-                                      child: Container(
-                                        padding: EdgeInsets.all(5),
+
+                                    Container(
+                                        height: 10,
+                                        width: 10,
+
+                                        padding: EdgeInsets.only(top: 10),
                                         decoration: BoxDecoration(
                                             borderRadius: BorderRadius.all(Radius.circular(100)),
-                                            color: Colors.white38
+                                            color: Colors.greenAccent
 
                                         ),
                                       )
-                                  )
+
                               ),
                               );
                             }
@@ -225,6 +150,7 @@ class _ScheduleState extends State<Schedule> {
                         calendarStyle: CalendarStyle(
 
 
+
                           todayStyle: TextStyle(
                             color: Colors.black
                           ),
@@ -232,6 +158,8 @@ class _ScheduleState extends State<Schedule> {
                           selectedColor: Color.fromRGBO(196, 89, 0, 1),
 
                           holidayStyle: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 20
 
                           ),
 
@@ -249,7 +177,7 @@ class _ScheduleState extends State<Schedule> {
 
                           highlightToday: true,
                           highlightSelected: true,
-                          outsideDaysVisible: true,
+                          outsideDaysVisible: false,
 
                         ),
 
@@ -298,23 +226,11 @@ class _ScheduleState extends State<Schedule> {
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: events.length == 8
-            ? Colors.red[500] :
-        date.isBefore(DateTime.now())?
-        Colors.orange
-            : Colors.blue[800],
+        color: Colors.yellow,
       ),
-      width: 16.0,
-      height: 16.0,
-      child: Center(
-        child: Text(
-          '${events.length}',
-          style: TextStyle().copyWith(
-            color: Colors.white,
-            fontSize: 12.0,
-          ),
-        ),
-      ),
+      width: 10.0,
+      height: 10.0,
+
     );
   }
 

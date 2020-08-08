@@ -215,10 +215,14 @@ with TickerProviderStateMixin {
   }
 
 
+  QuerySnapshot holidayQuery;
   QuerySnapshot promoQuery;
 
   @override
   void initState() {
+    Firestore.instance.collection('holidays').getDocuments().then((value) {
+      holidayQuery = value;
+    }).asStream();
 
     Firestore.instance.collection('promotions').getDocuments().then((value) {
       promoQuery = value;
@@ -323,7 +327,6 @@ with TickerProviderStateMixin {
 
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -843,7 +846,7 @@ with TickerProviderStateMixin {
 
 
                     Container(
-                        height: height / 3.1,
+                        height: height / 3.0,
                         width: width,
 
                         child: TabBarView(
@@ -865,7 +868,7 @@ with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              Schedule(promoQuery),
+              Schedule(promoQuery, holidayQuery),
               Container(),
               Container(),
               Container(),

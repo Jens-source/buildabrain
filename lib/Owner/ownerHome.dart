@@ -17,7 +17,7 @@ class OwnerHome extends StatefulWidget {
   _OwnerHome createState() => _OwnerHome(this.user);
 }
 
-class _OwnerHome extends State<OwnerHome> with SingleTickerProviderStateMixin{
+class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
 
 
   _OwnerHome(this.user);
@@ -29,10 +29,12 @@ class _OwnerHome extends State<OwnerHome> with SingleTickerProviderStateMixin{
   String scanTeacherOut;
   int tab;
   TabController tabController;
+  TabController bottomTabController;
 
   @override
   void initState() {
     tabController = new TabController(length: 3, vsync: this);
+    bottomTabController = new TabController(length: 5, vsync: this);
     tab = tabController.index;
 
 
@@ -491,13 +493,87 @@ class _OwnerHome extends State<OwnerHome> with SingleTickerProviderStateMixin{
           backgroundColor: Colors.white,
 
           appBar: AppBar(
+            actions: [
+              bottomTabController.index == 1 ? IconButton(
+                icon: Icon(Icons.add, color: Colors.white,),
+                onPressed: (){
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: new Text("Add an event "),
+                          content: Container(
+                            height: 300,
+                            child: Column(
+                              children: [
+                                new TextField(
+                                  decoration: InputDecoration(
+                                    hintText: "Enter your event",
+                                    hintStyle: TextStyle(
+                                        fontSize: 20
+                                    ),
 
-            actionsIconTheme: IconThemeData(color: Colors.white),
+                                    disabledBorder: InputBorder.none,
+                                    border: InputBorder.none,
+                                    errorBorder: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+
+                                  ),
+
+                                  onChanged: (value) {
+                                    setState(() {
+
+                                    });
+                                  },
+                                ),
+
+
+
+                                Container(
+                                  child: Text("Choose date"),
+                                ),
+
+                                Container(
+                                  child: Text("${DateFormat("EEEE").format(DateTime.now())}, "
+                                      "}, "
+                                      ""),
+                                ),
+
+
+
+                              ],
+                            ),
+                          ),
+
+                          actions: <Widget>[
+                            FlatButton(
+                              onPressed: () {
+                              },
+                              child: Text("ADD", style: TextStyle(
+                                  color: Colors.blue
+                              ),),
+                            ),
+
+                            FlatButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text("CANCEL", style: TextStyle(
+                                  color: Colors.blue
+                              ),),
+                            ),
+                          ],
+
+
+                        );
+                      });
+                },
+              ) : Container()
+            ],
+
             title: Row(
                 children: [
-
                   tab == 0 ? FlatButton(
-
                     child:  Container(
                       width: 50,
                       height: 50,
