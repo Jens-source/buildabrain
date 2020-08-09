@@ -282,7 +282,7 @@ class _ScheduleState extends State<Schedule> {
                                     children: [
                                       Container(
                                         padding: EdgeInsets.only(
-                                            left: 50, right: 20, bottom: 10),
+                                            left: 10, right: 20, bottom: 10),
                                         margin: EdgeInsets.only(
                                             left: 80,
                                             right: 0,
@@ -298,7 +298,16 @@ class _ScheduleState extends State<Schedule> {
                                                 20, 20, 20, 0.15)
                                         ),
                                         child: ListTile(
-                                          title: Text(listValues[i][0]),
+                                          leading: Container(
+                                            child: FadeInImage.assetNetwork(
+
+
+                                              placeholder: 'assets/loading.gif',
+
+                                              image:listValues[i][0].data['photoUrl'], fit: BoxFit.fitHeight,
+                                            ),
+                                          ),
+                                          title: Text(listValues[i][0].data['detail']),
                                         ),
 
 
@@ -325,7 +334,7 @@ class _ScheduleState extends State<Schedule> {
                                     children: [
                                       Container(
                                         padding: EdgeInsets.only(
-                                            left: 50, right: 20, bottom: 10),
+                                              top: 8, right: 20, bottom: 10),
                                         margin: EdgeInsets.only(
                                             left: 80,
                                             right: 0,
@@ -344,18 +353,23 @@ class _ScheduleState extends State<Schedule> {
 
 
                                           leading: Container(
-                                            height: 40,
-                                            width: 40,
+                                            height: 50,
+                                            width: 50,
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.all(Radius.circular(100)),
 
                                             ),
-                                            child: FadeInImage.assetNetwork(
 
-                                            placeholder: 'assets/loading.gif',
+                                            child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(25.0),
+                              child: FadeInImage.assetNetwork(
 
-                                              image:listValues[i][1] != 0 ? listValues[i][1] : "https://www.kindpng.com/picc/m/24-248253_user-profile-default-image-png-clipart-png-download.png", fit: BoxFit.cover,
-                                                )),
+
+                              placeholder: 'assets/loading.gif',
+
+                              image:listValues[i][1] != 0 ? listValues[i][1] : "https://www.kindpng.com/picc/m/24-248253_user-profile-default-image-png-clipart-png-download.png", fit: BoxFit.cover,
+                              ),)
+                                            ),
                                           title: Text(listValues[i][0]),
                                         ),
 
@@ -424,7 +438,7 @@ class _ScheduleState extends State<Schedule> {
     var items = promoQuery.documents;
     var promoGrouped = groupBy(items, (item) => item['date']);
     var promoMap = promoGrouped.map((date, item) => MapEntry(DateTime.parse(date),
-        List.generate(item.length, (int index) => item[index]['detail'],
+        List.generate(item.length, (int index) => item[index],
         )));
     _events = promoMap;
     _holidays = map;
@@ -438,29 +452,11 @@ class _ScheduleState extends State<Schedule> {
 
     Firestore.instance.collection('students').getDocuments().then((value) {
 
-      students = value;
       for(int i = 0; i < value.documents.length; i++){
-
-
-
         if(value.documents[i].data['birthday'] != 0){
-          _events.putIfAbsent(DateTime.parse(value.documents[i].data['birthday']), () =>
-          [
-            value.documents[i].data['nickName'],
-            value.documents[i].data['photoUrl'],
-
-          ]);
+          _events.putIfAbsent(DateTime.parse(value.documents[0].data['birthday']), () => [value.documents[0]]);
         }
-
-
-
-
-
       }
-
-      print(_events);
-
-      
     });
 
 

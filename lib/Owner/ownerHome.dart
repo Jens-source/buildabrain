@@ -608,7 +608,7 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
 
 
           ),
-          body: Dashboard()
+          body: Dashboard(user)
 //
 //          new Column(
 //            crossAxisAlignment: CrossAxisAlignment.center,

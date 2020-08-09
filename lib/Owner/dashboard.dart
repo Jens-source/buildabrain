@@ -1,6 +1,7 @@
 import 'dart:async';
 
 
+import 'package:buildabrain/Owner/scanner.dart';
 import 'package:buildabrain/Owner/schedule.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,12 +9,18 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Dashboard extends StatefulWidget {
+  Dashboard(this.user);
+  final user;
+
   @override
-  _DashboardState createState() => _DashboardState();
+  _DashboardState createState() => _DashboardState(this.user);
 }
 
 class _DashboardState extends State<Dashboard>
 with TickerProviderStateMixin {
+
+  _DashboardState(this.user);
+  final user;
 
   List<Widget> todayCards = new List(1);
   List<int> allSignedTotal;
@@ -230,7 +237,7 @@ with TickerProviderStateMixin {
     initialDateIndex = DateTime
         .now()
         .weekday - 1;
-    _tabController = new TabController(length: 5, vsync: this);
+    _tabController = new TabController(length: 5, vsync: this,);
 
     tab = _tabController.index;
 
@@ -273,7 +280,7 @@ with TickerProviderStateMixin {
               });
             }
                       await Firestore.instance.collection("schedule/${value.documents[i].documentID}/students").getDocuments().then((value) {
-                       setState(() {
+
                          studentFromSchedule[i] = value;
                          allSigned[i] = new List(value.documents.length);
                          for(int l = 0; l < value.documents.length; l++){
@@ -281,14 +288,14 @@ with TickerProviderStateMixin {
                            Firestore.instance.collection('students/${value.documents[l].data['uid']}/timestamps')
                            .where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()))
                            .snapshots().listen((event) {
-                             setState(() {
+
 
                                allSignedTotal[i] = allSignedTotal[i] + event.documents.length;
                                
-                             });
+
                            });
                          }
-                       });
+
 
 
                     });
@@ -420,10 +427,6 @@ with TickerProviderStateMixin {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-
-
-
-
 
                            CarouselSlider.builder(
                             options: CarouselOptions(
@@ -869,7 +872,7 @@ with TickerProviderStateMixin {
                 ),
               ),
               Schedule(promoQuery, holidayQuery),
-              Container(),
+              Scanner(user),
               Container(),
               Container(),
             ],
