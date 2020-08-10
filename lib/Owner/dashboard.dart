@@ -288,11 +288,7 @@ with TickerProviderStateMixin {
                            Firestore.instance.collection('students/${value.documents[l].data['uid']}/timestamps')
                            .where('date', isEqualTo: DateFormat("yyyy-MM-dd").format(DateTime.now()))
                            .snapshots().listen((event) {
-
-
                                allSignedTotal[i] = allSignedTotal[i] + event.documents.length;
-                               
-
                            });
                          }
 
@@ -355,64 +351,7 @@ with TickerProviderStateMixin {
     return Scaffold(
         extendBody: true,
 
-          bottomNavigationBar: new Material(
-            color: Color.fromRGBO(153, 107, 55, 1),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-            child: TabBar(
-              onTap: (value) {
-                setState(() {
-                  tab = _tabController.index;
-                });
-              },
-              unselectedLabelColor: Colors.white70,
-              labelColor: Colors.white,
-              indicatorColor: Colors.white,
-              controller: _tabController,
-              tabs: <Widget>[
 
-                new Tab(child: Container(
-                  padding: EdgeInsets.only(top: 4, bottom: 3),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset("lib/Assets/home.png", height: 25,
-                        color: tab == 0 ? Colors.white : Colors.white70,),
-                      Text("HOME", style: TextStyle(fontSize: 7),)
-                    ],),),),
-                new Tab(child: Container(
-                  padding: EdgeInsets.only(top: 4, bottom: 3),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset("lib/Assets/schedule.png", height: 25,
-                          color: tab == 1 ? Colors.white : Colors.white70),
-                      Text("SCHEDULE", style: TextStyle(fontSize: 7),)
-                    ],),),),
-                new Tab(child: Container(
-                  padding: EdgeInsets.only(top: 4, bottom: 3),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset("lib/Assets/qrcode.png", height: 30,
-                          color: tab == 2 ? Colors.white : Colors.white70),
-                      Text("SCAN", style: TextStyle(fontSize: 7),)
-                    ],),),),
-                new Tab(child: Container(
-                  padding: EdgeInsets.only(top: 4, bottom: 3),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset("lib/Assets/notify.png", height: 30,
-                          color: tab == 3 ? Colors.white : Colors.white70),
-                      Text("CHAT", style: TextStyle(fontSize: 7),)
-                    ],),),),
-                new Tab(child: Container(
-                  padding: EdgeInsets.only(top: 4, bottom: 3),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset("lib/Assets/settings.png", height: 25,
-                          color: tab == 4 ? Colors.white : Colors.white70),
-                      Text("SETTINGS", style: TextStyle(fontSize: 7),)
-                    ],),),),
-              ],
-            ),
-          ),
 
           body:
 

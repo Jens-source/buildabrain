@@ -23,19 +23,24 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
   _OwnerHome(this.user);
   final user;
 
+
   bool change;
   String scanStudent;
   String scanTeacherIn;
   String scanTeacherOut;
   int tab;
-  TabController tabController;
+  TabController _tabController;
   TabController bottomTabController;
 
   @override
   void initState() {
-    tabController = new TabController(length: 3, vsync: this);
+
+
+
+
+    _tabController = new TabController(length: 5, vsync: this);
     bottomTabController = new TabController(length: 5, vsync: this);
-    tab = tabController.index;
+    tab = _tabController.index;
 
 
     setState(() {
@@ -494,82 +499,18 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
 
           appBar: AppBar(
             actions: [
-              bottomTabController.index == 1 ? IconButton(
+              tab == 1 ? IconButton(
                 icon: Icon(Icons.add, color: Colors.white,),
                 onPressed: (){
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: new Text("Add an event "),
-                          content: Container(
-                            height: 300,
-                            child: Column(
-                              children: [
-                                new TextField(
-                                  decoration: InputDecoration(
-                                    hintText: "Enter your event",
-                                    hintStyle: TextStyle(
-                                        fontSize: 20
-                                    ),
-
-                                    disabledBorder: InputBorder.none,
-                                    border: InputBorder.none,
-                                    errorBorder: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-
-                                  ),
-
-                                  onChanged: (value) {
-                                    setState(() {
-
-                                    });
-                                  },
-                                ),
 
 
 
-                                Container(
-                                  child: Text("Choose date"),
-                                ),
-
-                                Container(
-                                  child: Text("${DateFormat("EEEE").format(DateTime.now())}, "
-                                      "}, "
-                                      ""),
-                                ),
-
-
-
-                              ],
-                            ),
-                          ),
-
-                          actions: <Widget>[
-                            FlatButton(
-                              onPressed: () {
-                              },
-                              child: Text("ADD", style: TextStyle(
-                                  color: Colors.blue
-                              ),),
-                            ),
-
-                            FlatButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text("CANCEL", style: TextStyle(
-                                  color: Colors.blue
-                              ),),
-                            ),
-                          ],
-
-
-                        );
-                      });
                 },
               ) : Container()
             ],
+            leading:  tab == 1 ?  Icon(Icons.event, color: Colors.white,)
+
+             : Container(),
 
             title: Row(
                 children: [
@@ -608,314 +549,67 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
 
 
           ),
+            bottomNavigationBar: new Material(
+              color: Color.fromRGBO(153, 107, 55, 1),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+              child: TabBar(
+                onTap: (value) {
+                  setState(() {
+                    tab = _tabController.index;
+                  });
+                },
+                unselectedLabelColor: Colors.white70,
+                labelColor: Colors.white,
+                indicatorColor: Colors.white,
+                controller: _tabController,
+                tabs: <Widget>[
+
+                  new Tab(child: Container(
+                    padding: EdgeInsets.only(top: 4, bottom: 3),
+                    child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("lib/Assets/home.png", height: 25,
+                          color: tab == 0 ? Colors.white : Colors.white70,),
+                        Text("HOME", style: TextStyle(fontSize: 7),)
+                      ],),),),
+                  new Tab(child: Container(
+                    padding: EdgeInsets.only(top: 4, bottom: 3),
+                    child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("lib/Assets/schedule.png", height: 25,
+                            color: tab == 1 ? Colors.white : Colors.white70),
+                        Text("SCHEDULE", style: TextStyle(fontSize: 7),)
+                      ],),),),
+                  new Tab(child: Container(
+                    padding: EdgeInsets.only(top: 4, bottom: 3),
+                    child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("lib/Assets/qrcode.png", height: 30,
+                            color: tab == 2 ? Colors.white : Colors.white70),
+                        Text("SCAN", style: TextStyle(fontSize: 7),)
+                      ],),),),
+                  new Tab(child: Container(
+                    padding: EdgeInsets.only(top: 4, bottom: 3),
+                    child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("lib/Assets/notify.png", height: 30,
+                            color: tab == 3 ? Colors.white : Colors.white70),
+                        Text("CHAT", style: TextStyle(fontSize: 7),)
+                      ],),),),
+                  new Tab(child: Container(
+                    padding: EdgeInsets.only(top: 4, bottom: 3),
+                    child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("lib/Assets/settings.png", height: 25,
+                            color: tab == 4 ? Colors.white : Colors.white70),
+                        Text("SETTINGS", style: TextStyle(fontSize: 7),)
+                      ],),),),
+                ],
+              ),
+            ),
           body: Dashboard(user)
-//
-//          new Column(
-//            crossAxisAlignment: CrossAxisAlignment.center,
-//            children: <Widget>[
-//              Row(
-//                mainAxisAlignment: MainAxisAlignment.center,
-//
-//                children: <Widget>[
-//                  Container(
-//                      padding: EdgeInsets.all(15),
-//                      child:
-//                      GestureDetector(
-//                        onTap: () {
-//                          Navigator.of(context).push(
-//                              MaterialPageRoute(
-//                                  builder: (context) {
-//                                    return StudentAv();
-//                                  }
-//                              )
-//                          );
-//                        },
-//                          child:
-//                          Container(
-//                            height: height / 4,
-//                            width: width / 2.5,
-//                            decoration: BoxDecoration(
-//                                borderRadius: BorderRadius.all(Radius.circular(3)),
-//                                color: Colors.white,
-//                                boxShadow: [
-//                                  BoxShadow(
-//                                      color: Colors.grey,
-//                                      blurRadius: 20,
-//                                      spreadRadius: 1,
-//                                      offset: Offset(
-//                                          5,
-//                                          5
-//                                      )
-//                                  )
-//                                ]
-//                            ),
-//                              child: Column(
-//                                mainAxisAlignment: MainAxisAlignment.center,
-//                                children: <Widget>[
-//                                  Container(
-//                                    child: Icon(Icons.date_range, size: 50,),
-//                                  ),
-//                                  Container(
-//                                    padding: EdgeInsets.only(top: 15),
-//                                    child: Text("Schedule", style: TextStyle(
-//                                      fontSize: 15,
-//                                      fontWeight: FontWeight.bold
-//                                    ),),
-//                                  )
-//                                ],
-//                              ),
-//
-//                            ),
-//                          )),
-//                  Container(
-//                      padding: EdgeInsets.all(15),
-//                      child:
-//                      GestureDetector(
-//                        onTap: () async{
-//                          scanning();
-//
-//                        },
-//                          child:
-//                          Container(
-//                            height: height / 4,
-//                            width: width / 2.5,
-//                            decoration: BoxDecoration(
-//                                borderRadius: BorderRadius.all(Radius.circular(3)),
-//                                color: Colors.white,
-//                                boxShadow: [
-//                                  BoxShadow(
-//                                      color: Colors.grey,
-//                                      blurRadius: 20,
-//                                      spreadRadius: 1,
-//                                      offset: Offset(
-//                                          5,
-//                                          5
-//                                      )
-//                                  )
-//                                ]
-//                            ),
-//                            child: Column(
-//                              mainAxisAlignment: MainAxisAlignment.center,
-//                              children: <Widget>[
-//                                Container(
-//                                  child: Icon(Icons.account_box, size: 50,),
-//                                ),
-//                                Container(
-//                                  padding: EdgeInsets.only(top: 15),
-//                                  child: Text("Scan", style: TextStyle(
-//                                      fontSize: 15,
-//                                      fontWeight: FontWeight.bold
-//                                  ),),
-//                                )
-//                              ],
-//                            ),
-//                          ))),
-//                ],
-//              ),
-//              Row(
-//                mainAxisAlignment: MainAxisAlignment.center,
-//
-//                children: <Widget>[
-//                  Container(
-//                      padding: EdgeInsets.all(15),
-//                      child:
-//                      GestureDetector(
-//                        onTap: () {
-//                          Navigator.of(context).push(
-//                              MaterialPageRoute(
-//                                  builder: (context) {
-//                                    return Preschoolers();
-//                                  }
-//                              )
-//                          );
-//                        },
-//                        child:
-//                        Container(
-//                          height: height / 4,
-//                          width: width / 2.5,
-//                          decoration: BoxDecoration(
-//                              borderRadius: BorderRadius.all(Radius.circular(3)),
-//                              color: Colors.white,
-//                              boxShadow: [
-//                                BoxShadow(
-//                                    color: Colors.grey,
-//                                    blurRadius: 20,
-//                                    spreadRadius: 1,
-//                                    offset: Offset(
-//                                        5,
-//                                        5
-//                                    )
-//                                )
-//                              ]
-//                          ),
-//                          child: Column(
-//                            mainAxisAlignment: MainAxisAlignment.center,
-//                            children: <Widget>[
-//                              Container(
-//                                child: Icon(Icons.child_care, size: 50,),
-//                              ),
-//                              Container(
-//                                padding: EdgeInsets.only(top: 15),
-//                                child: Text("Unset students", style: TextStyle(
-//                                    fontSize: 15,
-//                                    fontWeight: FontWeight.bold
-//                                ),),
-//                              )
-//                            ],
-//                          ),
-//
-//                        ),
-//                      )),
-//                  Container(
-//                      padding: EdgeInsets.all(15),
-//                      child:
-//                      GestureDetector(
-//                          onTap: () {
-//                            Navigator.of(context).push(
-//                                MaterialPageRoute(
-//                                    builder: (context) {
-//                                      return  StaffInfo();
-//                                    }
-//                                )
-//                            );
-//                          },
-//                          child:
-//                          Container(
-//                            height: height / 4,
-//                            width: width / 2.5,
-//                            decoration: BoxDecoration(
-//                                borderRadius: BorderRadius.all(Radius.circular(3)),
-//                                color: Colors.white,
-//                                boxShadow: [
-//                                  BoxShadow(
-//                                      color: Colors.grey,
-//                                      blurRadius: 20,
-//                                      spreadRadius: 1,
-//                                      offset: Offset(
-//                                          5,
-//                                          5
-//                                      )
-//                                  )
-//                                ]
-//                            ),
-//                            child: Column(
-//                              mainAxisAlignment: MainAxisAlignment.center,
-//                              children: <Widget>[
-//                                Container(
-//                                  child: Icon(Icons.face, size: 50,),
-//                                ),
-//                                Container(
-//                                  padding: EdgeInsets.only(top: 15),
-//                                  child: Text("Staff Info", style: TextStyle(
-//                                      fontSize: 15,
-//                                      fontWeight: FontWeight.bold
-//                                  ),),
-//                                )
-//                              ],
-//                            ),
-//                          ))),
-//                ],
-//              ),
-//              Row(
-//                mainAxisAlignment: MainAxisAlignment.center,
-//
-//                children: <Widget>[
-//                  Container(
-//                      padding: EdgeInsets.all(15),
-//                      child:
-//                      GestureDetector(
-//                        onTap: () {},
-//                        child:
-//                        Container(
-//                          height: height / 4,
-//                          width: width / 2.5,
-//                          decoration: BoxDecoration(
-//                              borderRadius: BorderRadius.all(Radius.circular(3)),
-//                              color: Colors.white,
-//                              boxShadow: [
-//                                BoxShadow(
-//                                    color: Colors.grey,
-//                                    blurRadius: 20,
-//                                    spreadRadius: 1,
-//                                    offset: Offset(
-//                                        5,
-//                                        5
-//                                    )
-//                                )
-//                              ]
-//                          ),
-//                          child: Column(
-//                            mainAxisAlignment: MainAxisAlignment.center,
-//                            children: <Widget>[
-//                              Container(
-//                                child: Icon(Icons.payment, size: 50,),
-//                              ),
-//                              Container(
-//                                padding: EdgeInsets.only(top: 15),
-//                                child: Text("Payment", style: TextStyle(
-//                                    fontSize: 15,
-//                                    fontWeight: FontWeight.bold
-//                                ),),
-//                              )
-//                            ],
-//                          ),
-//
-//                        ),
-//                      )),
-//                  Container(
-//                      padding: EdgeInsets.all(15),
-//                      child:
-//                      GestureDetector(
-//                          onTap: () {
-//                            Navigator.of(context).push(
-//                                MaterialPageRoute(
-//                                    builder: (context) {
-//                                      return Lessons();
-//                                    }
-//                                )
-//                            );
-//
-//
-//                          },
-//                          child:
-//                          Container(
-//                            height: height / 4,
-//                            width: width / 2.5,
-//                            decoration: BoxDecoration(
-//                                borderRadius: BorderRadius.all(Radius.circular(3)),
-//                                color: Colors.white,
-//                                boxShadow: [
-//                                  BoxShadow(
-//                                      color: Colors.grey,
-//                                      blurRadius: 20,
-//                                      spreadRadius: 1,
-//                                      offset: Offset(
-//                                          5,
-//                                          5
-//                                      )
-//                                  )
-//                                ]
-//                            ),
-//                            child: Column(
-//                              mainAxisAlignment: MainAxisAlignment.center,
-//                              children: <Widget>[
-//                                Container(
-//                                  child: Icon(Icons.assignment, size: 50,),
-//                                ),
-//                                Container(
-//                                  padding: EdgeInsets.only(top: 15),
-//                                  child: Text("Lessons", style: TextStyle(
-//                                      fontSize: 15,
-//                                      fontWeight: FontWeight.bold
-//                                  ),),
-//                                )
-//                              ],
-//                            ),
-//                          ))),
-//                ],
-//              )
-//            ],
-//          ),
+
+
         );
       }
     );

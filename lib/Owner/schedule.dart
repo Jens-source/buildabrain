@@ -47,8 +47,6 @@ class _ScheduleState extends State<Schedule> {
                 child: CircularProgressIndicator(),
               );
             }
-
-
             else {
               return ListView.builder(
                   itemCount: snapshot.data.documents.length,
@@ -175,7 +173,20 @@ class _ScheduleState extends State<Schedule> {
                               thickness: 2,
                             ),
                           ),
-                        ) : Positioned(
+                        ) : i == snapshot.data.documents.length - 1  ? Positioned(
+                          bottom: 45,
+                          child:    Container(
+                            padding: EdgeInsets.only(left: 22),
+                            height: 45,
+                            child: VerticalDivider(
+                              color: Colors.orangeAccent,
+
+                              thickness: 2,
+                            ),
+                          ),
+                        ) :
+
+                        Positioned(
                           child:    Container(
                             padding: EdgeInsets.only(left: 22),
                             height: 90,
@@ -260,15 +271,9 @@ class _ScheduleState extends State<Schedule> {
 
       var listKeys = _events.keys.toList();
       var listValues = _events.values.toList();
-
-
                     return StreamBuilder<Object>(
                       stream: null,
                       builder: (context, snapshot) {
-
-
-
-
                         return ListView.builder(
                             itemCount: listKeys.length,
                             itemBuilder: (BuildContext context, i) {
@@ -438,7 +443,10 @@ class _ScheduleState extends State<Schedule> {
     var items = promoQuery.documents;
     var promoGrouped = groupBy(items, (item) => item['date']);
     var promoMap = promoGrouped.map((date, item) => MapEntry(DateTime.parse(date),
-        List.generate(item.length, (int index) => item[index],
+        List.generate(
+          item.length, (int index) =>
+          item[index]['description'],
+
         )));
     _events = promoMap;
     _holidays = map;
@@ -447,17 +455,38 @@ class _ScheduleState extends State<Schedule> {
 
 
 
+    Firestore.instance.collection('students').getDocuments().then((students) {
+      
 
-
-
-    Firestore.instance.collection('students').getDocuments().then((value) {
-
-      for(int i = 0; i < value.documents.length; i++){
-        if(value.documents[i].data['birthday'] != 0){
-          _events.putIfAbsent(DateTime.parse(value.documents[0].data['birthday']), () => [value.documents[0]]);
-        }
+      for(int i = 0 ; i < students.documents.length; i++){
+        if(students.documents[i].data['birthday'] != 0)
+        _events.putIfAbsent(DateTime.parse(students.documents[i].data['birthday']), () => [students.documents[i]]);
+        
       }
+
     });
+
+
+    Firestore.instance.collection('holidays').getDocuments().then((holidays) {
+
+
+      for(int i = 0 ; i < holidays.documents.length; i++){
+
+          _events.putIfAbsent(DateTime.parse(holidays.documents[i].data['date']), () => [holidays.documents[i]]);
+
+      }
+
+    });
+
+
+
+
+
+
+
+
+
+
 
 
 
