@@ -222,24 +222,16 @@ with TickerProviderStateMixin {
   }
 
 
-  QuerySnapshot holidayQuery;
-  QuerySnapshot promoQuery;
+
 
   @override
   void initState() {
-    Firestore.instance.collection('holidays').getDocuments().then((value) {
-      holidayQuery = value;
-    }).asStream();
 
-    Firestore.instance.collection('promotions').getDocuments().then((value) {
-      promoQuery = value;
-    }).asStream();
     initialDateIndex = DateTime
         .now()
         .weekday - 1;
-    _tabController = new TabController(length: 5, vsync: this,);
 
-    tab = _tabController.index;
+
 
     tabController =
     new TabController(length: 7, vsync: this, initialIndex: initialDateIndex);
@@ -249,8 +241,6 @@ with TickerProviderStateMixin {
     Firestore.instance.collection('schedule').where(
         'classDay', isEqualTo: DateFormat("EEEE").format(DateTime.now()))
         .orderBy("endTime", descending: false).getDocuments().then((value) async {
-
-
 
 
           setState(() {
@@ -354,10 +344,6 @@ with TickerProviderStateMixin {
 
 
           body:
-
-          TabBarView(
-            controller: _tabController,
-            children: [
 
 
               Container(
@@ -810,12 +796,8 @@ with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              Schedule(promoQuery, holidayQuery),
-              Scanner(user),
-              Container(),
-              Container(),
-            ],
-          )
+
+
 
       );
   }

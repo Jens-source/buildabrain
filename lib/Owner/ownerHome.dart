@@ -1,5 +1,8 @@
+import 'package:buildabrain/Owner/addSchedule.dart';
 import 'package:buildabrain/Owner/dashboard.dart';
 import 'package:buildabrain/Owner/ownerCalendar.dart';
+import 'package:buildabrain/Owner/scanner.dart';
+import 'package:buildabrain/Owner/schedule.dart';
 import 'package:buildabrain/Owner/staffInfo.dart';
 import 'package:buildabrain/Owner/studentInfo.dart';
 import 'package:buildabrain/calendar.dart';
@@ -31,10 +34,25 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
   int tab;
   TabController _tabController;
   TabController bottomTabController;
+  QuerySnapshot holidayQuery;
+  QuerySnapshot promoQuery;
 
   @override
   void initState() {
 
+
+    Firestore.instance.collection('holidays').getDocuments().then((value) {
+      setState(() {
+        holidayQuery = value;
+      });
+
+    }).asStream();
+
+    Firestore.instance.collection('promotions').getDocuments().then((value) {
+     setState(() {
+       promoQuery = value;
+     });
+    }).asStream();
 
 
 
@@ -503,7 +521,13 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
                 icon: Icon(Icons.add, color: Colors.white,),
                 onPressed: (){
 
-
+                  Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (context) {
+                            return AddSchedule(DateTime.now());
+                          }
+                      )
+                  );
 
                 },
               ) : Container()
@@ -607,7 +631,17 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
                 ],
               ),
             ),
-          body: Dashboard(user)
+          body: TabBarView(
+        controller: _tabController,
+        children: [
+          Dashboard(user),
+          Schedule(promoQuery, holidayQuery),
+          Scanner(user),
+          Container(),
+          Container(),
+
+          ]
+          )
 
 
         );

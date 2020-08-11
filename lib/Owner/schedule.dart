@@ -438,8 +438,6 @@ class _ScheduleState extends State<Schedule> {
     var map = grouped.map((date, item) => MapEntry(DateTime.parse(date), List.generate(item.length, (int index) => item[index]['name'])));
 
 
-
-
     var items = promoQuery.documents;
     var promoGrouped = groupBy(items, (item) => item['date']);
     var promoMap = promoGrouped.map((date, item) => MapEntry(DateTime.parse(date),

@@ -51,6 +51,7 @@ dependencies:
   network_to_file_image:
   url_launcher: ^5.4.1
   custom_navigator: ^0.2.0
+  flutter_google_maps:
 
 
 
@@ -126,6 +127,11 @@ flutter:
     - lib/Assets/chatGroup.png
     - lib/Assets/chatHelp.png
     - lib/Assets/camera.png
+    - lib/Assets/colorwheel.png
+    - lib/Assets/pencil.png
+    - lib/Assets/location.png
+    - lib/Assets/material.png
+    - lib/Assets/dresscode.png
 
 
 
