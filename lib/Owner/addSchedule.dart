@@ -1,30 +1,54 @@
+import 'dart:io';
+import 'dart:ui';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 
 
 
 class AddSchedule extends StatefulWidget {
-  AddSchedule(this.date);
+  AddSchedule(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
   final date;
+  final startDate;
+  final endDate;
+  final startTime;
+  final endTime;
+  final description;
+  final host;
+  final name;
+  final location;
+  final material;
+  final dressCode;
+  final eventPhoto;
+
+
 
   @override
-  _AddScheduleState createState() => _AddScheduleState(this.date);
+  _AddScheduleState createState() => _AddScheduleState(this.date, this.startDate, this.endDate, this.startTime, this.description,
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
 }
 
 class _AddScheduleState extends State<AddSchedule> {
-  _AddScheduleState(this.date);
+  _AddScheduleState(this.date, this.startDate, this.endDate, this.startTime, this.description,
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
 
   final DateTime date;
-  GoogleMapController _controller;
 
+  GoogleMapController _controller;
 
   String time;
   InputBorder border;
 
 
+  var eventPhoto;
   DateTime startDate;
   DateTime endDate;
   TimeOfDay startTime;
@@ -50,6 +74,83 @@ class _AddScheduleState extends State<AddSchedule> {
 
 
     });
+  }
+
+
+  void googleDialog() async{
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+
+
+        return StatefulBuilder(
+          builder: (ctx, setState) {
+            return AlertDialog(
+                title: Center(child: Text("Choose location")),
+                actions: [
+                  FlatButton(
+                    child: Text("OK", style: TextStyle(
+                        color: Colors.blue
+                    ),),
+                    onPressed: (){
+
+                      setState(() {
+
+                      });
+                      Navigator.of(context).pop();
+
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("CANCEL", style: TextStyle(
+                        color: Colors.blue
+                    ),),
+                    onPressed: (){
+                      allMarkers = [];
+
+                      allMarkers.add(Marker(
+                          markerId: MarkerId('myMarker'),
+                          draggable: true,
+                          onTap: () {
+
+                            print(allMarkers[0].position);
+
+
+
+                          },
+                          position: LatLng(13.7563, 100.5018)));
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+                content: Container(
+                  height: 400,
+                  width: 400,
+                  child: GoogleMap(
+
+                    onTap: (point){
+                      setState(() {
+                        _handleTap(point);
+                      });
+                    },
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(13.7563, 100.5018),
+                      zoom: 12.0,
+                    ),
+
+
+
+                    onMapCreated: mapCreated,
+                    markers: Set.from(allMarkers),
+
+                  ),
+                )
+            );
+          },
+        );
+
+      },
+    );
   }
 
   @override
@@ -161,6 +262,11 @@ class _AddScheduleState extends State<AddSchedule> {
 
                                 GestureDetector(
                                     onTap: () {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  ImageEdit(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+                                                      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto)));
 
                                     },
                                     child:
@@ -170,7 +276,10 @@ class _AddScheduleState extends State<AddSchedule> {
                                       width: width,
 
                                       child: Center(
-                                        child: Container(
+
+
+                                        child: eventPhoto == null ?
+                                        Container(
                                           height: 35,
                                           width: 190,
 
@@ -190,11 +299,16 @@ class _AddScheduleState extends State<AddSchedule> {
                                               Text("ADD COVER PHOTO")
                                             ],
                                           ),
-                                        ),
+                                        ) : FadeInImage.assetNetwork(
+                                          placeholder: 'assets/loading.gif',
+                                          placeholderScale: 1,
+                                          image: eventPhoto, fit: BoxFit.cover,
+                                          width: width,
+                                        ))
 
                                       ),
                                     )
-                                ),
+
                               ])
 
 
@@ -645,6 +759,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                         Container(
 
                                             child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Image.asset(
                                                   "lib/Assets/pencil.png",
@@ -667,9 +782,9 @@ class _AddScheduleState extends State<AddSchedule> {
                                                           fontSize: 16
                                                       ),),
                                                     Container(
-                                                      width: width / 2,
+                                                      width: width / 1.5,
                                                       child: TextField(
-                                                        maxLines: 2,
+                                                        maxLines: 1,
                                                         maxLength: 40,
                                                         decoration: InputDecoration(
                                                           hintText: "Add a description",
@@ -714,6 +829,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                         Container(
 
                                             child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Image.asset(
                                                   "lib/Assets/location.png",
@@ -741,90 +857,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                                     Container(
                                                       child: FlatButton(
                                                         onPressed: (){
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (BuildContext context) {
-
-
-                                                              return StatefulBuilder(
-                                                                builder: (ctx, setState) {
-                                                                  return AlertDialog(
-                                                                    title: Center(child: Text("Choose location")),
-                                                                      actions: [
-                                                                        FlatButton(
-                                                                          child: Text("OK", style: TextStyle(
-                                                                            color: Colors.blue
-                                                                          ),),
-                                                                          onPressed: (){
-
-                                                                            setState(() {
-
-                                                                            });
-                                                                            Navigator.of(context).pop();
-
-                                                                          },
-                                                                        ),
-                                                                        FlatButton(
-                                                                          child: Text("CANCEL", style: TextStyle(
-                                                                              color: Colors.blue
-                                                                          ),),
-                                                                          onPressed: (){
-                                                                            allMarkers = [];
-
-                                                                            allMarkers.add(Marker(
-                                                                                markerId: MarkerId('myMarker'),
-                                                                                draggable: true,
-                                                                                onTap: () {
-
-                                                                                  print(allMarkers[0].position);
-
-
-
-                                                                                },
-                                                                                position: LatLng(13.7563, 100.5018)));
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                        ),
-                                                                      ],
-                                                                      content: Container(
-                                                                        height: 400,
-                                                                        width: 400,
-                                                                        child: GoogleMap(
-
-                                                                          onTap: (point){
-                                                                            setState(() {
-                                                                              print(point.toString());
-                                                                              allMarkers = [];
-                                                                              allMarkers.add(
-                                                                                  Marker(
-                                                                                      markerId: MarkerId(point.toString()),
-                                                                                      position: point
-
-                                                                                  )
-                                                                              );
-
-                                                                            });
-                                                                          },
-                                                                          initialCameraPosition: CameraPosition(
-                                                                            target: LatLng(13.7563, 100.5018),
-                                                                            zoom: 12.0,
-                                                                          ),
-
-
-
-                                                                          onMapCreated: mapCreated,
-                                                                          markers: Set.from(allMarkers),
-
-                                                                        ),
-                                                                      )
-                                                                  );
-                                                                },
-                                                              );
-
-
-                                                            },
-                                                          );
-
+                                                          googleDialog();
 
                                                         },
                                                         child: Text("ADD LOCATION", style: TextStyle(
@@ -833,9 +866,24 @@ class _AddScheduleState extends State<AddSchedule> {
                                                       ),
 
 
-                                                    ) : Text("LOCATION ADDED", style: TextStyle(
-                                                        color: Colors.blue
-                                                    ),),
+                                                    ) : Row(
+                                                      children: [
+                                                        Text("LOCATION ADDED", style: TextStyle(
+                                                            color: Colors.green
+                                                        ),),
+                                                        SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        FlatButton(
+                                                          onPressed: (){
+                                                            googleDialog();
+                                                          },
+                                                          child:  Text("CHANGE?", style: TextStyle(
+                                                              color: Colors.blue
+                                                          ),),
+                                                        )
+                                                      ],
+                                                    )
                                                   ],
                                                 )
                                               ],
@@ -843,8 +891,161 @@ class _AddScheduleState extends State<AddSchedule> {
 
                                         ),
                                       ],
-                                    )
+                                    ),
 
+
+
+                                    Row(
+                                      children: [
+                                        Container(
+
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Image.asset(
+                                                  "lib/Assets/material.png",
+                                                  height: 60,
+                                                ),
+
+                                                SizedBox(
+                                                  width: 15,
+                                                ),
+
+
+                                                Column(
+
+                                                  crossAxisAlignment: CrossAxisAlignment
+                                                      .start,
+                                                  children: [
+                                                    Container(
+                                                      padding: EdgeInsets.only(top: 10),
+                                                      child: Text("Material",
+                                                        style: TextStyle(
+                                                            fontSize: 16
+                                                        ),),
+                                                    ),
+                                                    Container(
+
+                                                      width: width / 1.4,
+                                                      child: TextField(
+                                                        maxLines: 2,
+
+                                                        decoration: InputDecoration(
+                                                          hintText: "What to bring?",
+                                                          hintStyle: TextStyle(
+                                                              fontSize: 16
+                                                          ),
+                                                          border: InputBorder
+                                                              .none,
+                                                          focusedBorder: InputBorder
+                                                              .none,
+                                                          enabledBorder: InputBorder
+                                                              .none,
+                                                          errorBorder: InputBorder
+                                                              .none,
+                                                          disabledBorder: InputBorder
+                                                              .none,
+                                                        ),
+
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontFamily: 'Balsamiq',
+                                                            color: Colors
+                                                                .black54
+                                                        ),
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            material = value;
+                                                          });
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+
+
+                                        ),
+                                      ],
+                                    ),
+
+                                    Row(
+                                      children: [
+                                        Container(
+
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Image.asset(
+                                                "lib/Assets/dresscode.png",
+                                                height: 60,
+                                              ),
+
+                                              SizedBox(
+                                                width: 15,
+                                              ),
+
+
+                                              Column(
+
+                                                crossAxisAlignment: CrossAxisAlignment
+                                                    .start,
+                                                children: [
+                                                  Container(
+                                                    padding: EdgeInsets.only(top: 10),
+                                                    child: Text("Dress Code",
+                                                      style: TextStyle(
+                                                          fontSize: 16
+                                                      ),),
+                                                  ),
+                                                  Container(
+
+                                                    width: width / 1.4,
+                                                    child: TextField(
+                                                      maxLines: 2,
+
+                                                      decoration: InputDecoration(
+                                                        hintText: "What to wear?",
+                                                        hintStyle: TextStyle(
+                                                            fontSize: 16
+                                                        ),
+                                                        border: InputBorder
+                                                            .none,
+                                                        focusedBorder: InputBorder
+                                                            .none,
+                                                        enabledBorder: InputBorder
+                                                            .none,
+                                                        errorBorder: InputBorder
+                                                            .none,
+                                                        disabledBorder: InputBorder
+                                                            .none,
+                                                      ),
+
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontFamily: 'Balsamiq',
+                                                          color: Colors
+                                                              .black54
+                                                      ),
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          material = value;
+                                                        });
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+
+
+
+
+                                        ),
+                                      ],
+                                    ),
 
                                   ],
                                 ),
@@ -856,7 +1057,42 @@ class _AddScheduleState extends State<AddSchedule> {
                                     child: Image.asset(
                                         "lib/Assets/colorwheel.png"),
                                   ),
+                                ),
+
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: (){
+
+                                      print("Event Photo $eventPhoto");
+                                      print("Event name $name");
+                                      print("Event start date $startDate");
+                                      print("Event end date $endDate");
+                                      print("Event start time $startTime");
+                                      print("Event end time $endTime");
+                                      print("Event host $host");
+                                      print("Event description $description");
+                                      print("Event location $location");
+                                      print("Event material $material");
+                                      print("Event dress code $dressCode");
+                                    },
+                                    child:
+                                  Container(
+                                    height: 30,
+                                    padding: EdgeInsets.only(left: 10, right: 10),
+                                    decoration: BoxDecoration(
+                                       borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      color: Color.fromRGBO(23, 142, 137, 1),
+
+                                  ),
+                                    child: Center(child: Text("CREATE EVENT", style: TextStyle(
+                                      color: Colors.white
+                                    ),)),
+                                  ),
+                                  ),
                                 )
+
                               ],
                             )
 
@@ -865,15 +1101,288 @@ class _AddScheduleState extends State<AddSchedule> {
                       ]
                   )
               )
-
-
             ]));
   }
 
   _handleTap(LatLng point) {
     setState(() {
+      print(point.toString());
+      allMarkers = [];
+      allMarkers.add(
+          Marker(
+              markerId: MarkerId(point.toString()),
+              position: point
 
+          )
+      );
     });
   }
 
 }
+
+
+
+
+class ImageEdit extends StatefulWidget{
+  ImageEdit(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+  final date;
+  final startDate;
+  final endDate;
+  final startTime;
+  final endTime;
+  final description;
+  final host;
+  final name;
+  final location;
+  final material;
+  final dressCode;
+  final eventPhoto;
+
+  @override
+  _ImageEditState createState() => _ImageEditState(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+}
+
+class _ImageEditState extends State<ImageEdit> {
+  _ImageEditState(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+  final date;
+  final startDate;
+  final endDate;
+  final startTime;
+  final endTime;
+  final description;
+  final host;
+  final name;
+  final location;
+  final material;
+  final dressCode;
+  final eventPhoto;
+  File _imageFile;
+
+  Future<void> _pickImage(ImageSource source) async{
+    File selected = await ImagePicker.pickImage(source: source);
+
+    selected = await ImageCropper.cropImage(
+        sourcePath: selected.path,
+        aspectRatio: CropAspectRatio(ratioY: 300, ratioX: 450,),
+        maxWidth: 700,
+        maxHeight: 700
+    );
+
+    setState(() {
+      _imageFile = selected;
+    });
+  }
+
+
+  Future getImageGallery() async {
+    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      _imageFile = tempImage;
+    });
+    _cropImage();
+  }
+
+  Future getImageCamera() async {
+    var tempImage = await ImagePicker.pickImage(source: ImageSource.camera);
+    setState(() {
+      _imageFile = tempImage;
+    });
+    _cropImage();
+  }
+
+  Future<void> _cropImage() async {
+    File cropped = await ImageCropper.cropImage(
+        sourcePath: _imageFile.path,
+        aspectRatio: CropAspectRatio(ratioY: 300, ratioX: 500,),
+        maxWidth: 700,
+        maxHeight: 700
+    );
+    setState(() {
+      _imageFile = cropped ?? _imageFile;
+    });
+
+  }
+
+  void _clear() {
+    setState(() => _imageFile = null);
+  }
+
+
+  final FirebaseStorage _storage =
+  FirebaseStorage(storageBucket: 'gs://buildabrain-a8cce.appspot.com/');
+
+  StorageUploadTask _uploadTask;
+
+  String filePath;
+  String filePaths;
+  bool wait = false;
+
+
+  @override
+  Widget build(BuildContext context) =>
+      new Scaffold(
+          backgroundColor: Colors.white,
+
+
+          body: _imageFile == null ?
+
+          Container(
+
+              child:  Container(
+
+                  child:
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+
+                          Container(
+                            height: 80,
+                            width: 80,
+
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(50)),
+                              color: Colors.blueAccent,
+                            ),
+                            child: IconButton(
+                              icon: Icon(Icons.photo_camera, color: Colors.white,),
+                              onPressed: () {
+                                _pickImage(ImageSource.camera);
+                              },
+                            ),
+                          ),
+
+                          SizedBox(
+                            width: 50,
+                          ),
+
+                          Container(
+                            height: 80,
+                            width: 80,
+
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(50)),
+                              color: Colors.blueAccent,
+                            ),
+                            child: IconButton(
+                              icon: Icon(Icons.photo_library, color: Colors.white,),
+                              onPressed: () {
+                                _pickImage(ImageSource.gallery);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            child: Text("Camera", style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold
+                            ),),
+                          ),
+                          SizedBox(
+                            width: 80,
+                          ),
+                          Container(
+                            child: Text("Gallery", style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold
+                            ),),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  color: Colors.black.withOpacity(0.4),
+              )
+          ) :
+
+          wait == true ?
+          new Container(
+            child: Center(
+              child: new CircularProgressIndicator(),
+            ),
+          ) :
+          new ListView(
+            children: <Widget>[
+              SizedBox(
+                height: 100,
+              ),
+              Center(
+                  child:
+                  Container(
+
+                      child: Image.file(_imageFile),
+
+                  )
+              ),
+
+              SizedBox(
+                height: 50,
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton(
+                    child: Icon(Icons.crop, size: 50, color: Colors.black,),
+                    onPressed: _cropImage,
+                  ),
+                  FlatButton(
+                    child: Icon(Icons.refresh, size: 50, color: Colors.black,),
+                    onPressed: _clear,
+                  ),
+                  FlatButton(
+                    child: Icon(Icons.file_upload, size: 50, color: Colors.black,),
+                    onPressed: () async {
+                      wait = true;
+                      FirebaseUser user = await FirebaseAuth.instance.currentUser();
+
+                      filePath = 'eventPhotos/${DateTime.now()}.png';
+                      setState(() {
+                        _uploadTask = _storage.ref().child(filePath).putFile(_imageFile);
+
+                      });
+
+
+                      StorageTaskSnapshot snapshot = await _uploadTask.onComplete;
+                      String downloadUrl =  await snapshot.ref.getDownloadURL();
+
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      Navigator.push(context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                 AddSchedule(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+                                     this.host, this.name, this.location, this.material, this.dressCode, downloadUrl)));
+
+
+
+
+                    },
+                  )
+                ],
+              ),
+            ],
+          )
+      );
+}
+
+
+
+
+
