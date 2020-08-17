@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:buildabrain/services/promotionManagement.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
@@ -56,7 +57,7 @@ class _AddScheduleState extends State<AddSchedule> {
   String topic = "TOPIC";
   String description;
   String name;
-  String location;
+  LatLng location;
   String material;
   String dressCode;
   String host;
@@ -67,9 +68,6 @@ class _AddScheduleState extends State<AddSchedule> {
   void mapCreated(GoogleMapController controller) {
     setState(() {
       _controller = controller;
-
-
-
 
 
 
@@ -94,10 +92,11 @@ class _AddScheduleState extends State<AddSchedule> {
                     ),),
                     onPressed: (){
 
-                      setState(() {
+                      Navigator.pop(context);
 
+                      setState(() {
+                        location  = allMarkers[0].position;
                       });
-                      Navigator.of(context).pop();
 
                     },
                   ),
@@ -114,6 +113,14 @@ class _AddScheduleState extends State<AddSchedule> {
                           onTap: () {
 
                             print(allMarkers[0].position);
+
+                            setState(() {
+                              location = allMarkers[0].position;
+                            });
+
+
+                            print(location);
+
 
 
 
@@ -194,6 +201,7 @@ class _AddScheduleState extends State<AddSchedule> {
 
     return Scaffold(
         backgroundColor: Colors.white,
+
         appBar: AppBar(
 
 
@@ -224,6 +232,7 @@ class _AddScheduleState extends State<AddSchedule> {
             slivers: <Widget>[
 
               SliverAppBar(
+
                   backgroundColor: Colors.white,
                   leading: Container(),
 
@@ -1030,7 +1039,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                                       ),
                                                       onChanged: (value) {
                                                         setState(() {
-                                                          material = value;
+                                                          dressCode = value;
                                                         });
                                                       },
                                                     ),
@@ -1063,7 +1072,35 @@ class _AddScheduleState extends State<AddSchedule> {
                                   bottom: 0,
                                   right: 0,
                                   child: GestureDetector(
-                                    onTap: (){
+                                    onTap: ()async {
+
+
+                                      print(location);
+                                      String locationUrl = "https://maps.google.com/?q=${location.latitude},${location.longitude}";
+
+
+
+                                      if( eventPhoto != null && name != null && startDate != null
+                                          && startTime != null && endTime != null &&
+                                      host != null && description != null && location != null &&
+                                      material != null && dressCode != null) {
+                                        await PromotionManagement().storePromotion(
+                                            eventPhoto,
+                                            name,
+                                            DateFormat("yyyy-MM-dd").format(startDate),
+                                            DateFormat("yyyy-MM-dd").format(endDate),
+                                            "${startTime.hour}:${startTime.minute}",
+                                            "${endTime.hour}:${endTime.minute}",
+                                            host,
+                                            description,
+                                            locationUrl,
+                                            material,
+                                            dressCode
+                                        );
+
+                                      }
+
+
 
                                       print("Event Photo $eventPhoto");
                                       print("Event name $name");
