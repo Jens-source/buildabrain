@@ -21,7 +21,7 @@ class PromotionManagement {
     Firestore.instance.collection('promotions').add({
       "photoUrl": eventPhoto,
       "name": name,
-      "startDate": startDate,
+      "date": startDate,
       "endDate": endDate,
       "startTime": startTime,
       "endTime": endTime,
@@ -30,7 +30,6 @@ class PromotionManagement {
       "locationUrl": locationUrl,
       "material": material,
       "dressCode": dressCode,
-      "interested": 0
     }).then((value) {
 
     }).catchError((e) {

@@ -22,17 +22,16 @@ class _ScheduleState extends State<Schedule> {
   final QuerySnapshot promoQuery;
   final QuerySnapshot holidayQuery;
 
+
    CalendarController _calendarController;
    Map<DateTime, List> _events ;
    Map<DateTime, List> _holidays;
 
    String weekday;
-
-
-
    DateTime selectedDate;
    List<DocumentSnapshot> selectedDocs;
   String dropdownValue = 'Classes';
+
 
 
   StreamBuilder scheduleList(weekDay, height, String view) {
@@ -40,19 +39,22 @@ class _ScheduleState extends State<Schedule> {
       return StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance.collection('schedule').where(
               'classDay', isEqualTo: weekDay).orderBy(
-              'startTime', descending: false).snapshots(),
+              'startTime', descending: false)
+              .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return Center(
                 child: CircularProgressIndicator(),
               );
             }
+
+
             else {
+              
               return ListView.builder(
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (BuildContext context, i) {
                     DocumentSnapshot schedule = snapshot.data.documents[i];
-
 
                     final endTime = DateTime(
                         DateTime

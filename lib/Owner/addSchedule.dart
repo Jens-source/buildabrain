@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:buildabrain/Owner/ownerHome.dart';
 import 'package:buildabrain/services/promotionManagement.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -16,7 +17,9 @@ import 'package:intl/intl.dart';
 
 class AddSchedule extends StatefulWidget {
   AddSchedule(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
+
+  final user;
   final date;
   final startDate;
   final endDate;
@@ -34,13 +37,14 @@ class AddSchedule extends StatefulWidget {
 
   @override
   _AddScheduleState createState() => _AddScheduleState(this.date, this.startDate, this.endDate, this.startTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
 }
 
 class _AddScheduleState extends State<AddSchedule> {
   _AddScheduleState(this.date, this.startDate, this.endDate, this.startTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
 
+  final user;
   final DateTime date;
 
   GoogleMapController _controller;
@@ -275,7 +279,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                           MaterialPageRoute(
                                               builder: (BuildContext context) =>
                                                   ImageEdit(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-                                                      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto)));
+                                                      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user)));
 
                                     },
                                     child:
@@ -1075,8 +1079,9 @@ class _AddScheduleState extends State<AddSchedule> {
                                     onTap: ()async {
 
 
-                                      print(location);
-                                      String locationUrl = "https://maps.google.com/?q=${location.latitude},${location.longitude}";
+
+
+
 
 
 
@@ -1084,11 +1089,29 @@ class _AddScheduleState extends State<AddSchedule> {
                                           && startTime != null && endTime != null &&
                                       host != null && description != null && location != null &&
                                       material != null && dressCode != null) {
+                                        String locationUrl = "https://maps.google.com/?q=${location.latitude},${location.longitude}";
+
+
+                                        showDialog(
+                                            context: context,
+                                            builder: (
+                                                BuildContext context) {
+                                              return AlertDialog(
+                                                  content:
+                                                   Container(
+                                                     height: 50,
+                                                       width: 50,
+                                                       child: CircularProgressIndicator()),
+
+                                              );
+                                            }
+                                        );
+
                                         await PromotionManagement().storePromotion(
                                             eventPhoto,
                                             name,
                                             DateFormat("yyyy-MM-dd").format(startDate),
-                                            DateFormat("yyyy-MM-dd").format(endDate),
+                                            endDate != null ? DateFormat("yyyy-MM-dd").format(endDate) : endDate,
                                             "${startTime.hour}:${startTime.minute}",
                                             "${endTime.hour}:${endTime.minute}",
                                             host,
@@ -1097,22 +1120,36 @@ class _AddScheduleState extends State<AddSchedule> {
                                             material,
                                             dressCode
                                         );
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext context) =>
+                                                    OwnerHome(user)));
 
+                                      } else {
+                                        showDialog(
+                                            context: context,
+                                            builder: (
+                                                BuildContext context) {
+                                              return AlertDialog(
+                                                  content: Text(
+                                                      "Please fill in missing information"),
+                                                  actions: [
+                                                    FlatButton(
+                                                      child: Text("OK", style: TextStyle(
+                                                        color: Colors.blue
+                                                      ),),
+                                                      onPressed: (){
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                    )
+                                                  ]
+                                              );
+                                            }
+                                        );
                                       }
 
-
-
-                                      print("Event Photo $eventPhoto");
-                                      print("Event name $name");
-                                      print("Event start date $startDate");
-                                      print("Event end date $endDate");
-                                      print("Event start time $startTime");
-                                      print("Event end time $endTime");
-                                      print("Event host $host");
-                                      print("Event description $description");
-                                      print("Event location $location");
-                                      print("Event material $material");
-                                      print("Event dress code $dressCode");
                                     },
                                     child:
                                   Container(
@@ -1162,7 +1199,8 @@ class _AddScheduleState extends State<AddSchedule> {
 
 class ImageEdit extends StatefulWidget{
   ImageEdit(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
+  final user;
   final date;
   final startDate;
   final endDate;
@@ -1178,12 +1216,13 @@ class ImageEdit extends StatefulWidget{
 
   @override
   _ImageEditState createState() => _ImageEditState(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
 }
 
 class _ImageEditState extends State<ImageEdit> {
   _ImageEditState(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto);
+      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
+  final user;
   final date;
   final startDate;
   final endDate;
@@ -1405,7 +1444,7 @@ class _ImageEditState extends State<ImageEdit> {
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
                                  AddSchedule(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-                                     this.host, this.name, this.location, this.material, this.dressCode, downloadUrl)));
+                                     this.host, this.name, this.location, this.material, this.dressCode, downloadUrl, this.user)));
 
 
 
