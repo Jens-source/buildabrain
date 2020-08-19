@@ -41,20 +41,6 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
   void initState() {
 
 
-    Firestore.instance.collection('holidays').getDocuments().then((value) {
-      setState(() {
-        holidayQuery = value;
-      });
-
-    }).asStream();
-
-    Firestore.instance.collection('promotions').getDocuments().then((value) {
-     setState(() {
-       promoQuery = value;
-     });
-    }).asStream();
-
-
 
     _tabController = new TabController(length: 5, vsync: this);
     bottomTabController = new TabController(length: 5, vsync: this);
@@ -520,7 +506,35 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
               tab == 1 ? IconButton(
                 icon: Icon(Icons.add, color: Colors.white,),
                 onPressed: (){
-
+//
+//                  Container(
+//                      height: 30,
+//                      padding: EdgeInsets.only(left: 5, right: 5),
+//                      decoration: BoxDecoration(
+//                          borderRadius: BorderRadius.all(Radius.circular(7)),
+//                          border: Border.all(width: 3, color: Colors.black54)
+//                      ),
+//                      child: DropdownButton<String>(
+//                        value: dropdownValue,
+//                        icon: Icon(Icons.arrow_drop_down),
+//                        iconSize: 20,
+//                        elevation: 16,
+//
+//                        onChanged: (String newValue) {
+//                          setState(() {
+//                            dropdownValue = newValue;
+//                          });
+//                        },
+//                        items: <String>['Classes', 'Promotions']
+//                            .map<DropdownMenuItem<String>>((String value) {
+//                          return DropdownMenuItem<String>(
+//                            value: value,
+//                            child: Text(value),
+//                          );
+//                        }).toList(),
+//                      )
+//
+//                  ),
                   Navigator.of(context).push(
                       MaterialPageRoute(
                           builder: (context) {
@@ -635,8 +649,8 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
         controller: _tabController,
         children: [
           Dashboard(user),
-          Schedule(promoQuery, holidayQuery),
-          Scanner(user),
+          Schedule(),
+          tab ==2? Scanner(user) : Container(),
           Container(),
           Container(),
 

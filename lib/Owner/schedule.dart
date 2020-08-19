@@ -7,427 +7,622 @@ import 'package:table_calendar/table_calendar.dart';
 
 class Schedule extends StatefulWidget {
 
-  Schedule(this.promoQuery, this.holidayQuery);
 
-  final holidayQuery;
-  final promoQuery;
 
   @override
-  _ScheduleState createState() => _ScheduleState(this.promoQuery, this.holidayQuery);
+  _ScheduleState createState() => _ScheduleState();
 }
 
 class _ScheduleState extends State<Schedule> {
 
-  _ScheduleState(this.promoQuery, this.holidayQuery);
-  final QuerySnapshot promoQuery;
-  final QuerySnapshot holidayQuery;
 
 
    CalendarController _calendarController;
-   Map<DateTime, List> _events ;
-   Map<DateTime, List> _holidays;
+   Map<DateTime, List> _events  = {};
+   Map<DateTime, List> _holidays = {};
+   List<bool> containerAnimation;
+
+
 
    String weekday;
    DateTime selectedDate;
    List<DocumentSnapshot> selectedDocs;
   String dropdownValue = 'Classes';
 
+   final ScrollController _mycontroller = new ScrollController();
 
 
-  StreamBuilder scheduleList(weekDay, height, String view) {
+
+
+  SingleChildScrollView scheduleList(weekDay, height, String view) {
+
+
     if (view == "Classes") {
-      return StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance.collection('schedule').where(
-              'classDay', isEqualTo: weekDay).orderBy(
-              'startTime', descending: false)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+      return   SingleChildScrollView(
+        child:
+
+        Column(
+        children: [
+
+          Container(
+            child: Text("Classes", style: TextStyle(
+              fontSize: 18
+            ),),
+          ),
+
+          StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance.collection('schedule').where(
+                  'classDay', isEqualTo: weekDay).orderBy(
+                  'startTime', descending: false)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else {
 
 
-            else {
-              
-              return ListView.builder(
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (BuildContext context, i) {
-                    DocumentSnapshot schedule = snapshot.data.documents[i];
+                if(containerAnimation == null){
+                  containerAnimation = new List(snapshot.data.documents.length);
 
-                    final endTime = DateTime(
-                        DateTime
-                            .now()
-                            .year,
-                        DateTime
-                            .now()
-                            .month,
-                        DateTime
-                            .now()
-                            .day,
-                        int.parse(schedule.data['endTime'].toString().substring(
-                            0, 2)),
-                        int.parse(schedule.data['endTime'].toString().substring(
-                            3, 5)));
+                  for(int i = 0; i < containerAnimation.length; i++){
+                    containerAnimation[i] = false;
+                  }
+                }
 
 
-                    return new
+                  return new ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: snapshot.data.documents.length,
+                      itemBuilder: (BuildContext context, i) {
 
-                    Stack(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.only(
-                              left: 50, right: 20, bottom: 10),
-                          margin: EdgeInsets.only(
-                              left: 80, right: 0, bottom: 5, top: 10),
-                          height: height / 6,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(bottomLeft: Radius
-                                  .circular(15), topLeft: Radius.circular(15)),
-                              color: Color.fromRGBO(20, 20, 20, 0.15)
-                          ),
-                          child: ListTile(
-                            subtitle: Text(
-                              "${weekDay.toString().substring(0,
-                                  3)} ${schedule['startTime']} - ${schedule['endTime']}",
-                              style: TextStyle(
-                                  fontSize: 18
-                              ),),
-                            title:
+
+                        DocumentSnapshot schedule = snapshot.data.documents[i];
+
+                        final endTime = DateTime(
+                            DateTime
+                                .now()
+                                .year,
+                            DateTime
+                                .now()
+                                .month,
+                            DateTime
+                                .now()
+                                .day,
+                            int.parse(schedule.data['endTime']
+                                .toString()
+                                .substring(
+                                0, 2)),
+                            int.parse(schedule.data['endTime']
+                                .toString()
+                                .substring(
+                                3, 5)));
+
+
+                        return new
+
+                        Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                setState(() {
+                                  containerAnimation[i] = !containerAnimation[i];
+
+                                });
+                              },
+                              child:
                             Container(
-                              padding: EdgeInsets.only(bottom: 5, top: 8),
-                              child: Text("${ schedule['subject'].split(
-                                  " ")[0]} ${schedule['class'] == "preschoolers"
-                                  ? "Preschool"
-                                  :
-                              schedule['class'] == "junior" ? "Junior" :
-                              schedule['class'] == "advanced" ? "Advanced" :
-                              " "
-                              }", style: TextStyle(
-                                fontSize: 22,
+                              padding: EdgeInsets.only(
+                                  left: 50, right: 20, bottom: 10),
+                              margin: EdgeInsets.only(
+                                  left: 80, right: 0, bottom: 5, top: 10),
 
-                              ),),
-                            ),
-                          ),
-
-
-                        ),
-                        Positioned(
-                          left: 50,
-                          top: 10,
-                          child:
-                          Container(
-                            margin: EdgeInsets.all(5),
-                            height: height / 7,
-                            width: height / 7,
-                            child: CircleAvatar(
-                                backgroundImage:
-                                schedule['subject']
-                                    .split(' ')
-                                    .length == 3 ?
-                                schedule['subject'].split(' ')[0] == "IQ"
-                                    ? AssetImage("lib/Assets/iq.png")
-                                    :
-                                schedule['subject'].split(' ')[0] == "mindmap"
-                                    ? AssetImage("lib/Assets/mindmap.png")
-                                    :
-                                schedule['subject'].split(' ')[0] == "phonics"
-                                    ? AssetImage("lib/Assets/phonics.png")
-                                    :
-                                null :
-                                schedule['subject'].split(',')[0] == "IQ"
-                                    ? AssetImage("lib/Assets/iq.png")
-                                    :
-                                schedule['subject'].split(',')[0] == "mindmap"
-                                    ? AssetImage("lib/Assets/mindmap.png")
-                                    :
-                                schedule['subject'].split(',')[0] == "phonics"
-                                    ? AssetImage("lib/Assets/phonics.png")
-                                    :
-                                null,
-
-
-                                backgroundColor:
-                                schedule['class'] == "preschoolers" ? Color
-                                    .fromRGBO(
-                                    53, 172, 167, 1) :
-                                schedule['class'] == "junior" ? Color.fromRGBO(
-                                    157, 120, 94, 1) :
-                                schedule['class'] == "advanced" ? Color
-                                    .fromRGBO(
-                                    173, 228, 109, 1) :
-                                Colors.green
-
-                            ),
-                          ),
-                        ),
-
-
-                        i == 0 ? Positioned(
-                          top: 45,
-                          child:    Container(
-                            padding: EdgeInsets.only(left: 22),
-                            height: 45,
-                            child: VerticalDivider(
-                              color: Colors.orangeAccent,
-
-                              thickness: 2,
-                            ),
-                          ),
-                        ) : i == snapshot.data.documents.length - 1  ? Positioned(
-                          bottom: 45,
-                          child:    Container(
-                            padding: EdgeInsets.only(left: 22),
-                            height: 45,
-                            child: VerticalDivider(
-                              color: Colors.orangeAccent,
-
-                              thickness: 2,
-                            ),
-                          ),
-                        ) :
-
-                        Positioned(
-                          child:    Container(
-                            padding: EdgeInsets.only(left: 22),
-                            height: 90,
-                            child: VerticalDivider(
-                              color: Colors.orangeAccent,
-
-                              thickness: 2,
-                            ),
-                          ),
-                        ),
-
-
-                        Positioned(
-                          left: 15,
-                          top: 30,
-
-                          child: Column(
-                            children: [
-                              Container(
-                                  height: 30,
-                                  width: 30,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius
+                                          .circular(15),
+                                      topLeft: Radius.circular(15)),
+                                  color: Color.fromRGBO(20, 20, 20, 0.15)
+                              ),
+                              child: ListTile(
+                                trailing: AnimatedContainer(
+                                  height:  50,
+                                  width: 50,
+                                  duration: Duration(milliseconds: 400),
                                   decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.redAccent,
-                                      border: DateTime
+                                    borderRadius: BorderRadius.all(Radius.circular(100)),
+                                    color: containerAnimation[i] == true ? Color.fromRGBO(0, 0, 0, 0.2) : 
+                                        Color.fromRGBO(0, 0, 0, 0)
+                                  ),
+
+                                  child:  IconButton(
+                                    onPressed: (){
+                                      if(containerAnimation[i] == true){
+                                        
+                                      }
+                                    },
+                                    icon: Icon(Icons.add, color: containerAnimation[i] == true ?Colors.white
+                                    :   Color.fromRGBO(0, 0, 0, 0)),
+                                  )
+                                ) ,
+                                subtitle: Text(
+                                  "${weekDay.toString().substring(0,
+                                      3)} ${schedule['startTime']} - ${schedule['endTime']}",
+                                  style: TextStyle(
+                                      fontSize: 18
+                                  ),),
+                                title:
+                                Container(
+                                  padding: EdgeInsets.only(bottom: 5, top: 8),
+                                  child: Text("${ schedule['subject'].split(
+                                      " ")[0]} ${schedule['class'] ==
+                                      "preschoolers"
+                                      ? "Preschool"
+                                      :
+                                  schedule['class'] == "junior" ? "Junior" :
+                                  schedule['class'] == "advanced" ? "Advanced" :
+                                  " "
+                                  }", style: TextStyle(
+                                    fontSize: 22,
+
+                                  ),),
+                                ),
+                              ),
+
+
+                            ),
+                            ),
+
+                        GestureDetector(
+                        onTap: (){
+                        setState(() {
+                        containerAnimation[i] = !containerAnimation[i];
+
+                        });
+                        },
+                        child:
+                            AnimatedContainer(
+                              duration: Duration(milliseconds: 400),
+                                height:  containerAnimation[i] == false ? 80 : height / 2,
+                                padding: EdgeInsets.only(
+                                    left: 15, right: 10, bottom: 10, top: height/5),
+                                margin: EdgeInsets.only(
+                                    left: 80, right: 0, bottom: 5, top: 10),
+
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius
+                                            .circular(15),
+                                        topLeft: Radius.circular(15)),
+                                    color: Color.fromRGBO(20, 20, 20, 0.05)
+                                ),
+                              child:
+                                  SingleChildScrollView(
+                                    child:
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text("Topic:", style: TextStyle(
+                                        fontSize: 18
+                                      ),),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text("Walk in the beach", style: TextStyle(
+                                        fontSize: 18
+                                      ),),
+
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+
+
+                                  StreamBuilder<QuerySnapshot>(
+                                    stream: Firestore.instance.collection('schedule/${snapshot.data.documents[i].documentID}/students').snapshots(),
+                                    builder: (context, students) {
+
+
+                                      if(!students.hasData){
+                                        return new Container();
+                                      }
+
+
+                                      return Container(
+                                          height: 85,
+                                          child: ListView.builder(
+                                              itemCount: 10,
+                                              itemBuilder: (BuildContext context, k){
+                                                int f = k + 10;
+
+                                                return new Container(
+                                                    child: Stack(
+
+                                                      children: [
+
+                                                       Positioned(
+                                                         child: Container(
+                                                           child:  k <= students.data.documents.length -1 ?
+                                                           Text("${k+1} ${students.data.documents[k].data['firstName']}", style: TextStyle(
+                                                             fontSize: 16,
+                                                           ),) :
+                                                           Text("${k+1}", style: TextStyle(
+                                                             fontSize: 16,
+                                                           ),),
+
+                                                         ),
+                                                       ),
+                                                        Positioned(
+                                                          left: 120,
+                                                          child: Container(
+                                                            child:  f <= students.data.documents.length -1 ?
+                                                            Text("${f+1} ${students.data.documents[f].data['firstName']}", style: TextStyle(
+                                                              fontSize: 16,
+                                                            ),) :
+                                                            Text("${f+1}", style: TextStyle(
+                                                              fontSize: 16,
+                                                            ),),
+
+                                                          ),
+                                                        )
+
+
+                                                      ],
+                                                    )
+
+                                                );
+                                              })
+                                      );
+                                    }
+                                  ),
+
+                                ],
+                              ),
+                                  ),
+                            ),
+                        ),
+
+                            Positioned(
+                              left: 50,
+                              top: 10,
+                              child:
+                              Container(
+                                margin: EdgeInsets.all(5),
+                                height: height / 7,
+                                width: height / 7,
+                                child: CircleAvatar(
+                                    backgroundImage:
+                                    schedule['subject']
+                                        .split(' ')
+                                        .length == 3 ?
+                                    schedule['subject'].split(' ')[0] == "IQ"
+                                        ? AssetImage("lib/Assets/iq.png")
+                                        :
+                                    schedule['subject'].split(' ')[0] ==
+                                        "mindmap"
+                                        ? AssetImage("lib/Assets/mindmap.png")
+                                        :
+                                    schedule['subject'].split(' ')[0] ==
+                                        "phonics"
+                                        ? AssetImage("lib/Assets/phonics.png")
+                                        :
+                                    null :
+                                    schedule['subject'].split(',')[0] == "IQ"
+                                        ? AssetImage("lib/Assets/iq.png")
+                                        :
+                                    schedule['subject'].split(',')[0] ==
+                                        "mindmap"
+                                        ? AssetImage("lib/Assets/mindmap.png")
+                                        :
+                                    schedule['subject'].split(',')[0] ==
+                                        "phonics"
+                                        ? AssetImage("lib/Assets/phonics.png")
+                                        :
+                                    null,
+                                    backgroundColor:
+                                    schedule['class'] == "preschoolers" ? Color
+                                        .fromRGBO(
+                                        53, 172, 167, 1) :
+                                    schedule['class'] == "junior" ? Color
+                                        .fromRGBO(
+                                        157, 120, 94, 1) :
+                                    schedule['class'] == "advanced" ? Color
+                                        .fromRGBO(
+                                        173, 228, 109, 1) :
+                                    Colors.green
+
+                                ),
+                              ),
+                            ),
+
+
+
+
+                            i == 0 ? Positioned(
+                              top: 45,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 400),
+                                padding: EdgeInsets.only(left: 22),
+                                height: containerAnimation[i] == false? height/4.5 : height/2,
+                                child: VerticalDivider(
+                                  color: Colors.orangeAccent,
+
+                                  thickness: 2,
+                                ),
+                              ),
+                            ) : i == snapshot.data.documents.length - 1
+                                ? Positioned(
+                              bottom: 45,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 400),
+                                padding: EdgeInsets.only(left: 22),
+                                height: containerAnimation[i] == false? height/4.5 : height/2,
+                                child: VerticalDivider(
+                                  color: Colors.orangeAccent,
+
+                                  thickness: 2,
+                                ),
+                              ),
+                            )
+                                :
+
+                            Positioned(
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 400),
+                                padding: EdgeInsets.only(left: 22),
+                                height: containerAnimation[i] == false? height/4.5 : height/1.8,
+                                child: VerticalDivider(
+                                  color: Colors.orangeAccent,
+
+                                  thickness: 2,
+                                ),
+                              ),
+                            ),
+
+
+                            Positioned(
+                              left: 15,
+                              top: 30,
+
+                              child: Column(
+                                children: [
+                                  Container(
+                                      height: 30,
+                                      width: 30,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.redAccent,
+                                          border: DateTime
+                                              .now()
+                                              .difference(selectedDate)
+                                              .inHours < 0 ? null :
+
+                                          selectedDate
+                                              .difference(DateTime.now())
+                                              .inHours < 0
+                                              ? Border.all(
+                                              width: 2,
+                                              color: Colors.orangeAccent)
+                                              :
+                                          DateTime
+                                              .now()
+                                              .difference(endTime)
+                                              .inMinutes >= 0
+                                              ? Border.all(
+                                              width: 2,
+                                              color: Colors.orangeAccent)
+                                              :
+                                          null
+
+
+                                      ),
+
+
+                                      child: DateTime
                                           .now()
                                           .difference(selectedDate)
-                                          .inHours < 0 ? null :
+                                          .inHours < 0 ? Container() :
 
                                       selectedDate
                                           .difference(DateTime.now())
-                                          .inHours < 0
-                                          ? Border.all(
-                                          width: 2, color: Colors.orangeAccent)
-                                          :
+                                          .inHours < 0 ? Icon(
+                                        Icons.check, color: Colors.white,) :
                                       DateTime
                                           .now()
                                           .difference(endTime)
-                                          .inMinutes >= 0
-                                          ? Border.all(
-                                          width: 2, color: Colors.orangeAccent)
-                                          :
-                                      null
-
+                                          .inMinutes >= 0 ? Icon(
+                                        Icons.check, color: Colors.white,) :
+                                      Container()
 
                                   ),
 
 
-                                  child: DateTime
-                                      .now()
-                                      .difference(selectedDate)
-                                      .inHours < 0 ? Container() :
+                                ],
+                              ),
+                            )
 
-                                  selectedDate
-                                      .difference(DateTime.now())
-                                      .inHours < 0 ? Icon(
-                                    Icons.check, color: Colors.white,) :
-                                  DateTime
-                                      .now()
-                                      .difference(endTime)
-                                      .inMinutes >= 0 ? Icon(
-                                    Icons.check, color: Colors.white,) :
-                                  Container()
 
+                          ],
+                        );
+                      });
+                }
+              }
+          ),
+          StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance.collection('promotions').where(
+                  'date',
+                  isEqualTo: DateFormat("yyyy-MM-dd").format(selectedDate))
+                  .snapshots(),
+              builder: (context, promotion) {
+                if (!promotion.hasData) {
+                  return Center(
+                    child: Container()
+                  );
+                }
+
+
+                else {
+                  return ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: promotion.data.documents.length,
+                      itemBuilder: (BuildContext context, i) {
+                        DocumentSnapshot promo = promotion.data.documents[i];
+
+                        return new
+                        Column(
+                          children: [
+
+                            i == 0 ? Container(
+                              child: Text("Promotions", style: TextStyle(
+                                  fontSize: 18
+                              ),),
+                            ) : Container(),
+
+
+                            Container(
+                              padding: EdgeInsets.only(
+                                left: 10, right: 20,),
+                              margin: EdgeInsets.only(
+                                  left: 30,
+                                  right: 30,
+                                  bottom: 5,
+                                  top: 10),
+                              height: height / 6,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                    Radius
+                                        .circular(15),
+                                  ),
+                                  color: Color.fromRGBO(
+                                      20, 20, 20, 0.15)
+                              ),
+                              child: ListTile(
+                                leading: Container(
+                                  child: FadeInImage.assetNetwork(
+
+
+                                    placeholder: 'assets/loading.gif',
+
+                                    image: promo.data['photoUrl'],
+                                    fit: BoxFit.fitHeight,
+                                  ),
+                                ),
+                                title: Text(
+                                    promo.data['detail']),
                               ),
 
 
+                            ),
 
 
-                            ],
-                          ),
-                        )
-
-
-                      ],
-                    );
-                  });
-            }
-          }
-      );
-    } else {
-
-      var listKeys = _events.keys.toList();
-      var listValues = _events.values.toList();
-                    return StreamBuilder<Object>(
-                      stream: null,
-                      builder: (context, snapshot) {
-                        return ListView.builder(
-                            itemCount: listKeys.length,
-                            itemBuilder: (BuildContext context, i) {
-
-
-                              if(DateFormat("yyyy-MM-dd").format(listKeys[i]) == DateFormat("yyyy-MM-dd").format(selectedDate)) {
-
-                                if(listValues[i].length == 1) {
-                                  return new
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.only(
-                                            left: 10, right: 20, bottom: 10),
-                                        margin: EdgeInsets.only(
-                                            left: 80,
-                                            right: 0,
-                                            bottom: 5,
-                                            top: 10),
-                                        height: height / 6,
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                                bottomLeft: Radius
-                                                    .circular(15),
-                                                topLeft: Radius.circular(15)),
-                                            color: Color.fromRGBO(
-                                                20, 20, 20, 0.15)
-                                        ),
-                                        child: ListTile(
-                                          leading: Container(
-                                            child: FadeInImage.assetNetwork(
-
-
-                                              placeholder: 'assets/loading.gif',
-
-                                              image:listValues[i][0].data['photoUrl'], fit: BoxFit.fitHeight,
-                                            ),
-                                          ),
-                                          title: Text(listValues[i][0].data['detail']),
-                                        ),
-
-
-                                      ),
-
-
-                                      Positioned(
-                                        child: Container(
-                                          padding: EdgeInsets.only(left: 20),
-                                          height: 90,
-                                          child: VerticalDivider(
-                                            color: Colors.orangeAccent,
-
-                                            thickness: 2,
-                                          ),
-                                        ),
-                                      ),
-
-
-                                    ],
-                                  );
-                                }else{
-                                  return Stack(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.only(
-                                              top: 8, right: 20, bottom: 10),
-                                        margin: EdgeInsets.only(
-                                            left: 80,
-                                            right: 0,
-                                            bottom: 5,
-                                            top: 10),
-                                        height: height / 6,
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                                bottomLeft: Radius
-                                                    .circular(15),
-                                                topLeft: Radius.circular(15)),
-                                            color: Color.fromRGBO(
-                                                20, 20, 20, 0.15)
-                                        ),
-                                        child: ListTile(
-
-
-                                          leading: Container(
-                                            height: 50,
-                                            width: 50,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(Radius.circular(100)),
-
-                                            ),
-
-                                            child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(25.0),
-                              child: FadeInImage.assetNetwork(
-
-
-                              placeholder: 'assets/loading.gif',
-
-                              image:listValues[i][1] != 0 ? listValues[i][1] : "https://www.kindpng.com/picc/m/24-248253_user-profile-default-image-png-clipart-png-download.png", fit: BoxFit.cover,
-                              ),)
-                                            ),
-                                          title: Text(listValues[i][0]),
-                                        ),
-
-
-                                      ),
-
-
-                                      Positioned(
-                                        child: Container(
-                                          padding: EdgeInsets.only(left: 20),
-                                          height: 90,
-                                          child: VerticalDivider(
-                                            color: Colors.orangeAccent,
-
-                                            thickness: 2,
-                                          ),
-                                        ),
-                                      ),
-
-
-                                    ],
-                                  );
-                                }
-                              } else{
-                                return new Container();
-                              }
-                            });
+                          ],
+                        );
                       }
-                    );
+                  );
+                }
+              }
+          ),
 
+
+          StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance.collection('holidays').where(
+                  'date', isEqualTo: DateFormat("yyyy-MM-dd").format(selectedDate))
+                  .snapshots(),
+              builder: (context, holidays) {
+                if (!holidays.hasData) {
+                  return Center(
+                    child: Container(),
+                  );
+                }
+
+
+                else {
+                  return ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: holidays.data.documents.length,
+                      itemBuilder: (BuildContext context, i) {
+                        DocumentSnapshot holiday = holidays.data.documents[i];
+
+                        return new
+                        Column(
+                          children: [
+                            i == 0 ? Container(
+                              child: Text("Holidays", style: TextStyle(
+                                  fontSize: 18
+                              ),),
+                            ) : Container(),
+
+
+                            Container(
+                              padding: EdgeInsets.only(
+                                left: 10, right: 20,),
+                              margin: EdgeInsets.only(
+                                  left: 30,
+                                  right: 30,
+                                  bottom: 5,
+                                  top: 10),
+                              height: height / 6,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                    Radius
+                                        .circular(15),
+                                  ),
+                                  color: Colors.greenAccent
+
+                              ),
+                              child: ListTile(
+                                leading: Container(
+                                  padding: EdgeInsets.only(top: 10),
+
+                                    child: Icon(Icons.star, color: Colors.orangeAccent, size: 50,)),
+
+                                title: Text(
+                                    holiday.data['name']),
+                              ),
+                            ),
+
+
+                          ],
+                        );
+                      }
+                  );
+                }
+              }
+          ),
+
+
+        ],
+        )
+      );
     }
   }
 
 
 
    void onSelected(DateTime date, List name){
-
      setState(() {
-
        selectedDate = date;
        weekday = DateFormat("EEEE").format(date);
      });
-
    }
 
    QuerySnapshot students;
 
 
-
   @override
   void initState() {
+    selectedDate = DateTime.now();
     weekday = DateFormat("EEEE").format(DateTime.now());
     _calendarController = CalendarController();
 
@@ -435,66 +630,29 @@ class _ScheduleState extends State<Schedule> {
 
 
 
-    var holidayItems = holidayQuery.documents;
-    var grouped = groupBy(holidayItems, (item) => item['date']);
-    var map = grouped.map((date, item) => MapEntry(DateTime.parse(date), List.generate(item.length, (int index) => item[index]['name'])));
+
+    Firestore.instance.collection('promotions').getDocuments().then((value) {
+
+        for(int i = 0; i  < value.documents.length; i++){
+          setState(() {
+          _events.putIfAbsent(DateTime.parse(value.documents[i].data['date']), () => [value]);
 
 
-    var items = promoQuery.documents;
-    var promoGrouped = groupBy(items, (item) => item['date']);
-    var promoMap = promoGrouped.map((date, item) => MapEntry(DateTime.parse(date),
-        List.generate(
-          item.length, (int index) =>
-          item[index]['description'],
-
-        )));
-    _events = promoMap;
-    _holidays = map;
-    selectedDate = DateTime.now();
-
-
-
-
-    Firestore.instance.collection('students').getDocuments().then((students) {
-      
-
-      for(int i = 0 ; i < students.documents.length; i++){
-        if(students.documents[i].data['birthday'] != 0)
-        _events.putIfAbsent(DateTime.parse(students.documents[i].data['birthday']), () => [students.documents[i]]);
-        
-      }
+        });
+        }
 
     });
 
+    Firestore.instance.collection('holidays').getDocuments().then((value) {
 
-    Firestore.instance.collection('holidays').getDocuments().then((holidays) {
+        for(int i = 0; i  < value.documents.length; i++){
+          setState(() {
+          _holidays.putIfAbsent(DateTime.parse(value.documents[i].data['date']), () => [value]);
+          });
 
-
-      for(int i = 0 ; i < holidays.documents.length; i++){
-
-          _events.putIfAbsent(DateTime.parse(holidays.documents[i].data['date']), () => [holidays.documents[i]]);
-
-      }
+        }
 
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     super.initState();
   }
 
@@ -518,60 +676,21 @@ class _ScheduleState extends State<Schedule> {
         child: Container(
           child: Stack(
             children: [
-          Positioned(
-            child: Container(
-              margin: EdgeInsets.only(top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
 
-                  Text("What would you like to see?", style: TextStyle(
-                    fontSize: 18
-                  ),),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Container(
-                    height: 30,
-                   padding: EdgeInsets.only(left: 5, right: 5),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(7)),
-                      border: Border.all(width: 3, color: Colors.black54)
-                    ),
-                    child: DropdownButton<String>(
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_drop_down),
-                      iconSize: 20,
-                      elevation: 16,
 
-                      onChanged: (String newValue) {
-                        setState(() {
-                          dropdownValue = newValue;
-                        });
-                      },
-                      items: <String>['Classes', 'Promotions']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    )
-
-                  ),
-
-                ],
-              ),
-            ),
-          ),
               
               
               Positioned(
-                top: 60,
-                child: Container(
-                  height: height/2,
-                  width: width,
-                  child: scheduleList(weekday, height/1.6, dropdownValue),
+                top: 20,
+                child: Column(
+                  children: [
+
+                    Container(
+                      height: height/2,
+                      width: width,
+                      child: scheduleList(weekday, height/1.6, dropdownValue),
+                    ),
+                  ],
                 ),
               ),
 
@@ -579,6 +698,7 @@ class _ScheduleState extends State<Schedule> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+
                   Container(
                       padding: EdgeInsets.only(bottom: 45),
                       color: Color.fromRGBO(23, 142, 137, 1),
