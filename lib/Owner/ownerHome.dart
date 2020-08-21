@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
+import 'addClass.dart';
+
 
 class OwnerHome extends StatefulWidget {
   OwnerHome(this.user);
@@ -36,6 +38,7 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
   TabController bottomTabController;
   QuerySnapshot holidayQuery;
   QuerySnapshot promoQuery;
+  String dropdownValue = 'Class';
 
   @override
   void initState() {
@@ -503,47 +506,53 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
 
           appBar: AppBar(
             actions: [
-              tab == 1 ? IconButton(
-                icon: Icon(Icons.add, color: Colors.white,),
-                onPressed: (){
-//
-//                  Container(
-//                      height: 30,
-//                      padding: EdgeInsets.only(left: 5, right: 5),
-//                      decoration: BoxDecoration(
-//                          borderRadius: BorderRadius.all(Radius.circular(7)),
-//                          border: Border.all(width: 3, color: Colors.black54)
-//                      ),
-//                      child: DropdownButton<String>(
-//                        value: dropdownValue,
-//                        icon: Icon(Icons.arrow_drop_down),
-//                        iconSize: 20,
-//                        elevation: 16,
-//
-//                        onChanged: (String newValue) {
-//                          setState(() {
-//                            dropdownValue = newValue;
-//                          });
-//                        },
-//                        items: <String>['Classes', 'Promotions']
-//                            .map<DropdownMenuItem<String>>((String value) {
-//                          return DropdownMenuItem<String>(
-//                            value: value,
-//                            child: Text(value),
-//                          );
-//                        }).toList(),
-//                      )
-//
-//                  ),
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) {
-                            return AddSchedule(DateTime.now(), null, null, null, null, null, null, null, null, null, null, null, user );
-                          }
-                      )
-                  );
+              tab == 1 ?  Container(
+                padding: EdgeInsets.only(right: 30),
+                child: DropdownButton<String>(
 
-                },
+
+
+                  underline: Container(),
+
+            icon: Icon(Icons.add),
+            iconSize: 30,
+            iconDisabledColor: Colors.white,
+            iconEnabledColor: Colors.white,
+            elevation: 16,
+
+            onChanged: (String newValue) {
+              if(newValue == "Class"){
+                Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) {
+                          return AddClass(DateTime.now(), "Monday", null, null, null, null, null, null, null, null, null, null, user );
+                        }
+                    )
+                );
+              }
+              if(newValue == "Promotion"){
+                Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) {
+                          return AddSchedule(DateTime.now(), null, null, null, null, null, null, null, null, null, null, null, user );
+                        }
+                    )
+                );
+              }
+
+            },
+            items: <String>['Class', 'Promotion']
+                  .map<DropdownMenuItem<String>>((String value) {
+
+
+
+
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+            }).toList(),
+          ),
               ) : Container()
             ],
             leading:  tab == 1 ?  Icon(Icons.event, color: Colors.white,)

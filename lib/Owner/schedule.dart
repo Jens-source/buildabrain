@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -21,6 +22,7 @@ class _ScheduleState extends State<Schedule> {
    Map<DateTime, List> _events  = {};
    Map<DateTime, List> _holidays = {};
    List<bool> containerAnimation;
+   List<bool> promoAnimation;
 
 
 
@@ -29,7 +31,9 @@ class _ScheduleState extends State<Schedule> {
    List<DocumentSnapshot> selectedDocs;
   String dropdownValue = 'Classes';
 
-   final ScrollController _mycontroller = new ScrollController();
+
+  bool init;
+  bool initPromo;
 
 
 
@@ -51,11 +55,13 @@ class _ScheduleState extends State<Schedule> {
           ),
 
           StreamBuilder<QuerySnapshot>(
+
+
               stream: Firestore.instance.collection('schedule').where(
                   'classDay', isEqualTo: weekDay).orderBy(
                   'startTime', descending: false)
                   .snapshots(),
-              builder: (context, snapshot) {
+              builder: (context, snapshot)  {
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(),
@@ -63,13 +69,24 @@ class _ScheduleState extends State<Schedule> {
                 } else {
 
 
-                if(containerAnimation == null){
-                  containerAnimation = new List(snapshot.data.documents.length);
 
-                  for(int i = 0; i < containerAnimation.length; i++){
-                    containerAnimation[i] = false;
+                  if(init == false || snapshot.data.documents.length > containerAnimation.length) {
+                     containerAnimation = new List(snapshot.data.documents.length);
+
+                    for(int j = 0; j < containerAnimation.length; j++){
+
+
+                        containerAnimation[j] = false;
+
+
+                    }
                   }
-                }
+
+
+                  init = true;
+
+
+
 
 
                   return new ListView.builder(
@@ -108,10 +125,11 @@ class _ScheduleState extends State<Schedule> {
                           children: [
                             GestureDetector(
                               onTap: (){
+
                                 setState(() {
                                   containerAnimation[i] = !containerAnimation[i];
-
                                 });
+
                               },
                               child:
                             Container(
@@ -134,7 +152,7 @@ class _ScheduleState extends State<Schedule> {
                                   duration: Duration(milliseconds: 400),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.all(Radius.circular(100)),
-                                    color: containerAnimation[i] == true ? Color.fromRGBO(0, 0, 0, 0.2) : 
+                                    color: containerAnimation[i] == true ? Color.fromRGBO(0, 0, 0, 0.2) :
                                         Color.fromRGBO(0, 0, 0, 0)
                                   ),
 
@@ -342,6 +360,21 @@ class _ScheduleState extends State<Schedule> {
 
 
 
+                            snapshot.data.documents.length == 1 ?
+                            Positioned(
+                              top: 45,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 400),
+                                padding: EdgeInsets.only(left: 22),
+                                height: containerAnimation[i] == false? 0 : height/2,
+                                child: VerticalDivider(
+                                  color: Colors.orangeAccent,
+
+                                  thickness: 2,
+                                ),
+                              ),
+                            ) :
+
 
                             i == 0 ? Positioned(
                               top: 45,
@@ -450,7 +483,9 @@ class _ScheduleState extends State<Schedule> {
                           ],
                         );
                       });
+
                 }
+
               }
           ),
           StreamBuilder<QuerySnapshot>(
@@ -467,6 +502,25 @@ class _ScheduleState extends State<Schedule> {
 
 
                 else {
+
+
+
+                  if(initPromo == false || promotion.data.documents.length > promoAnimation.length) {
+                    promoAnimation = new List(promotion.data.documents.length);
+
+                    for(int j = 0; j < promoAnimation.length; j++){
+
+
+                      promoAnimation[j] = false;
+
+
+                    }
+                  }
+
+
+                  initPromo = true;
+
+
                   return ListView.builder(
                       physics: NeverScrollableScrollPhysics(),
 
@@ -487,6 +541,19 @@ class _ScheduleState extends State<Schedule> {
                             ) : Container(),
 
 
+                            Stack(
+                              children: [
+
+
+                        GestureDetector(
+                        onTap: (){
+
+                        setState(() {
+                        promoAnimation[i] = !promoAnimation[i];
+                        });
+
+                        },
+                        child:
                             Container(
                               padding: EdgeInsets.only(
                                 left: 10, right: 20,),
@@ -521,6 +588,150 @@ class _ScheduleState extends State<Schedule> {
 
 
                             ),
+                        ),
+                              GestureDetector(
+                              onTap: (){
+
+                        setState(() {
+                        promoAnimation[i] = !promoAnimation[i];
+                        });
+
+                        },
+                        child:
+                                AnimatedContainer(
+                                  duration: Duration(milliseconds: 400),
+                                  height:  promoAnimation[i] == false ? 70 : height / 2,
+
+                                  padding: EdgeInsets.only(top: 80, left: 15),
+                                  margin: EdgeInsets.only(
+                                      left: 30, right: 30, bottom: 5, top: 10),
+
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius
+                                          .circular(15)),
+                                      color: Color.fromRGBO(20, 20, 20, 0.05)
+                                  ),
+                                  child:
+                                  SingleChildScrollView(
+                                    child:
+
+
+
+                                           Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text("Date:", style: TextStyle(
+                                                      fontSize: 14
+                                                  ),),
+                                                  Container(
+                                                    padding: EdgeInsets.only(left: 5),
+                                                    width: 220,
+                                                    child: Text("${DateFormat("yMMMd").format(DateTime.parse(promo.data['date']))}  ${promo.data['startTime']} - ${promo.data['endTime']}", style: TextStyle(
+                                                        fontSize: 14
+                                                    ),),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Text("Host:", style: TextStyle(
+                                                      fontSize: 14
+                                                  ),),
+                                                  Container(
+                                                    padding: EdgeInsets.only(left: 5),
+                                                    width: 220,
+                                                    child: Text(promo.data['host'], style: TextStyle(
+                                                        fontSize: 14
+                                                    ),),
+                                                  ),
+
+                                                ],
+                                              ),
+
+
+                                              Row(
+                                                children: [
+                                                  Text("Description:", style: TextStyle(
+                                                      fontSize: 14
+                                                  ),),
+                                                  Container(
+                                                    padding: EdgeInsets.only(left: 5),
+                                                    width: 220,
+                                                    child: Text(promo.data['description'], style: TextStyle(
+                                                        fontSize: 14
+                                                    ),),
+                                                  ),
+
+                                                ],
+                                              ),
+
+
+                                              Row(
+                                                children: [
+                                                  Text("Detail:", style: TextStyle(
+                                                      fontSize: 14
+                                                  ),),
+                                                  Container(
+                                                    padding: EdgeInsets.only(left: 5),
+                                                    width: 220,
+                                                    child: Text(promo.data['detail'], style: TextStyle(
+                                                        fontSize: 14
+                                                    ),),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              Row(
+                                                children: [
+                                                  Text("Dress Code:", style: TextStyle(
+                                                      fontSize: 14
+                                                  ),),
+                                                  Container(
+                                                    padding: EdgeInsets.only(left: 5),
+                                                    width: 220,
+                                                    child: Text(promo.data['dressCode'], style: TextStyle(
+                                                        fontSize: 14
+                                                    ),),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              Row(
+                                                children: [
+                                                  Text("Material:", style: TextStyle(
+                                                      fontSize: 14
+                                                  ),),
+                                                  Container(
+                                                    padding: EdgeInsets.only(left: 5),
+                                                    width: 220,
+                                                    child: Text(promo.data['material'], style: TextStyle(
+                                                        fontSize: 14
+                                                    ),),
+                                                  ),
+                                                ],
+                                              ),
+
+
+
+
+
+
+
+
+                                            ],
+
+                                        ),
+
+
+
+                                  ),
+                                ),
+                              ),
+
+
+                              ]
+                            )
 
 
                           ],
@@ -612,6 +823,10 @@ class _ScheduleState extends State<Schedule> {
 
    void onSelected(DateTime date, List name){
      setState(() {
+
+       init = false;
+       initPromo = false;
+       containerAnimation = new List<bool>();
        selectedDate = date;
        weekday = DateFormat("EEEE").format(date);
      });
@@ -628,7 +843,8 @@ class _ScheduleState extends State<Schedule> {
 
 
 
-
+    initPromo = false;
+    init = false;
 
 
     Firestore.instance.collection('promotions').getDocuments().then((value) {
