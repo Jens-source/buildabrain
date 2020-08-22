@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:buildabrain/Owner/ownerHome.dart';
 import 'package:buildabrain/services/promotionManagement.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
@@ -51,6 +52,10 @@ class _AddClassState extends State<AddClass> {
 
   String time;
   InputBorder border;
+  String teacher;
+  List<String> teacherNames;
+
+
 
 
   var eventPhoto;
@@ -67,6 +72,12 @@ class _AddClassState extends State<AddClass> {
   String host;
   DragStartBehavior dragStartBehavior;
   List<Marker> allMarkers = [];
+  int classesAmount = 1;
+  String classType = "Preschool";
+
+
+  List <String> subjects;
+
 
 
   void mapCreated(GoogleMapController controller) {
@@ -166,22 +177,23 @@ class _AddClassState extends State<AddClass> {
 
   @override
   void initState() {
+
+
+    Firestore.instance.collection('users')
+    .where('identity', isEqualTo: "Teacher")
+    .getDocuments().then((value) {
+      teacherNames = new List(value.documents.length);
+      for(int j = 0; j < value.documents.length; j++){
+        setState(() {
+          teacherNames[j] = value.documents[j].data['firstName'];
+        });
+      }
+    }).asStream();
+    subjects = new List(classesAmount);
     dragStartBehavior = DragStartBehavior.down;
     time = "00:00 AM";
     startTime = TimeOfDay(hour: 12, minute: 0);
     endTime = TimeOfDay(hour: 14, minute: 0);
-    allMarkers.add(Marker(
-        markerId: MarkerId('myMarker'),
-        draggable: true,
-        onTap: () {
-
-          print(allMarkers[0].position);
-
-
-
-        },
-        position: LatLng(13.7563, 100.5018)));
-
 
 
 
@@ -245,13 +257,12 @@ class _AddClassState extends State<AddClass> {
                                     Text(
                                       "Class detail", style: TextStyle(
                                         fontSize: 22
-                                    ),),
+                                    ),
+                                    ),
 
                                     SizedBox(
                                       height: 20,
                                     ),
-                                    
-
                                     Row(
                                       children: [
                                         Text("Day", style: TextStyle(
@@ -264,34 +275,61 @@ class _AddClassState extends State<AddClass> {
 
 
                                         DropdownButton<String>(
-
-
-
-
                                           icon: Icon(Icons.edit),
                                           iconSize: 20,
-
                                           underline: Container(),
                                           value: day,
-
                                           onChanged: (String newValue) {
-
                                             setState(() {
                                               day = newValue;
-                                            });
-
+                                            }
+                                            );
                                           },
                                           items: <String>['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
                                               .map<DropdownMenuItem<String>>((String value) {
-                                                
-
                                             return DropdownMenuItem<String>(
                                               value: value,
                                               child: Text(value),
                                             );
                                           }).toList(),
                                         ),
+                                        SizedBox(
+                                          width: 15,
+                                        ),
 
+
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text("Class type", style: TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 16
+                                        ),),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+
+
+                                        DropdownButton<String>(
+                                          icon: Icon(Icons.edit),
+                                          iconSize: 20,
+                                          underline: Container(),
+                                          value: classType,
+                                          onChanged: (String newValue) {
+                                            setState(() {
+                                              classType = newValue;
+                                            }
+                                            );
+                                          },
+                                          items: <String>["Preschool", "Junior", "Advanced"]
+                                              .map<DropdownMenuItem<String>>((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            );
+                                          }).toList(),
+                                        ),
                                         SizedBox(
                                           width: 15,
                                         ),
@@ -424,93 +462,90 @@ class _AddClassState extends State<AddClass> {
                                       ],
                                     ),
 
-
-                                    SizedBox(
-
-
-                                      child:
-                                      TextField(
-
-                                        maxLines: 1,
-
-                                        maxLengthEnforced: true,
-
-
-                                        decoration: InputDecoration(
-                                          hintText: "EVENT NAME",
-                                          hintStyle: TextStyle(
-                                              fontSize: 22
-                                          ),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          enabledBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          disabledBorder: InputBorder.none,
-                                        ),
-
-                                        style: TextStyle(
-                                            fontSize: 25,
-                                            fontFamily: 'Balsamiq',
-                                            color: Colors.black54
-                                        ),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            name = value;
-                                          });
-                                        },
-                                      ),
-                                    ),
-
-
                                     Row(
-
                                       children: [
+                                        Text("Amount of subjects in this class: "),
                                         Container(
-                                          padding: EdgeInsets.only(bottom: 20),
-                                          child: Text("HOSTED BY : "),
-                                        ),
-                                        Container(
-                                          width: width / 2.5,
-
-                                          height: 20,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                border: Border(
-                                                    bottom: BorderSide()
-                                                )
+                                          padding: EdgeInsets.only(left: 10),
+                                          child:  DropdownButton<int>(
+                                            underline: Container(),
+                                            value: classesAmount,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.black
                                             ),
-                                            child:
-                                            TextFormField(
-                                              decoration: InputDecoration(
-                                                hintText: host,
-                                                hintStyle: TextStyle(
-                                                    fontSize: 16
-                                                ),
-
-                                                border: InputBorder.none,
-                                                focusedBorder: InputBorder.none,
-                                                enabledBorder: InputBorder.none,
-                                                errorBorder: InputBorder.none,
-                                                disabledBorder: InputBorder
-                                                    .none,
-                                              ),
-
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontFamily: 'Balsamiq',
-                                                  color: Colors.black54
-                                              ),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  host = value;
-                                                });
-                                              },
-                                            ),
+                                            icon: Icon(Icons.arrow_drop_down),
+                                            iconSize: 30,
+                                            elevation: 16,
+                                            onChanged: (int newValue) {
+                                              setState(() {
+                                                classesAmount = newValue;
+                                                subjects = new List(classesAmount);
+                                              });
+                                            },
+                                            items: <int>[1, 2, 3,]
+                                                .map<DropdownMenuItem<int>>((int value) {
+                                              return DropdownMenuItem<int>(
+                                                value: value,
+                                                child: Text(value.toString()),
+                                              );
+                                            }).toList(),
                                           ),
                                         ),
-
                                       ],
                                     ),
+
+                                    ListView.builder(
+
+                                      physics: NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.vertical,
+
+                                      itemCount: classesAmount,
+                                        itemBuilder: (BuildContext context, i){
+                                        return Container(
+                                          child: Row(
+                                            children: [
+                                              Text("${i + 1}. Subject: "),
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    padding: EdgeInsets.only(left: 10),
+                                                    child:  DropdownButton<String>(
+                                                      underline: Container(),
+                                                      value: subjects[i],
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors.black
+                                                      ),
+                                                      icon: Icon(Icons.arrow_drop_down),
+                                                      iconSize: 30,
+                                                      elevation: 16,
+                                                      onChanged: (String newValue) {
+                                                        setState(() {
+                                                          subjects[i] = newValue;
+                                                        });
+                                                      },
+                                                      items: <String>["Mindmap", "IQ", "Phonics", "Science"]
+                                                          .map<DropdownMenuItem<String>>((String value) {
+                                                        return DropdownMenuItem<String>(
+                                                          value: value,
+                                                          child: Text(value.toString()),
+                                                        );
+                                                      }).toList(),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+
+                                            ],
+                                          )
+                                        );
+                                        }),
+
+                                
+
+
 
                                     SizedBox(
                                       height: 15,
@@ -524,7 +559,7 @@ class _AddClassState extends State<AddClass> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Image.asset(
-                                                  "lib/Assets/pencil.png",
+                                                  "lib/Assets/teacher.png",
                                                   height: 60,
                                                 ),
 
@@ -539,113 +574,35 @@ class _AddClassState extends State<AddClass> {
                                                   crossAxisAlignment: CrossAxisAlignment
                                                       .start,
                                                   children: [
-                                                    Text("Description",
+                                                    Text("Teacher",
                                                       style: TextStyle(
                                                           fontSize: 16
                                                       ),),
-                                                    Container(
-                                                      width: width / 1.5,
-                                                      child: TextField(
-                                                        maxLines: 1,
-                                                        maxLength: 40,
-                                                        decoration: InputDecoration(
-                                                          hintText: "Add a description",
-                                                          hintStyle: TextStyle(
-                                                              fontSize: 16
-                                                          ),
-                                                          border: InputBorder
-                                                              .none,
-                                                          focusedBorder: InputBorder
-                                                              .none,
-                                                          enabledBorder: InputBorder
-                                                              .none,
-                                                          errorBorder: InputBorder
-                                                              .none,
-                                                          disabledBorder: InputBorder
-                                                              .none,
-                                                        ),
+                                                    DropdownButton<String>(
+                                                      underline: Container(),
 
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontFamily: 'Balsamiq',
-                                                            color: Colors
-                                                                .black54
-                                                        ),
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            description = value;
-                                                          });
-                                                        },
+                                                      value: teacher,
+                                                      hint: Text("Name"),
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors.black
                                                       ),
+                                                      icon: Icon(Icons.arrow_drop_down),
+                                                      iconSize: 30,
+                                                      elevation: 16,
+                                                      onChanged: (String newValue) {
+                                                        setState(() {
+                                                        teacher = newValue;
+                                                        });
+                                                      },
+                                                      items: teacherNames
+                                                          .map<DropdownMenuItem<String>>((String value) {
+                                                        return DropdownMenuItem<String>(
+                                                          value: value,
+                                                          child: Text(value.toString()),
+                                                        );
+                                                      }).toList(),
                                                     ),
-                                                  ],
-                                                )
-                                              ],
-                                            )
-
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Container(
-
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Image.asset(
-                                                  "lib/Assets/location.png",
-                                                  height: 60,
-                                                ),
-
-                                                SizedBox(
-                                                  width: 15,
-                                                ),
-
-
-                                                Column(
-                                                  mainAxisAlignment: MainAxisAlignment
-                                                      .center,
-                                                  crossAxisAlignment: CrossAxisAlignment
-                                                      .start,
-                                                  children: [
-                                                    Text("Location",
-                                                      style: TextStyle(
-                                                          fontSize: 16
-                                                      ),),
-
-
-                                                    allMarkers[0].position.latitude == 13.7563 ?
-                                                    Container(
-                                                      child: FlatButton(
-                                                        onPressed: (){
-                                                          googleDialog();
-
-                                                        },
-                                                        child: Text("ADD LOCATION", style: TextStyle(
-                                                            color: Colors.blue
-                                                        ),),
-                                                      ),
-
-
-                                                    ) : Row(
-                                                      children: [
-                                                        Text("LOCATION ADDED", style: TextStyle(
-                                                            color: Colors.green
-                                                        ),),
-                                                        SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        FlatButton(
-                                                          onPressed: (){
-                                                            googleDialog();
-                                                          },
-                                                          child:  Text("CHANGE?", style: TextStyle(
-                                                              color: Colors.blue
-                                                          ),),
-                                                        )
-                                                      ],
-                                                    )
                                                   ],
                                                 )
                                               ],
@@ -656,158 +613,6 @@ class _AddClassState extends State<AddClass> {
                                     ),
 
 
-
-                                    Row(
-                                      children: [
-                                        Container(
-
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Image.asset(
-                                                "lib/Assets/material.png",
-                                                height: 60,
-                                              ),
-
-                                              SizedBox(
-                                                width: 15,
-                                              ),
-
-
-                                              Column(
-
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .start,
-                                                children: [
-                                                  Container(
-                                                    padding: EdgeInsets.only(top: 10),
-                                                    child: Text("Material",
-                                                      style: TextStyle(
-                                                          fontSize: 16
-                                                      ),),
-                                                  ),
-                                                  Container(
-
-                                                    width: width / 1.4,
-                                                    child: TextField(
-                                                      maxLines: 2,
-
-                                                      decoration: InputDecoration(
-                                                        hintText: "What to bring?",
-                                                        hintStyle: TextStyle(
-                                                            fontSize: 16
-                                                        ),
-                                                        border: InputBorder
-                                                            .none,
-                                                        focusedBorder: InputBorder
-                                                            .none,
-                                                        enabledBorder: InputBorder
-                                                            .none,
-                                                        errorBorder: InputBorder
-                                                            .none,
-                                                        disabledBorder: InputBorder
-                                                            .none,
-                                                      ),
-
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontFamily: 'Balsamiq',
-                                                          color: Colors
-                                                              .black54
-                                                      ),
-                                                      onChanged: (value) {
-                                                        setState(() {
-                                                          material = value;
-                                                        });
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-
-
-                                        ),
-                                      ],
-                                    ),
-
-                                    Row(
-                                      children: [
-                                        Container(
-
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Image.asset(
-                                                "lib/Assets/dresscode.png",
-                                                height: 60,
-                                              ),
-
-                                              SizedBox(
-                                                width: 15,
-                                              ),
-
-
-                                              Column(
-
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .start,
-                                                children: [
-                                                  Container(
-                                                    padding: EdgeInsets.only(top: 10),
-                                                    child: Text("Dress Code",
-                                                      style: TextStyle(
-                                                          fontSize: 16
-                                                      ),),
-                                                  ),
-                                                  Container(
-
-                                                    width: width / 1.4,
-                                                    child: TextField(
-                                                      maxLines: 2,
-
-                                                      decoration: InputDecoration(
-                                                        hintText: "What to wear?",
-                                                        hintStyle: TextStyle(
-                                                            fontSize: 16
-                                                        ),
-                                                        border: InputBorder
-                                                            .none,
-                                                        focusedBorder: InputBorder
-                                                            .none,
-                                                        enabledBorder: InputBorder
-                                                            .none,
-                                                        errorBorder: InputBorder
-                                                            .none,
-                                                        disabledBorder: InputBorder
-                                                            .none,
-                                                      ),
-
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontFamily: 'Balsamiq',
-                                                          color: Colors
-                                                              .black54
-                                                      ),
-                                                      onChanged: (value) {
-                                                        setState(() {
-                                                          dressCode = value;
-                                                        });
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-
-
-
-
-                                        ),
-                                      ],
-                                    ),
 
                                   ],
                                 ),
@@ -830,15 +635,8 @@ class _AddClassState extends State<AddClass> {
 
 
 
-
-
-
-
-                                      if( eventPhoto != null && name != null && day != null
-                                          && startTime != null && endTime != null &&
-                                          host != null && description != null && location != null &&
-                                          material != null && dressCode != null) {
-                                        String locationUrl = "https://maps.google.com/?q=${location.latitude},${location.longitude}";
+                                      if( day != null && startTime != null && endTime != null &&
+                                          subjects[0] != null && teacher.length < 3) {
 
 
                                         showDialog(
@@ -855,6 +653,8 @@ class _AddClassState extends State<AddClass> {
                                               );
                                             }
                                         );
+
+                                        
 
                                         await PromotionManagement().storePromotion(
                                             eventPhoto,

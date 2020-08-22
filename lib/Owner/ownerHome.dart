@@ -519,7 +519,6 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
             iconDisabledColor: Colors.white,
             iconEnabledColor: Colors.white,
             elevation: 16,
-
             onChanged: (String newValue) {
               if(newValue == "Class"){
                 Navigator.of(context).push(
