@@ -524,7 +524,7 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
                 Navigator.of(context).push(
                     MaterialPageRoute(
                         builder: (context) {
-                          return AddClass(DateTime.now(), "Monday", null, null, null, null, null, null, null, null, null, null, user );
+                          return AddClass( user );
                         }
                     )
                 );
@@ -657,7 +657,7 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
         controller: _tabController,
         children: [
           Dashboard(user),
-          Schedule(),
+          Schedule(user),
           tab ==2? Scanner(user) : Container(),
           Container(),
           Container(),

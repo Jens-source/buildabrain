@@ -684,71 +684,7 @@ class _TimeSlotsState extends State<TimeSlots> {
                                           }
                                       );
 
-                                      if (numberOfClasses == 1) {
-                                        await UserManagement.storeNewEntry(
-                                            '${allClasses[0]}',
-                                            student,
-                                            startDate,
-                                            endDate,
-                                            startTime,
-                                            endTime,
-                                            (numberOfClasses * 6));
-                                      }
 
-                                      if (numberOfClasses == 2) {
-                                        await UserManagement.storeNewEntry(
-                                            '${allClasses[0]} and ${allClasses[1]}',
-                                            student,
-                                            startDate,
-                                            endDate,
-                                            startTime,
-                                            endTime,
-                                            (numberOfClasses * 6));
-                                      }
-
-                                      if (numberOfClasses == 3) {
-                                        await UserManagement.storeNewEntry(
-                                            '${allClasses[0]}, ${allClasses[1]} and ${allClasses[2]}',
-                                            student,
-                                            startDate,
-                                            endDate,
-                                            startTime,
-                                            endTime,
-                                            (numberOfClasses * 6));
-                                      }
-                                      Future.delayed(
-                                          Duration(milliseconds: 300))
-                                          .then((efef) async {
-                                        List doc = [];
-                                        await Firestore.instance.collection(
-                                            'schedule')
-                                            .where('class', isEqualTo: student)
-                                            .getDocuments()
-                                            .then((docs) {
-                                          for (int i = 0; i <
-                                              docs.documents.length; i++) {
-                                            if (DateFormat('EEEE').format(
-                                                DateTime.parse(docs.documents[i]
-                                                    .data['startDate'])) ==
-                                                weekDay) {
-                                              doc.add(docs.documents[i]);
-                                            }
-                                          }
-                                        }).then((dsdfw) {
-                                          Navigator.of(context).pop();
-                                          Navigator.of(context).pop();
-
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) {
-                                                    return TimeSlots(
-                                                        student, weekDay, doc);
-                                                  }
-                                              )
-                                          );
-                                        });
-                                      },
-                                      );
                                     })
                               ],
                             ),

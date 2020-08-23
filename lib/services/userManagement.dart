@@ -73,20 +73,7 @@ class UserManagement {
   }
 
 
-  static storeNewEntry(subject, clas, startDate, endDate, startTime, endTime, maxStudents) {
-    Firestore.instance.collection('/schedule').add({
-      'subject': subject,
-      'class' : clas,
-      'startDate': startDate,
-      'endDate' : endDate,
-      'startTime': startTime,
-      'endTime': endTime,
-      'timeStamp': DateTime.now(),
-      'maxStudents': maxStudents
-    }).catchError((e) {
-      print(e);
-    });
-  }
+
 
 
 

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:buildabrain/Owner/ownerHome.dart';
+import 'package:buildabrain/services/classManagement.dart';
 import 'package:buildabrain/services/promotionManagement.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,36 +18,22 @@ import 'package:intl/intl.dart';
 
 
 class AddClass extends StatefulWidget {
-  AddClass(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
+  AddClass( this.user);
 
   final user;
-  final date;
-  final startDate;
-  final endDate;
-  final startTime;
-  final endTime;
-  final description;
-  final host;
-  final name;
-  final location;
-  final material;
-  final dressCode;
-  final eventPhoto;
+
 
 
 
   @override
-  _AddClassState createState() => _AddClassState(this.date, this.startDate, this.endDate, this.startTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
+  _AddClassState createState() => _AddClassState( this.user);
 }
 
 class _AddClassState extends State<AddClass> {
-  _AddClassState(this.date, this.day, this.endDate, this.startTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
+  _AddClassState(this.user);
 
   final user;
-  final DateTime date;
+  DateTime date;
 
   GoogleMapController _controller;
 
@@ -78,102 +65,6 @@ class _AddClassState extends State<AddClass> {
 
   List <String> subjects;
 
-
-
-  void mapCreated(GoogleMapController controller) {
-    setState(() {
-      _controller = controller;
-
-
-
-    });
-  }
-
-
-  void googleDialog() async{
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-
-
-        return StatefulBuilder(
-          builder: (ctx, setState) {
-            return AlertDialog(
-                title: Center(child: Text("Choose location")),
-                actions: [
-                  FlatButton(
-                    child: Text("OK", style: TextStyle(
-                        color: Colors.blue
-                    ),),
-                    onPressed: (){
-
-                      Navigator.pop(context);
-
-                      setState(() {
-                        location  = allMarkers[0].position;
-                      });
-
-                    },
-                  ),
-                  FlatButton(
-                    child: Text("CANCEL", style: TextStyle(
-                        color: Colors.blue
-                    ),),
-                    onPressed: (){
-                      allMarkers = [];
-
-                      allMarkers.add(Marker(
-                          markerId: MarkerId('myMarker'),
-                          draggable: true,
-                          onTap: () {
-
-                            print(allMarkers[0].position);
-
-                            setState(() {
-                              location = allMarkers[0].position;
-                            });
-
-
-                            print(location);
-
-
-
-
-                          },
-                          position: LatLng(13.7563, 100.5018)));
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-                content: Container(
-                  height: 400,
-                  width: 400,
-                  child: GoogleMap(
-
-                    onTap: (point){
-                      setState(() {
-                        _handleTap(point);
-                      });
-                    },
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(13.7563, 100.5018),
-                      zoom: 12.0,
-                    ),
-
-
-
-                    onMapCreated: mapCreated,
-                    markers: Set.from(allMarkers),
-
-                  ),
-                )
-            );
-          },
-        );
-
-      },
-    );
-  }
 
   @override
   void initState() {
@@ -214,6 +105,12 @@ class _AddClassState extends State<AddClass> {
         .size
         .height;
 
+
+    if(teacherNames == null){
+      return new Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     return Scaffold(
         backgroundColor: Colors.white,
 
@@ -358,6 +255,7 @@ class _AddClassState extends State<AddClass> {
 
                                           onPressed: () async {
                                             await showTimePicker(
+
                                               initialTime: TimeOfDay
                                                   .now(),
                                               context: context,
@@ -387,12 +285,56 @@ class _AddClassState extends State<AddClass> {
                                                 );
                                               },
                                             ).then((val) {
+
                                               setState(() {
+
+
                                                 if (val != null) {
                                                   startTime = val;
                                                   endTime = TimeOfDay(
-                                                      hour: startTime.hour,
-                                                      minute: startTime.minute);
+                                                      hour: val.hour + 2,
+                                                      minute: val.minute);
+                                                }
+                                              });
+                                            });
+                                            await showTimePicker(
+
+                                              initialTime: endTime,
+                                              context: context,
+                                              builder: (BuildContext context,
+                                                  Widget child) {
+                                                return Material(
+                                                  type: MaterialType
+                                                      .transparency,
+                                                  child: MediaQuery(
+                                                    data: MediaQuery.of(context)
+                                                        .copyWith(
+                                                        alwaysUse24HourFormat: true),
+                                                    child: Container(
+                                                      child: Column(
+                                                        children: [
+                                                          Text("End Time",
+                                                            style: TextStyle(
+                                                                fontSize: 28,
+                                                                color: Colors
+                                                                    .white
+                                                            ),),
+                                                          child
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ).then((val) {
+
+                                              setState(() {
+
+                                                if (val != null) {
+
+                                                  endTime = TimeOfDay(
+                                                      hour: val.hour,
+                                                      minute: val.minute);
                                                 }
                                               });
                                             });
@@ -419,8 +361,7 @@ class _AddClassState extends State<AddClass> {
                                               maxHeight: 40),
                                           onPressed: () async {
                                             await showTimePicker(
-                                              initialTime: TimeOfDay
-                                                  .now(),
+                                              initialTime: endTime,
                                               context: context,
                                               builder: (BuildContext context,
                                                   Widget child) {
@@ -481,6 +422,7 @@ class _AddClassState extends State<AddClass> {
                                               setState(() {
                                                 classesAmount = newValue;
                                                 subjects = new List(classesAmount);
+
                                               });
                                             },
                                             items: <int>[1, 2, 3,]
@@ -636,7 +578,7 @@ class _AddClassState extends State<AddClass> {
 
 
                                       if( day != null && startTime != null && endTime != null &&
-                                          subjects[0] != null && teacher.length < 3) {
+                                          subjects[0] != null && teacher != null) {
 
 
                                         showDialog(
@@ -648,33 +590,51 @@ class _AddClassState extends State<AddClass> {
                                                 Container(
                                                     height: 50,
                                                     width: 50,
-                                                    child: CircularProgressIndicator()),
+                                                    child: Center(child: CircularProgressIndicator())),
 
                                               );
                                             }
                                         );
 
-                                        
 
-                                        await PromotionManagement().storePromotion(
-                                            eventPhoto,
-                                            name,
-                                            day,
-                                            endDate != null ? DateFormat("yyyy-MM-dd").format(endDate) : endDate,
-                                            "${startTime.hour}:${startTime.minute}",
-                                            "${endTime.hour}:${endTime.minute}",
-                                            host,
-                                            description,
-                                            locationUrl,
-                                            material,
-                                            dressCode
-                                        );
-                                        Navigator.pop(context);
-                                        Navigator.pop(context);
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                                builder: (BuildContext context) =>
-                                                    OwnerHome(user)));
+
+
+
+
+
+                                        String startTimeHour = startTime.hour < 10 ? "0${startTime.hour}" : startTime.hour.toString();
+                                        String startTimeMinute = startTime.minute < 10 ? "0${startTime.minute}" : startTime.minute.toString();
+
+                                        String endTimeHour = endTime.hour < 10 ? "0${endTime.hour}" : endTime.hour.toString();
+                                        String endTimeMinute = endTime.minute < 10 ? "0${endTime.minute}" : endTime.minute.toString();
+
+
+
+
+
+
+
+                                        await ClassManagement().storeNewClass(
+                                            subjects.length == 1 ? '${subjects[0]}' :
+                                            subjects.length == 2 ? '${subjects[0]} and ${subjects[1]}' :
+                                            subjects.length == 3 ? '${subjects[0]}, ${subjects[1]} and ${subjects[2]}' : null,
+                                              classType == "Preschool" ? "preschoolers" :
+                                              classType == "Junior" ? "junior" :
+                                              classType == "Advanced" ? "advanced" :
+                                                  null,
+                                             day,
+
+                                            "$startTimeHour:$startTimeMinute",
+                                            "$endTimeHour:$endTimeMinute",
+                                            teacher
+                                             );
+
+
+
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).pop();
+                                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
+                                            BuildContext context) =>  OwnerHome(user)), (route) => false);
 
                                       } else {
                                         showDialog(
@@ -729,287 +689,7 @@ class _AddClassState extends State<AddClass> {
 
   }
 
-  _handleTap(LatLng point) {
-    setState(() {
-      print(point.toString());
-      allMarkers = [];
-      allMarkers.add(
-          Marker(
-              markerId: MarkerId(point.toString()),
-              position: point
-
-          )
-      );
-    });
-  }
 
 }
-
-
-
-
-class ImageEdit extends StatefulWidget{
-  ImageEdit(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
-  final user;
-  final date;
-  final startDate;
-  final endDate;
-  final startTime;
-  final endTime;
-  final description;
-  final host;
-  final name;
-  final location;
-  final material;
-  final dressCode;
-  final eventPhoto;
-
-  @override
-  _ImageEditState createState() => _ImageEditState(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
-}
-
-class _ImageEditState extends State<ImageEdit> {
-  _ImageEditState(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-      this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
-  final user;
-  final date;
-  final startDate;
-  final endDate;
-  final startTime;
-  final endTime;
-  final description;
-  final host;
-  final name;
-  final location;
-  final material;
-  final dressCode;
-  final eventPhoto;
-  File _imageFile;
-
-  Future<void> _pickImage(ImageSource source) async{
-    File selected = await ImagePicker.pickImage(source: source);
-
-    selected = await ImageCropper.cropImage(
-        sourcePath: selected.path,
-        aspectRatio: CropAspectRatio(ratioY: 300, ratioX: 450,),
-        maxWidth: 700,
-        maxHeight: 700
-    );
-
-    setState(() {
-      _imageFile = selected;
-    });
-  }
-
-
-  Future getImageGallery() async {
-    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _imageFile = tempImage;
-    });
-    _cropImage();
-  }
-
-  Future getImageCamera() async {
-    var tempImage = await ImagePicker.pickImage(source: ImageSource.camera);
-    setState(() {
-      _imageFile = tempImage;
-    });
-    _cropImage();
-  }
-
-  Future<void> _cropImage() async {
-    File cropped = await ImageCropper.cropImage(
-        sourcePath: _imageFile.path,
-        aspectRatio: CropAspectRatio(ratioY: 300, ratioX: 500,),
-        maxWidth: 700,
-        maxHeight: 700
-    );
-    setState(() {
-      _imageFile = cropped ?? _imageFile;
-    });
-
-  }
-
-  void _clear() {
-    setState(() => _imageFile = null);
-  }
-
-
-  final FirebaseStorage _storage =
-  FirebaseStorage(storageBucket: 'gs://buildabrain-a8cce.appspot.com/');
-
-  StorageUploadTask _uploadTask;
-
-  String filePath;
-  String filePaths;
-  bool wait = false;
-
-
-  @override
-  Widget build(BuildContext context) =>
-      new Scaffold(
-          backgroundColor: Colors.white,
-
-
-          body: _imageFile == null ?
-
-          Container(
-
-              child:  Container(
-
-                child:
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-
-                        Container(
-                          height: 80,
-                          width: 80,
-
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(50)),
-                            color: Colors.blueAccent,
-                          ),
-                          child: IconButton(
-                            icon: Icon(Icons.photo_camera, color: Colors.white,),
-                            onPressed: () {
-                              _pickImage(ImageSource.camera);
-                            },
-                          ),
-                        ),
-
-                        SizedBox(
-                          width: 50,
-                        ),
-
-                        Container(
-                          height: 80,
-                          width: 80,
-
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(50)),
-                            color: Colors.blueAccent,
-                          ),
-                          child: IconButton(
-                            icon: Icon(Icons.photo_library, color: Colors.white,),
-                            onPressed: () {
-                              _pickImage(ImageSource.gallery);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          child: Text("Camera", style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold
-                          ),),
-                        ),
-                        SizedBox(
-                          width: 80,
-                        ),
-                        Container(
-                          child: Text("Gallery", style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold
-                          ),),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-                color: Colors.black.withOpacity(0.4),
-              )
-          ) :
-
-          wait == true ?
-          new Container(
-            child: Center(
-              child: new CircularProgressIndicator(),
-            ),
-          ) :
-          new ListView(
-            children: <Widget>[
-              SizedBox(
-                height: 100,
-              ),
-              Center(
-                  child:
-                  Container(
-
-                    child: Image.file(_imageFile),
-
-                  )
-              ),
-
-              SizedBox(
-                height: 50,
-              ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(
-                    child: Icon(Icons.crop, size: 50, color: Colors.black,),
-                    onPressed: _cropImage,
-                  ),
-                  FlatButton(
-                    child: Icon(Icons.refresh, size: 50, color: Colors.black,),
-                    onPressed: _clear,
-                  ),
-                  FlatButton(
-                    child: Icon(Icons.file_upload, size: 50, color: Colors.black,),
-                    onPressed: () async {
-                      wait = true;
-                      FirebaseUser user = await FirebaseAuth.instance.currentUser();
-
-                      filePath = 'eventPhotos/${DateTime.now()}.png';
-                      setState(() {
-                        _uploadTask = _storage.ref().child(filePath).putFile(_imageFile);
-
-                      });
-
-
-                      StorageTaskSnapshot snapshot = await _uploadTask.onComplete;
-                      String downloadUrl =  await snapshot.ref.getDownloadURL();
-
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.push(context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  AddClass(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
-                                      this.host, this.name, this.location, this.material, this.dressCode, downloadUrl, this.user)));
-
-
-
-
-                    },
-                  )
-                ],
-              ),
-            ],
-          )
-      );
-}
-
-
-
 
 

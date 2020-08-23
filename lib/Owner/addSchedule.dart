@@ -1109,6 +1109,7 @@ class _AddScheduleState extends State<AddSchedule> {
 
                                         await PromotionManagement().storePromotion(
                                             eventPhoto,
+
                                             name,
                                             DateFormat("yyyy-MM-dd").format(startDate),
                                             endDate != null ? DateFormat("yyyy-MM-dd").format(endDate) : endDate,

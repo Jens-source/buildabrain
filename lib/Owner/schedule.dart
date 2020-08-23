@@ -1,3 +1,5 @@
+import 'package:buildabrain/Owner/editClass.dart';
+import 'package:buildabrain/services/classManagement.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -7,15 +9,19 @@ import 'package:table_calendar/table_calendar.dart';
 
 
 class Schedule extends StatefulWidget {
+  Schedule(this.user);
+  final user;
 
 
 
   @override
-  _ScheduleState createState() => _ScheduleState();
+  _ScheduleState createState() => _ScheduleState(this.user);
 }
 
 class _ScheduleState extends State<Schedule> {
 
+  _ScheduleState(this.user);
+  final user;
 
 
    CalendarController _calendarController;
@@ -61,32 +67,24 @@ class _ScheduleState extends State<Schedule> {
                   'classDay', isEqualTo: weekDay).orderBy(
                   'startTime', descending: false)
                   .snapshots(),
-              builder: (context, snapshot)  {
+              builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(),
                   );
                 } else {
+                  if (init == false || snapshot.data.documents.length >
+                      containerAnimation.length) {
+                    containerAnimation =
+                    new List(snapshot.data.documents.length);
 
-
-
-                  if(init == false || snapshot.data.documents.length > containerAnimation.length) {
-                     containerAnimation = new List(snapshot.data.documents.length);
-
-                    for(int j = 0; j < containerAnimation.length; j++){
-
-
-                        containerAnimation[j] = false;
-
-
+                    for (int j = 0; j < containerAnimation.length; j++) {
+                      containerAnimation[j] = false;
                     }
                   }
 
 
                   init = true;
-
-
-
 
 
                   return new ListView.builder(
@@ -95,8 +93,6 @@ class _ScheduleState extends State<Schedule> {
                       shrinkWrap: true,
                       itemCount: snapshot.data.documents.length,
                       itemBuilder: (BuildContext context, i) {
-
-
                         DocumentSnapshot schedule = snapshot.data.documents[i];
 
                         final endTime = DateTime(
@@ -124,91 +120,73 @@ class _ScheduleState extends State<Schedule> {
                         Stack(
                           children: [
                             GestureDetector(
-                              onTap: (){
 
+                              child:
+                              Container(
+                                padding: EdgeInsets.only(
+                                    left: 30, bottom: 5),
+                                margin: EdgeInsets.only(
+                                    left: 80, right: 0, bottom: 5, top: 5),
+
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius
+                                            .circular(15),
+                                        topLeft: Radius.circular(15)),
+                                    color: Color.fromRGBO(20, 20, 20, 0.15)
+                                ),
+                                child: ListTile(
+
+                                  subtitle: Text(
+                                    "${weekDay.toString().substring(0,
+                                        3)} ${schedule['startTime']} - ${schedule['endTime']}",
+                                    style: TextStyle(
+                                        fontSize: 14
+                                    ),),
+                                  title:
+                                  Container(
+                                    padding: EdgeInsets.only(bottom: 5, top: 8),
+                                    child: Text(
+                                      "${schedule['subject']}\n${schedule['class'] ==
+                                          "preschoolers"
+                                          ? "Preschool"
+                                          :
+                                      schedule['class'] == "junior" ? "Junior" :
+                                      schedule['class'] == "advanced"
+                                          ? "Advanced"
+                                          :
+                                      " "
+                                      }", style: TextStyle(
+                                      fontSize: 16,
+
+                                    ),),
+                                  ),
+                                ),
+
+
+                              ),
+                            ),
+
+                            GestureDetector(
+                              onDoubleTap: () {
                                 setState(() {
-                                  containerAnimation[i] = !containerAnimation[i];
+                                  containerAnimation[i] =
+                                  !containerAnimation[i];
                                 });
-
                               },
                               child:
-                            Container(
-                              padding: EdgeInsets.only(
-                                  left: 50, right: 20, bottom: 10),
-                              margin: EdgeInsets.only(
-                                  left: 80, right: 0, bottom: 5, top: 10),
-
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius
-                                          .circular(15),
-                                      topLeft: Radius.circular(15)),
-                                  color: Color.fromRGBO(20, 20, 20, 0.15)
-                              ),
-                              child: ListTile(
-                                trailing: AnimatedContainer(
-                                  height:  50,
-                                  width: 50,
-                                  duration: Duration(milliseconds: 400),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                                    color: containerAnimation[i] == true ? Color.fromRGBO(0, 0, 0, 0.2) :
-                                        Color.fromRGBO(0, 0, 0, 0)
-                                  ),
-
-                                  child:  IconButton(
-                                    onPressed: (){
-                                      if(containerAnimation[i] == true){
-                                        
-                                      }
-                                    },
-                                    icon: Icon(Icons.add, color: containerAnimation[i] == true ?Colors.white
-                                    :   Color.fromRGBO(0, 0, 0, 0)),
-                                  )
-                                ) ,
-                                subtitle: Text(
-                                  "${weekDay.toString().substring(0,
-                                      3)} ${schedule['startTime']} - ${schedule['endTime']}",
-                                  style: TextStyle(
-                                      fontSize: 18
-                                  ),),
-                                title:
-                                Container(
-                                  padding: EdgeInsets.only(bottom: 5, top: 8),
-                                  child: Text("${ schedule['subject'].split(
-                                      " ")[0]} ${schedule['class'] ==
-                                      "preschoolers"
-                                      ? "Preschool"
-                                      :
-                                  schedule['class'] == "junior" ? "Junior" :
-                                  schedule['class'] == "advanced" ? "Advanced" :
-                                  " "
-                                  }", style: TextStyle(
-                                    fontSize: 22,
-
-                                  ),),
-                                ),
-                              ),
-
-
-                            ),
-                            ),
-
-                        GestureDetector(
-                        onTap: (){
-                        setState(() {
-                        containerAnimation[i] = !containerAnimation[i];
-
-                        });
-                        },
-                        child:
-                            AnimatedContainer(
-                              duration: Duration(milliseconds: 400),
-                                height:  containerAnimation[i] == false ? 80 : height / 2,
+                              AnimatedContainer(
+                                duration: Duration(milliseconds: 400),
+                                height: containerAnimation[i] == false
+                                    ? 80
+                                    : height / 2,
                                 padding: EdgeInsets.only(
-                                    left: 15, right: 10, bottom: 10, top: height/5),
+                                    left: 15,
+                                    right: 10,
+                                    bottom: 10,
+                                    top: height / 5),
                                 margin: EdgeInsets.only(
-                                    left: 80, right: 0, bottom: 5, top: 10),
+                                    left: 80, right: 0, bottom: 5, top: 5),
 
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.only(
@@ -217,93 +195,289 @@ class _ScheduleState extends State<Schedule> {
                                         topLeft: Radius.circular(15)),
                                     color: Color.fromRGBO(20, 20, 20, 0.05)
                                 ),
-                              child:
-                                  SingleChildScrollView(
-                                    child:
-                              Column(
-                                children: [
-                                  Row(
+                                child:
+                                SingleChildScrollView(
+                                  child:
+                                  Column(
                                     children: [
-                                      Text("Topic:", style: TextStyle(
-                                        fontSize: 18
-                                      ),),
-                                      SizedBox(
-                                        width: 5,
+                                      Row(
+                                        children: [
+                                          Text("Topic:", style: TextStyle(
+                                              fontSize: 18
+                                          ),),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text("Walk in the beach",
+                                            style: TextStyle(
+                                                fontSize: 18
+                                            ),),
+
+                                        ],
                                       ),
-                                      Text("Walk in the beach", style: TextStyle(
-                                        fontSize: 18
-                                      ),),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+
+
+                                      StreamBuilder<QuerySnapshot>(
+                                          stream: Firestore.instance.collection(
+                                              'schedule/${snapshot.data
+                                                  .documents[i]
+                                                  .documentID}/students')
+                                              .snapshots(),
+                                          builder: (context, students) {
+                                            if (!students.hasData) {
+                                              return new Container();
+                                            }
+
+
+                                            return Container(
+                                                height: 85,
+                                                child: ListView.builder(
+                                                    itemCount: 10,
+                                                    itemBuilder: (
+                                                        BuildContext context,
+                                                        k) {
+                                                      int f = k + 10;
+
+                                                      return new Container(
+                                                          child: Stack(
+
+                                                            children: [
+
+                                                              Positioned(
+                                                                child: Container(
+                                                                  child: k <=
+                                                                      students
+                                                                          .data
+                                                                          .documents
+                                                                          .length -
+                                                                          1 ?
+                                                                  Text("${k +
+                                                                      1} ${students
+                                                                      .data
+                                                                      .documents[k]
+                                                                      .data['firstName']}",
+                                                                    style: TextStyle(
+                                                                      fontSize: 16,
+                                                                    ),) :
+                                                                  Text(
+                                                                    "${k + 1}",
+                                                                    style: TextStyle(
+                                                                      fontSize: 16,
+                                                                    ),),
+
+                                                                ),
+                                                              ),
+                                                              Positioned(
+                                                                left: 120,
+                                                                child: Container(
+                                                                  child: f <=
+                                                                      students
+                                                                          .data
+                                                                          .documents
+                                                                          .length -
+                                                                          1 ?
+                                                                  Text("${f +
+                                                                      1} ${students
+                                                                      .data
+                                                                      .documents[f]
+                                                                      .data['firstName']}",
+                                                                    style: TextStyle(
+                                                                      fontSize: 16,
+                                                                    ),) :
+                                                                  Text(
+                                                                    "${f + 1}",
+                                                                    style: TextStyle(
+                                                                      fontSize: 16,
+                                                                    ),),
+
+                                                                ),
+                                                              )
+
+
+                                                            ],
+                                                          )
+
+                                                      );
+                                                    })
+                                            );
+                                          }
+                                      ),
 
                                     ],
                                   ),
-                                  SizedBox(
-                                    height: 10,
+                                ),
+                              ),
+                            ),
+
+                            Positioned(
+                                top: 23,
+                                right: 16,
+
+                                child:
+                                AnimatedContainer(
+                                  height: 30,
+                                  width: 30,
+                                  duration: Duration(milliseconds: 400),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(100)),
+                                      color: containerAnimation[i] == true
+                                          ? Color.fromRGBO(0, 0, 0, 0.2)
+                                          :
+                                      Color.fromRGBO(0, 0, 0, 0)
                                   ),
 
+                                )
+                            ),
 
-                                  StreamBuilder<QuerySnapshot>(
-                                    stream: Firestore.instance.collection('schedule/${snapshot.data.documents[i].documentID}/students').snapshots(),
-                                    builder: (context, students) {
+                            Positioned(
+                              top: 15,
+                              right: 18,
 
+                              child:
+                              AnimatedContainer(
+                                duration: Duration(milliseconds: 400),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(100)),
 
-                                      if(!students.hasData){
-                                        return new Container();
-                                      }
+                                ),
 
-
-                                      return Container(
-                                          height: 85,
-                                          child: ListView.builder(
-                                              itemCount: 10,
-                                              itemBuilder: (BuildContext context, k){
-                                                int f = k + 10;
-
-                                                return new Container(
-                                                    child: Stack(
-
-                                                      children: [
-
-                                                       Positioned(
-                                                         child: Container(
-                                                           child:  k <= students.data.documents.length -1 ?
-                                                           Text("${k+1} ${students.data.documents[k].data['firstName']}", style: TextStyle(
-                                                             fontSize: 16,
-                                                           ),) :
-                                                           Text("${k+1}", style: TextStyle(
-                                                             fontSize: 16,
-                                                           ),),
-
-                                                         ),
-                                                       ),
-                                                        Positioned(
-                                                          left: 120,
-                                                          child: Container(
-                                                            child:  f <= students.data.documents.length -1 ?
-                                                            Text("${f+1} ${students.data.documents[f].data['firstName']}", style: TextStyle(
-                                                              fontSize: 16,
-                                                            ),) :
-                                                            Text("${f+1}", style: TextStyle(
-                                                              fontSize: 16,
-                                                            ),),
-
-                                                          ),
-                                                        )
+                                child: containerAnimation[i] == true ?  DropdownButton<String>(
 
 
-                                                      ],
-                                                    )
+                                  underline: Container(),
+                                  icon: Icon(Icons.keyboard_arrow_down, size: 25,
+                                      color: containerAnimation[i] == true
+                                          ? Colors.white
+                                          : Color.fromRGBO(0, 0, 0, 0)),
+
+
+                                  iconDisabledColor: Colors.white,
+                                  iconEnabledColor: Colors.white,
+                                  elevation: 16,
+                                  isExpanded: false,
+                                  onChanged: (String newValue) {
+                                    if (newValue == "Add Students") {
+
+                                      print("Add Students");
+
+                                    }
+                                    if (newValue == "Edit Class") {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) {
+                                                return EditClass( schedule['classDay'], schedule['teacher'],
+                                                    TimeOfDay.fromDateTime(DateTime(2020, 1, 1,
+                                                        int.parse(schedule['startTime'].toString().substring(0, 2)),
+                                                        int.parse(schedule['startTime'].toString().substring(3, 5)),
+                                                        )),
+                                                    TimeOfDay.fromDateTime(DateTime(2020, 1, 1,
+                                                      int.parse(schedule['endTime'].toString().substring(0, 2)),
+                                                      int.parse(schedule['endTime'].toString().substring(3, 5)),
+                                                    )),
+                                                  user,
+                                                    schedule['class'],
+                                                  schedule['subject'],
+                                                  schedule.documentID
 
                                                 );
-                                              })
+                                              }
+                                          )
                                       );
-                                    }
-                                  ),
 
-                                ],
+
+                                    }
+                                    if (newValue == "Remove Students") {
+
+                                      showDialog(context: context,
+                                          builder: (BuildContext context){
+                                            return new
+
+                                            AlertDialog(
+                                              title: Text("Removing class"),
+                                              content: Text("Are you sure you want to remove this class?"),
+                                              actions: [
+                                                FlatButton(
+                                                  onPressed: (){
+                                                    ClassManagement().removeClass(schedule.documentID);
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text("OK", style: TextStyle(
+                                                      color: Colors.blue
+                                                  ),),
+                                                ),
+                                                FlatButton(
+                                                  onPressed: (){
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text("CANCEL", style: TextStyle(
+                                                      color: Colors.blue
+                                                  ),),
+                                                )
+                                              ],
+                                            );
+                                          });
+                                    }
+                                    if (newValue == "Remove Class") {
+
+                                      showDialog(context: context,
+                                      builder: (BuildContext context){
+                                        return new AlertDialog(
+                                          title: Text("Removing class"),
+                                          content: Text("Are you sure you want to remove this class?"),
+                                          actions: [
+                                            FlatButton(
+                                              onPressed: (){
+                                                ClassManagement().removeClass(schedule.documentID);
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text("OK", style: TextStyle(
+                                                color: Colors.blue
+                                              ),),
+                                            ),
+                                            FlatButton(
+                                              onPressed: (){
+                                                Navigator.pop(context);
+                                              },  
+                                              child: Text("CANCEL", style: TextStyle(
+                                                  color: Colors.blue
+                                              ),),
+                                            )
+                                          ],
+                                        );
+                                      });
+                                    }
+
+                                  },
+
+                                  items: <String>[
+                                    'Add Students',
+                                    'Remove Students',
+                                    'Edit Class',
+                                    'Remove Class'
+                                  ]
+                                      .map<
+                                      DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Container(
+                                        height: 20,
+                                        child: Text(value, style: TextStyle(
+                                          fontSize: 14
+                                        ),),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ) : Container(),
+
+
                               ),
-                                  ),
+
                             ),
-                        ),
 
                             Positioned(
                               left: 50,
@@ -359,14 +533,15 @@ class _ScheduleState extends State<Schedule> {
                             ),
 
 
-
                             snapshot.data.documents.length == 1 ?
                             Positioned(
                               top: 45,
                               child: AnimatedContainer(
                                 duration: Duration(milliseconds: 400),
                                 padding: EdgeInsets.only(left: 22),
-                                height: containerAnimation[i] == false? 0 : height/2,
+                                height: containerAnimation[i] == false
+                                    ? 0
+                                    : height / 2,
                                 child: VerticalDivider(
                                   color: Colors.orangeAccent,
 
@@ -381,7 +556,9 @@ class _ScheduleState extends State<Schedule> {
                               child: AnimatedContainer(
                                 duration: Duration(milliseconds: 400),
                                 padding: EdgeInsets.only(left: 22),
-                                height: containerAnimation[i] == false? height/4.5 : height/2,
+                                height: containerAnimation[i] == false
+                                    ? height / 4.5
+                                    : height / 2,
                                 child: VerticalDivider(
                                   color: Colors.orangeAccent,
 
@@ -394,7 +571,9 @@ class _ScheduleState extends State<Schedule> {
                               child: AnimatedContainer(
                                 duration: Duration(milliseconds: 400),
                                 padding: EdgeInsets.only(left: 22),
-                                height: containerAnimation[i] == false? height/4.5 : height/2,
+                                height: containerAnimation[i] == false
+                                    ? height / 4.5
+                                    : height / 2,
                                 child: VerticalDivider(
                                   color: Colors.orangeAccent,
 
@@ -408,7 +587,9 @@ class _ScheduleState extends State<Schedule> {
                               child: AnimatedContainer(
                                 duration: Duration(milliseconds: 400),
                                 padding: EdgeInsets.only(left: 22),
-                                height: containerAnimation[i] == false? height/4.5 : height/1.8,
+                                height: containerAnimation[i] == false
+                                    ? height / 4.5
+                                    : height / 1.8,
                                 child: VerticalDivider(
                                   color: Colors.orangeAccent,
 
@@ -483,9 +664,7 @@ class _ScheduleState extends State<Schedule> {
                           ],
                         );
                       });
-
                 }
-
               }
           ),
           StreamBuilder<QuerySnapshot>(
