@@ -144,9 +144,19 @@ class _EditClassState extends State<EditClass> {
 
         appBar: AppBar(
 
+          backgroundColor: classType == "preschoolers" ?
 
+          Color.fromRGBO(66, 140, 137, 1) :
+
+          classType == "junior" ?
+
+          Color.fromRGBO(147, 110, 72, 1) :
+          classType == "advanced" ?
+
+          Color.fromRGBO(155, 195, 96, 1) :
+          Color.fromRGBO(0, 0, 0, 0),
           leading: Icon(Icons.event, color: Colors.white,),
-          title: Text("Create a new class"),
+          title: Text("Edit this ${day} class"),
           actions: [
             FlatButton(
               child: Text("CANCEL", style: TextStyle(

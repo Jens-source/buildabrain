@@ -1200,65 +1200,6 @@ class _TimeSlotsState extends State<TimeSlots> {
                         );
                       });
 
-                  if (gender == false) {
-                    await UserManagement.addChild(
-                        0,
-                        0,
-                        name,
-                        0,
-                        0,
-                        0,
-                        'male',
-                        sched.data['class'],
-                        sched.data['startTime'],
-                        sched.data['endTime'],
-                        DateFormat('EEEE').format(
-                            DateTime.parse(sched.data['startDate'])),
-                        sched.documentID).then((val) {
-
-                    }).then((bol) {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) {
-                                return TimeSlots(student, weekDay, schedules);
-                              }
-                          )
-                      );
-                    });
-                  }
-
-                  if (gender == true) {
-                    await UserManagement.addChild(
-                        0,
-                        0,
-                        name,
-                        0,
-                        0,
-                        0,
-                        'female',
-                        sched.data['class'],
-                        sched.data['startTime'],
-                        sched.data['endTime'],
-                        DateFormat('EEEE').format(
-                            DateTime.parse(sched.data['startDate'])),
-                        sched.documentID).then((val) {
-
-                    }).then((bol) {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) {
-                                return TimeSlots(student, weekDay, schedules);
-                              }
-                          )
-                      );
-                    });
-                  }
                 },
               ),
               FlatButton(

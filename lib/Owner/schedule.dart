@@ -1,5 +1,7 @@
+import 'package:buildabrain/Owner/addStudent.dart';
 import 'package:buildabrain/Owner/editClass.dart';
 import 'package:buildabrain/services/classManagement.dart';
+import 'package:buildabrain/services/studentManagement.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +40,9 @@ class _ScheduleState extends State<Schedule> {
   String dropdownValue = 'Classes';
 
 
+  List<QuerySnapshot> studentNameList;
+
+
   bool init;
   bool initPromo;
 
@@ -68,6 +73,7 @@ class _ScheduleState extends State<Schedule> {
                   'startTime', descending: false)
                   .snapshots(),
               builder: (context, snapshot) {
+
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(),
@@ -84,6 +90,7 @@ class _ScheduleState extends State<Schedule> {
                   }
 
 
+                  studentNameList = new List(snapshot.data.documents.length);
                   init = true;
 
 
@@ -232,6 +239,8 @@ class _ScheduleState extends State<Schedule> {
                                             }
 
 
+                                            studentNameList[i] = students.data;
+
                                             return Container(
                                                 height: 85,
                                                 child: ListView.builder(
@@ -363,7 +372,14 @@ class _ScheduleState extends State<Schedule> {
                                   onChanged: (String newValue) {
                                     if (newValue == "Add Students") {
 
-                                      print("Add Students");
+
+                                     Navigator.of(context).push(
+                                         MaterialPageRoute(
+                                             builder: (context) {
+                                               return      AddStudent(schedule, studentNameList[i]);
+                                             }
+                                         )
+                                     );
 
                                     }
                                     if (newValue == "Edit Class") {
@@ -393,34 +409,144 @@ class _ScheduleState extends State<Schedule> {
                                     }
                                     if (newValue == "Remove Students") {
 
-                                      showDialog(context: context,
+                                      showDialog(
+                                          context: context,
                                           builder: (BuildContext context){
-                                            return new
 
-                                            AlertDialog(
-                                              title: Text("Removing class"),
-                                              content: Text("Are you sure you want to remove this class?"),
-                                              actions: [
-                                                FlatButton(
-                                                  onPressed: (){
-                                                    ClassManagement().removeClass(schedule.documentID);
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Text("OK", style: TextStyle(
-                                                      color: Colors.blue
-                                                  ),),
+                                         return StatefulBuilder(
+                                            builder: (ctx, setState) {
+                                              return new AlertDialog(
+                                                title: Text("Removing student"),
+                                                content: Container(
+                                                    height: 400,
+                                                    width: 500,
+                                                    child: StreamBuilder<
+                                                        QuerySnapshot>(
+                                                        stream: Firestore
+                                                            .instance
+                                                            .collection(
+                                                            'schedule/${snapshot
+                                                                .data
+                                                                .documents[i]
+                                                                .documentID}/students')
+                                                            .snapshots(),
+                                                        builder: (context,
+                                                            snoops) {
+                                                          if (!snoops.hasData) {
+                                                            return Container();
+                                                          }
+                                                          else
+                                                            return ListView
+                                                                .builder(
+                                                                shrinkWrap: true,
+                                                                scrollDirection: Axis
+                                                                    .vertical,
+                                                                itemCount: snoops
+                                                                    .data
+                                                                    .documents
+                                                                    .length,
+                                                                itemBuilder: (
+                                                                    BuildContext context,
+                                                                    k) {
+                                                                  return new Container(
+                                                                    child: ListTile(
+                                                                      trailing: IconButton(
+                                                                        icon: Icon(
+                                                                            Icons
+                                                                                .clear),
+                                                                        onPressed: () {
+                                                                          showDialog(
+                                                                              context: context,
+                                                                              builder: (
+                                                                                  BuildContext context) {
+
+                                                                                      return new AlertDialog(
+                                                                                        title: Text(
+                                                                                            "Warning"),
+                                                                                        content: Text(
+                                                                                            "Are you sure you want to remove ${studentNameList[i]
+                                                                                                .documents[k]
+                                                                                                .data['firstName']}?"),
+                                                                                        actions: [
+                                                                                          FlatButton(
+                                                                                            onPressed: () async {
+                                                                                              setState(() {
+
+
+                                                                                              });
+                                                                                               StudentManagement()
+                                                                                                  .removeStudent(
+                                                                                                  studentNameList[i]
+                                                                                                      .documents[k]
+                                                                                                      .documentID,
+                                                                                                  schedule,
+                                                                                                  studentNameList[i]
+                                                                                                      .documents[k]
+                                                                                                      .data['uid']);
+                                                                                              Navigator
+                                                                                                  .of(
+                                                                                                  context)
+                                                                                                  .pop();
+                                                                                            },
+
+                                                                                            child: Text(
+                                                                                              "YES",
+                                                                                              style: TextStyle(
+                                                                                                  color: Colors
+                                                                                                      .blue
+                                                                                              ),),
+                                                                                          ),
+                                                                                          FlatButton(
+                                                                                            onPressed: () {
+                                                                                              Navigator
+                                                                                                  .of(
+                                                                                                  context)
+                                                                                                  .pop();
+                                                                                            },
+
+                                                                                            child: Text(
+                                                                                              "NO",
+                                                                                              style: TextStyle(
+                                                                                                  color: Colors
+                                                                                                      .blue
+                                                                                              ),),
+                                                                                          ),
+                                                                                        ],
+                                                                                      );
+                                                                              }
+                                                                          );
+                                                                        },
+                                                                      ),
+                                                                      title: Text(
+                                                                          "${k +
+                                                                              1}. ${studentNameList[i]
+                                                                              .documents[k]
+                                                                              .data['firstName']}"),
+                                                                    ),
+                                                                  );
+                                                                });
+                                                        }
+                                                    )
                                                 ),
-                                                FlatButton(
-                                                  onPressed: (){
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Text("CANCEL", style: TextStyle(
-                                                      color: Colors.blue
-                                                  ),),
-                                                )
-                                              ],
-                                            );
+                                                actions: [
+
+                                                  FlatButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text("CANCEL",
+                                                      style: TextStyle(
+                                                          color: Colors.blue
+                                                      ),),
+                                                  )
+                                                ],
+                                              );
+                                            }
+                                          );
+
                                           });
+
+
                                     }
                                     if (newValue == "Remove Class") {
 
