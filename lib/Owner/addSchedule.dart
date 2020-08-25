@@ -95,13 +95,10 @@ class _AddScheduleState extends State<AddSchedule> {
                         color: Colors.blue
                     ),),
                     onPressed: (){
-
                       Navigator.pop(context);
-
                       setState(() {
                         location  = allMarkers[0].position;
                       });
-
                     },
                   ),
                   FlatButton(

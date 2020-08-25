@@ -328,26 +328,31 @@ class _AddStudentState extends State<AddStudent> {
                     GestureDetector(
                       onTap: () async {
                         if (nickName != null) {
+
+                          BuildContext dialogContext;
                           showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                    content: Container(
-                                      height: 200,
-                                      child: Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    )
-                                );
-                              });
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              dialogContext = context;
+                              return AlertDialog(
+                                  title: Center(child: CircularProgressIndicator()),
+
+                              );
+                            },
+                          );
+
+
 
                           await StudentManagement().storeNewStudent(
                               nickName,
                               gender == true ? "male" : "female",
-                              schedule).then((val) {
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pop();
-                          });
+                              schedule);
+                          Navigator.pop(dialogContext);
+
+
+
+
                         }
                         else{
                           showDialog(

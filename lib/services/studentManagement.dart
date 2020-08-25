@@ -131,10 +131,6 @@ class StudentManagement {
 
     });
 
-
-
-
-
   }
 
 

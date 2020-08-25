@@ -850,15 +850,7 @@ class _ScheduleState extends State<Schedule> {
                               children: [
 
 
-                        GestureDetector(
-                        onTap: (){
 
-                        setState(() {
-                        promoAnimation[i] = !promoAnimation[i];
-                        });
-
-                        },
-                        child:
                             Container(
                               padding: EdgeInsets.only(
                                 left: 10, right: 20,),
@@ -892,10 +884,10 @@ class _ScheduleState extends State<Schedule> {
                               ),
 
 
-                            ),
+
                         ),
                               GestureDetector(
-                              onTap: (){
+                              onDoubleTap: (){
 
                         setState(() {
                         promoAnimation[i] = !promoAnimation[i];
@@ -905,7 +897,7 @@ class _ScheduleState extends State<Schedule> {
                         child:
                                 AnimatedContainer(
                                   duration: Duration(milliseconds: 400),
-                                  height:  promoAnimation[i] == false ? 70 : height / 2,
+                                  height:  promoAnimation[i] == false ? 70 : height / 1.7,
 
                                   padding: EdgeInsets.only(top: 80, left: 15),
                                   margin: EdgeInsets.only(
@@ -926,9 +918,7 @@ class _ScheduleState extends State<Schedule> {
                                             children: [
                                               Row(
                                                 children: [
-                                                  Text("Date:", style: TextStyle(
-                                                      fontSize: 14
-                                                  ),),
+                                                  Icon(Icons.date_range),
                                                   Container(
                                                     padding: EdgeInsets.only(left: 5),
                                                     width: 220,
@@ -940,9 +930,7 @@ class _ScheduleState extends State<Schedule> {
                                               ),
                                               Row(
                                                 children: [
-                                                  Text("Host:", style: TextStyle(
-                                                      fontSize: 14
-                                                  ),),
+                                                  Icon(Icons.business),
                                                   Container(
                                                     padding: EdgeInsets.only(left: 5),
                                                     width: 220,
@@ -957,9 +945,7 @@ class _ScheduleState extends State<Schedule> {
 
                                               Row(
                                                 children: [
-                                                  Text("Description:", style: TextStyle(
-                                                      fontSize: 14
-                                                  ),),
+                                                  Icon(Icons.description),
                                                   Container(
                                                     padding: EdgeInsets.only(left: 5),
                                                     width: 220,
@@ -974,9 +960,7 @@ class _ScheduleState extends State<Schedule> {
 
                                               Row(
                                                 children: [
-                                                  Text("Detail:", style: TextStyle(
-                                                      fontSize: 14
-                                                  ),),
+                                                  Icon(Icons.search),
                                                   Container(
                                                     padding: EdgeInsets.only(left: 5),
                                                     width: 220,
@@ -989,9 +973,7 @@ class _ScheduleState extends State<Schedule> {
 
                                               Row(
                                                 children: [
-                                                  Text("Dress Code:", style: TextStyle(
-                                                      fontSize: 14
-                                                  ),),
+                                                  Icon(Icons.wc),
                                                   Container(
                                                     padding: EdgeInsets.only(left: 5),
                                                     width: 220,
@@ -1004,9 +986,7 @@ class _ScheduleState extends State<Schedule> {
 
                                               Row(
                                                 children: [
-                                                  Text("Material:", style: TextStyle(
-                                                      fontSize: 14
-                                                  ),),
+                                                  Icon(Icons.toys),
                                                   Container(
                                                     padding: EdgeInsets.only(left: 5),
                                                     width: 220,
