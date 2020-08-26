@@ -16,11 +16,11 @@ import 'package:intl/intl.dart';
 
 
 class AddSchedule extends StatefulWidget {
-  AddSchedule(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+  AddSchedule( this.startDate, this.endDate, this.startTime, this.endTime, this.description,
       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
 
   final user;
-  final date;
+
   final startDate;
   final endDate;
   final startTime;
@@ -36,16 +36,16 @@ class AddSchedule extends StatefulWidget {
 
 
   @override
-  _AddScheduleState createState() => _AddScheduleState(this.date, this.startDate, this.endDate, this.startTime, this.description,
+  _AddScheduleState createState() => _AddScheduleState( this.startDate, this.endDate, this.startTime, this.endTime, this.description,
       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
 }
 
 class _AddScheduleState extends State<AddSchedule> {
-  _AddScheduleState(this.date, this.startDate, this.endDate, this.startTime, this.description,
+  _AddScheduleState( this.startDate, this.endDate, this.startTime, this.endTime ,this.description,
       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
 
   final user;
-  final DateTime date;
+
 
   GoogleMapController _controller;
 
@@ -67,6 +67,9 @@ class _AddScheduleState extends State<AddSchedule> {
   String host;
   DragStartBehavior dragStartBehavior;
   List<Marker> allMarkers = [];
+  bool locationAdded;
+  bool change;
+
 
 
   void mapCreated(GoogleMapController controller) {
@@ -120,7 +123,7 @@ class _AddScheduleState extends State<AddSchedule> {
                             });
 
 
-                            print(location);
+
 
 
 
@@ -164,23 +167,54 @@ class _AddScheduleState extends State<AddSchedule> {
   @override
   void initState() {
     dragStartBehavior = DragStartBehavior.down;
+
+    if(location != null && description != null){
+      setState(() {
+        change = true;
+      });
+    }
+
+    if(location == null) {
+
+      setState(() {
+        allMarkers.add(Marker(
+            markerId: MarkerId('myMarker'),
+            draggable: true,
+            onTap: () {
+
+              print(allMarkers[0].position);
+
+
+
+            },
+            position: LatLng(13.7563, 100.5018)));
+
+        locationAdded = false;
+      });
+    } else{
+      setState(() {
+        locationAdded = true;
+
+        allMarkers.add(Marker(
+            markerId: MarkerId('myMarker'),
+            draggable: true,
+            onTap: () {
+
+              print(allMarkers[0].position);
+
+            },
+            position: LatLng(location.latitude, location.longitude)));
+
+      });
+
+    }
+
     time = "00:00 AM";
-    startDate = date;
-    startTime = TimeOfDay(hour: 12, minute: 0);
-    endTime = TimeOfDay(hour: 14, minute: 0);
-    allMarkers.add(Marker(
-        markerId: MarkerId('myMarker'),
-        draggable: true,
-        onTap: () {
 
-          print(allMarkers[0].position);
-
-
-
-        },
-        position: LatLng(13.7563, 100.5018)));
-
-
+    if(startTime == null){
+      startTime = TimeOfDay(hour: 12, minute: 0);
+      endTime = TimeOfDay(hour: 14, minute: 0);
+    }
 
 
     super.initState();
@@ -275,7 +309,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                       Navigator.push(context,
                                           MaterialPageRoute(
                                               builder: (BuildContext context) =>
-                                                  ImageEdit(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+                                                  ImageEdit(this.startDate, this.endDate, this.startTime, this.endTime, this.description,
                                                       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user)));
 
                                     },
@@ -354,7 +388,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                           onTap: () async {
                                             await showDatePicker(
                                                 context: context,
-                                                initialDate: date,
+                                                initialDate: startDate,
                                                 firstDate: DateTime(DateTime
                                                     .now()
                                                     .year),
@@ -600,9 +634,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                               setState(() {
                                                 if (val != null) {
                                                   startTime = val;
-                                                  endTime = TimeOfDay(
-                                                      hour: startTime.hour,
-                                                      minute: startTime.minute);
+
                                                 }
                                               });
                                             });
@@ -685,7 +717,7 @@ class _AddScheduleState extends State<AddSchedule> {
 
 
                                         decoration: InputDecoration(
-                                          hintText: "EVENT NAME",
+                                          hintText: name == null ? "EVENT NAME" : name,
                                           hintStyle: TextStyle(
                                               fontSize: 22
                                           ),
@@ -797,7 +829,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                                         maxLines: 1,
                                                         maxLength: 40,
                                                         decoration: InputDecoration(
-                                                          hintText: "Add a description",
+                                                          hintText: description == null ? "Add a description" : description,
                                                           hintStyle: TextStyle(
                                                               fontSize: 16
                                                           ),
@@ -941,7 +973,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                                         maxLines: 2,
 
                                                         decoration: InputDecoration(
-                                                          hintText: "What to bring?",
+                                                          hintText: material == null ? "What to bring?" : material,
                                                           hintStyle: TextStyle(
                                                               fontSize: 16
                                                           ),
@@ -1016,7 +1048,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                                       maxLines: 2,
 
                                                       decoration: InputDecoration(
-                                                        hintText: "What to wear?",
+                                                        hintText: dressCode == null ? "What to wear?" : dressCode,
                                                         hintStyle: TextStyle(
                                                             fontSize: 16
                                                         ),
@@ -1089,41 +1121,69 @@ class _AddScheduleState extends State<AddSchedule> {
                                         String locationUrl = "https://maps.google.com/?q=${location.latitude},${location.longitude}";
 
 
+
+
+
+
+                                        String startTimeHour = startTime.hour < 10 ? "0${startTime.hour}" : startTime.hour.toString();
+                                        String startTimeMinute = startTime.minute < 10 ? "0${startTime.minute}" : startTime.minute.toString();
+
+                                        String endTimeHour = endTime.hour < 10 ? "0${endTime.hour}" : endTime.hour.toString();
+                                        String endTimeMinute = endTime.minute < 10 ? "0${endTime.minute}" : endTime.minute.toString();
+
+
+                                        BuildContext dialogContext;
                                         showDialog(
-                                            context: context,
-                                            builder: (
-                                                BuildContext context) {
-                                              return AlertDialog(
-                                                  content:
-                                                   Container(
-                                                     height: 50,
-                                                       width: 50,
-                                                       child: CircularProgressIndicator()),
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            dialogContext = context;
+                                            return AlertDialog(
+                                              title: Center(child: CircularProgressIndicator()),
 
-                                              );
-                                            }
+                                            );
+                                          },
                                         );
 
+                                        print(locationUrl);
+
+
+
+                                        change == false ?
                                         await PromotionManagement().storePromotion(
-                                            eventPhoto,
+                                          eventPhoto,
 
-                                            name,
-                                            DateFormat("yyyy-MM-dd").format(startDate),
-                                            endDate != null ? DateFormat("yyyy-MM-dd").format(endDate) : endDate,
-                                            "${startTime.hour}:${startTime.minute}",
-                                            "${endTime.hour}:${endTime.minute}",
-                                            host,
-                                            description,
-                                            locationUrl,
-                                            material,
-                                            dressCode
+                                          name,
+                                          DateFormat("yyyy-MM-dd").format(startDate),
+                                          endDate == null ? null : DateFormat("yyyy-MM-dd").format(endDate),
+
+                                          "$startTimeHour:$startTimeMinute",
+                                          "$endTimeHour:$endTimeMinute",
+                                          host,
+                                          description,
+                                          locationUrl,
+                                          material,
+                                          dressCode,
+                                        ) :
+                                        await PromotionManagement().updateSchedule(
+                                          eventPhoto,
+
+                                          name,
+                                          DateFormat("yyyy-MM-dd").format(startDate),
+                                          endDate == null ? null : DateFormat("yyyy-MM-dd").format(endDate),
+
+                                          "$startTimeHour:$startTimeMinute",
+                                          "$endTimeHour:$endTimeMinute",
+                                          host,
+                                          description,
+                                          locationUrl,
+                                          material,
+                                          dressCode,
+
                                         );
+                                        Navigator.pop(dialogContext);
                                         Navigator.pop(context);
-                                        Navigator.pop(context);
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                                builder: (BuildContext context) =>
-                                                    OwnerHome(user)));
+
 
                                       } else {
                                         showDialog(
@@ -1158,7 +1218,7 @@ class _AddScheduleState extends State<AddSchedule> {
                                       color: Color.fromRGBO(23, 142, 137, 1),
 
                                   ),
-                                    child: Center(child: Text("CREATE EVENT", style: TextStyle(
+                                    child: Center(child: Text(change == false ? "CREATE EVENT" : "EDIT EVENT", style: TextStyle(
                                       color: Colors.white
                                     ),)),
                                   ),
@@ -1178,7 +1238,6 @@ class _AddScheduleState extends State<AddSchedule> {
 
   _handleTap(LatLng point) {
     setState(() {
-      print(point.toString());
       allMarkers = [];
       allMarkers.add(
           Marker(
@@ -1196,10 +1255,10 @@ class _AddScheduleState extends State<AddSchedule> {
 
 
 class ImageEdit extends StatefulWidget{
-  ImageEdit(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+  ImageEdit( this.startDate, this.endDate, this.startTime, this.endTime, this.description,
       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
   final user;
-  final date;
+
   final startDate;
   final endDate;
   final startTime;
@@ -1213,15 +1272,15 @@ class ImageEdit extends StatefulWidget{
   final eventPhoto;
 
   @override
-  _ImageEditState createState() => _ImageEditState(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+  _ImageEditState createState() => _ImageEditState( this.startDate, this.endDate, this.startTime, this.endTime, this.description,
       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
 }
 
 class _ImageEditState extends State<ImageEdit> {
-  _ImageEditState(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+  _ImageEditState( this.startDate, this.endDate, this.startTime, this.endTime, this.description,
       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
   final user;
-  final date;
+
   final startDate;
   final endDate;
   final startTime;
@@ -1441,7 +1500,7 @@ class _ImageEditState extends State<ImageEdit> {
                       Navigator.push(context,
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
-                                 AddSchedule(this.date, this.startDate, this.endDate, this.startTime, this.endTime, this.description,
+                                 AddSchedule( this.startDate, this.endDate, this.startTime, this.endTime, this.description,
                                      this.host, this.name, this.location, this.material, this.dressCode, downloadUrl, this.user)));
 
 

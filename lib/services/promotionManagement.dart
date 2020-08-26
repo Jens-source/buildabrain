@@ -36,4 +36,31 @@ class PromotionManagement {
       print(e);
     });
   }
+
+  Future updateSchedule( eventPhoto, name, startDate, endDate, startTime, endTime, host, description, locationUrl,
+      material, dressCode)  async {
+    await Firestore.instance
+        .collection('promotions')
+        .where("host", isEqualTo: host)
+    .getDocuments()
+    .then((value) {
+      Firestore.instance.collection('promotions')
+          .document(value.documents[0].documentID)
+          .updateData({
+        "photoUrl": eventPhoto,
+        "name": name,
+        "date": startDate,
+        "endDate": endDate,
+        "startTime": startTime,
+        "endTime": endTime,
+        "host": host,
+        "description": description,
+        "locationUrl": locationUrl,
+        "material": material,
+        "dressCode": dressCode,
+      });
+    }).catchError((e) {
+      print(e);
+    });
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:buildabrain/Owner/addSchedule.dart';
 import 'package:buildabrain/Owner/addStudent.dart';
 import 'package:buildabrain/Owner/editClass.dart';
 import 'package:buildabrain/services/classManagement.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 class Schedule extends StatefulWidget {
@@ -852,8 +854,8 @@ class _ScheduleState extends State<Schedule> {
 
 
                             Container(
-                              padding: EdgeInsets.only(
-                                left: 10, right: 20,),
+                              padding: EdgeInsets.only( top: 7,
+                              ),
                               margin: EdgeInsets.only(
                                   left: 30,
                                   right: 30,
@@ -870,6 +872,8 @@ class _ScheduleState extends State<Schedule> {
                               ),
                               child: ListTile(
                                 leading: Container(
+
+
                                   child: FadeInImage.assetNetwork(
 
 
@@ -880,7 +884,7 @@ class _ScheduleState extends State<Schedule> {
                                   ),
                                 ),
                                 title: Text(
-                                    promo.data['detail']),
+                                    promo.data['name']),
                               ),
 
 
@@ -964,7 +968,7 @@ class _ScheduleState extends State<Schedule> {
                                                   Container(
                                                     padding: EdgeInsets.only(left: 5),
                                                     width: 220,
-                                                    child: Text(promo.data['detail'], style: TextStyle(
+                                                    child: Text(promo.data['name'], style: TextStyle(
                                                         fontSize: 14
                                                     ),),
                                                   ),
@@ -1013,6 +1017,127 @@ class _ScheduleState extends State<Schedule> {
                                   ),
                                 ),
                               ),
+
+                                Positioned(
+                                    top: 23,
+                                    right: 50,
+
+                                    child:
+                                    AnimatedContainer(
+                                      height: 30,
+                                      width: 30,
+                                      duration: Duration(milliseconds: 400),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(100)),
+                                          color: promoAnimation[i] == true
+                                              ? Color.fromRGBO(0, 0, 0, 0.2)
+                                              :
+                                          Color.fromRGBO(0, 0, 0, 0)
+                                      ),
+
+                                    )
+                                ),
+                                Positioned(
+                                  top: 15,
+                                  right: 52,
+
+                                  child:
+                                  AnimatedContainer(
+                                      duration: Duration(milliseconds: 400),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(100)),
+
+                                      ),
+
+                                      child: promoAnimation[i] == true ?  DropdownButton<String>(
+
+
+                                          underline: Container(),
+                                          icon: Icon(Icons.keyboard_arrow_down, size: 25,
+                                              color: promoAnimation[i] == true
+                                                  ? Colors.white
+                                                  : Color.fromRGBO(0, 0, 0, 0)),
+
+
+                                          iconDisabledColor: Colors.white,
+                                          iconEnabledColor: Colors.white,
+                                          elevation: 16,
+                                          isExpanded: false,
+                                          onChanged: (String newValue) {
+
+                                            if(newValue == "Edit promotion"){
+
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) {
+
+                                                        int st1 = int.parse(promo['startTime'].toString().substring(0, 2));
+                                                        int st2 = int.parse(promo['startTime'].toString().substring(3, 5));
+
+                                                        int et1 = int.parse(promo['endTime'].toString().substring(0, 2));
+                                                        int et2 = int.parse(promo['endTime'].toString().substring(3, 5));
+
+
+                                                        TimeOfDay promoStartTime = TimeOfDay.fromDateTime(DateTime(2020, 10, 10, st1, st2));
+                                                        TimeOfDay promoEndTime = TimeOfDay.fromDateTime(DateTime(2020, 10, 10, et1, et2));
+
+                                                        double lat = double.parse(promo['locationUrl'].toString().substring(27, 45));
+                                                        double lon = double.parse(promo['locationUrl'].toString().substring(46, 63));
+
+                                                        LatLng locationFinal = LatLng(lat, lon);
+
+
+
+                                                        print(locationFinal);
+
+
+                                                        return     AddSchedule(
+                                                            DateTime.parse(promo['date']),
+                                                            promo['endDate'] == null ? null :  DateTime.parse(promo['endDate']),
+                                                            promoStartTime,
+                                                            promoEndTime,
+                                                            promo['description'],
+                                                            promo['host'],
+                                                            promo['name'],
+                                                            locationFinal,
+                                                            promo['material'],
+                                                            promo['dressCode'],
+                                                            promo['photoUrl'],
+                                                            user
+                                                        );
+                                                      }
+                                                  )
+                                              );
+                                            }
+                                            if(newValue == "Remove Promotion"){
+
+                                            }
+                                            if(newValue == "Parents joined"){
+
+                                            }
+                                          },
+                                        items: <String>[
+                                          'Edit promotion',
+                                          'Remove promotion',
+                                          'Parents joined',
+                                        ]
+                                            .map<
+                                            DropdownMenuItem<String>>((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Container(
+                                              height: 20,
+                                              child: Text(value, style: TextStyle(
+                                                  fontSize: 14
+                                              ),),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ): Container()
+                                  ) ,
+                                ),
 
 
                               ]
