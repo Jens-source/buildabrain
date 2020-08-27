@@ -63,4 +63,11 @@ class PromotionManagement {
       print(e);
     });
   }
+
+   removePromotion(promoID) async{
+    await Firestore.instance
+        .collection('promotions')
+        .document(promoID)
+        .delete();
+  }
 }

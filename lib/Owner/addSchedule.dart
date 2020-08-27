@@ -238,10 +238,8 @@ class _AddScheduleState extends State<AddSchedule> {
         backgroundColor: Colors.white,
 
         appBar: AppBar(
-
-
           leading: Icon(Icons.event, color: Colors.white,),
-          title: Text("Create a new event"),
+          title: Text(change == false ? "Create a new event" : "Edit event"),
           actions: [
             FlatButton(
               child: Text("CANCEL", style: TextStyle(
@@ -1258,7 +1256,6 @@ class ImageEdit extends StatefulWidget{
   ImageEdit( this.startDate, this.endDate, this.startTime, this.endTime, this.description,
       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
   final user;
-
   final startDate;
   final endDate;
   final startTime;
@@ -1280,7 +1277,6 @@ class _ImageEditState extends State<ImageEdit> {
   _ImageEditState( this.startDate, this.endDate, this.startTime, this.endTime, this.description,
       this.host, this.name, this.location, this.material, this.dressCode, this.eventPhoto, this.user);
   final user;
-
   final startDate;
   final endDate;
   final startTime;
@@ -1293,6 +1289,10 @@ class _ImageEditState extends State<ImageEdit> {
   final dressCode;
   final eventPhoto;
   File _imageFile;
+
+
+
+
 
   Future<void> _pickImage(ImageSource source) async{
     File selected = await ImagePicker.pickImage(source: source);

@@ -2,6 +2,7 @@ import 'package:buildabrain/Owner/addSchedule.dart';
 import 'package:buildabrain/Owner/addStudent.dart';
 import 'package:buildabrain/Owner/editClass.dart';
 import 'package:buildabrain/services/classManagement.dart';
+import 'package:buildabrain/services/promotionManagement.dart';
 import 'package:buildabrain/services/studentManagement.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
@@ -1065,7 +1066,7 @@ class _ScheduleState extends State<Schedule> {
                                           iconEnabledColor: Colors.white,
                                           elevation: 16,
                                           isExpanded: false,
-                                          onChanged: (String newValue) {
+                                          onChanged: (String newValue) async {
 
                                             if(newValue == "Edit promotion"){
 
@@ -1111,7 +1112,62 @@ class _ScheduleState extends State<Schedule> {
                                                   )
                                               );
                                             }
-                                            if(newValue == "Remove Promotion"){
+                                            if(newValue == "Remove promotion"){
+
+
+                                              BuildContext dialogContext;
+
+
+                                              showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder: (BuildContext context){
+                                                  return AlertDialog(
+                                                    title: Text("Warning!"),
+                                                    content: Text("Are you sure you want to remove this promotion?"),
+                                                    actions: [
+                                                      FlatButton(
+                                                        child: Text("YES", style: TextStyle(
+                                                          color: Colors.blue
+                                                        ),),
+                                                        onPressed: () async {
+                                                          showDialog(
+                                                            context: context,
+                                                            barrierDismissible: false,
+                                                            builder: (BuildContext context) {
+                                                              dialogContext = context;
+                                                              return AlertDialog(
+                                                                title: Center(child: CircularProgressIndicator()),
+
+                                                              );
+                                                            },
+                                                          );
+
+                                                          await PromotionManagement().removePromotion(promo.documentID);
+
+
+                                                          Navigator.of(dialogContext).pop();
+                                                          Navigator.of(context).pop();
+
+                                                        },
+                                                      ),
+                                                      FlatButton(
+                                                        child: Text("NO", style: TextStyle(
+                                                          color: Colors.blue
+                                                        ),),
+                                                        onPressed: () {
+
+
+                                                          Navigator.of(context).pop();
+
+                                                        },
+                                                      )
+                                                    ],
+                                                  );
+                                                }
+                                              );
+
+
 
                                             }
                                             if(newValue == "Parents joined"){
@@ -1204,7 +1260,7 @@ class _ScheduleState extends State<Schedule> {
                               ),
                               child: ListTile(
                                 leading: Container(
-                                  padding: EdgeInsets.only(top: 10),
+                                    padding: EdgeInsets.only(top: 10),
 
                                     child: Icon(Icons.star, color: Colors.orangeAccent, size: 50,)),
 
@@ -1231,18 +1287,18 @@ class _ScheduleState extends State<Schedule> {
 
 
 
-   void onSelected(DateTime date, List name){
-     setState(() {
+  void onSelected(DateTime date, List name){
+    setState(() {
 
-       init = false;
-       initPromo = false;
-       containerAnimation = new List<bool>();
-       selectedDate = date;
-       weekday = DateFormat("EEEE").format(date);
-     });
-   }
+      init = false;
+      initPromo = false;
+      containerAnimation = new List<bool>();
+      selectedDate = date;
+      weekday = DateFormat("EEEE").format(date);
+    });
+  }
 
-   QuerySnapshot students;
+  QuerySnapshot students;
 
 
   @override
@@ -1259,24 +1315,24 @@ class _ScheduleState extends State<Schedule> {
 
     Firestore.instance.collection('promotions').getDocuments().then((value) {
 
-        for(int i = 0; i  < value.documents.length; i++){
-          setState(() {
+      for(int i = 0; i  < value.documents.length; i++){
+        setState(() {
           _events.putIfAbsent(DateTime.parse(value.documents[i].data['date']), () => [value]);
 
 
         });
-        }
+      }
 
     });
 
     Firestore.instance.collection('holidays').getDocuments().then((value) {
 
-        for(int i = 0; i  < value.documents.length; i++){
-          setState(() {
+      for(int i = 0; i  < value.documents.length; i++){
+        setState(() {
           _holidays.putIfAbsent(DateTime.parse(value.documents[i].data['date']), () => [value]);
-          });
+        });
 
-        }
+      }
 
     });
     super.initState();
@@ -1304,8 +1360,8 @@ class _ScheduleState extends State<Schedule> {
             children: [
 
 
-              
-              
+
+
               Positioned(
                 top: 20,
                 child: Column(
@@ -1351,17 +1407,17 @@ class _ScheduleState extends State<Schedule> {
                               children.add((
 
 
-                                    Container(
-                                        height: 10,
-                                        width: 10,
+                                  Container(
+                                    height: 10,
+                                    width: 10,
 
-                                        padding: EdgeInsets.only(top: 10),
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(Radius.circular(100)),
-                                            color: Colors.greenAccent
+                                    padding: EdgeInsets.only(top: 10),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                                        color: Colors.greenAccent
 
-                                        ),
-                                      )
+                                    ),
+                                  )
 
                               ),
                               );
@@ -1371,13 +1427,13 @@ class _ScheduleState extends State<Schedule> {
                         ),
                         calendarStyle: CalendarStyle(
                           todayStyle: TextStyle(
-                            color: Colors.black
+                              color: Colors.black
                           ),
                           todayColor: Color.fromRGBO(247,165,0, 1),
                           selectedColor: Color.fromRGBO(196, 89, 0, 1),
                           holidayStyle: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 20
+                              color: Colors.white70,
+                              fontSize: 20
                           ),
                           weekdayStyle: TextStyle(
                               color: Colors.white70,
@@ -1451,4 +1507,3 @@ class _ScheduleState extends State<Schedule> {
     );
   }
 }
-
