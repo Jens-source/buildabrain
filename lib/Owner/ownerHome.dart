@@ -1,4 +1,5 @@
 import 'package:buildabrain/Owner/addSchedule.dart';
+import 'package:buildabrain/Owner/chat.dart';
 import 'package:buildabrain/Owner/dashboard.dart';
 import 'package:buildabrain/Owner/ownerCalendar.dart';
 import 'package:buildabrain/Owner/scanner.dart';
@@ -659,7 +660,7 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
           Dashboard(user),
           Schedule(user),
           tab ==2? Scanner(user) : Container(),
-          Container(),
+          Chat(user.documents[0], 0),
           Container(),
 
           ]

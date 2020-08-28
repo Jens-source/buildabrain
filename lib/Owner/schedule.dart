@@ -726,8 +726,7 @@ class _ScheduleState extends State<Schedule> {
                                 ),
                               ),
                             ),
-
-
+                            
                             Positioned(
                               left: 15,
                               top: 30,

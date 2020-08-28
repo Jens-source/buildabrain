@@ -1,10 +1,9 @@
 
-
-import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:buildabrain/Parent/chatAdmin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -15,68 +14,200 @@ import 'package:intl/intl.dart';
 
 
 
-
-
-class ChatAdmin extends StatefulWidget {
-  ChatAdmin(this.user);
+class Chat extends StatefulWidget {
+  Chat(this.user, this.index);
+  final index;
   final user;
   @override
-  _ChatAdminState createState() => _ChatAdminState(this.user);
+  _ChatState createState() => _ChatState(this.user, this.index);
 }
 
-class _ChatAdminState extends State<ChatAdmin> {
-  
-  _ChatAdminState(this.user);
+class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
+
+  _ChatState(this.user, this.index);
+
+  final index;
+
+  final DocumentSnapshot user;
+
+
+
+  TabController _tabController;
+  void _toggleTab(index) {
+    _tabController.animateTo(index);
+  }
+
+
+  @override
+  void initState() {
+    _tabController = TabController(vsync: this, length: 3, initialIndex: index);
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return TabBarView(
+
+      physics: NeverScrollableScrollPhysics(),
+      controller: _tabController,
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.only(left: 15, right: 15),
+          child: ListView(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Container(
+                child: Card(
+                  color: Colors.white70,
+                  child: ListTile(
+                      onTap: (){
+                        _toggleTab(2);
+
+                      },
+                      title: Text("Teacher group"),
+                      leading: Container(
+                        height: 50,
+                        width: 50,
+                        child: CircleAvatar(
+                          backgroundImage: AssetImage(
+                              "lib/Assets/chatHelp.png"),
+                        ),
+                      )
+
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Container(
+                child: Card(
+                  color: Colors.white70,
+                  child: ListTile(
+                      onTap:  (){
+                        _toggleTab(1);
+
+                      },
+
+                      title: Text("Parent group"),
+                      leading: Container(
+                        height: 50,
+                        width: 50,
+                        child: CircleAvatar(
+                          backgroundImage: AssetImage(
+                              "lib/Assets/chatGroup.png"),
+                        ),
+                      )
+
+                  ),
+                ),
+              ),
+              StreamBuilder<QuerySnapshot>(
+                stream: Firestore.instance.collection('parentAdmin').snapshots(),
+                builder: (context, snapshot) {
+                  if(!snapshot.hasData){
+                    return Center(
+                      child: Container(),
+                    );
+                  }
+                  else {
+                    print(snapshot.data.documents.length);
+
+                    return ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data.documents.length,
+                        itemBuilder: (BuildContext context, i) {
+
+                          return ListView(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            physics: NeverScrollableScrollPhysics(),
+                            children: [
+
+
+
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Container(
+                                child: Card(
+                                  color: Colors.white70,
+                                  child: ListTile(
+                                      onTap: (){
+                                        _toggleTab(2);
+
+                                      },
+                                      title: Text("Teacher group"),
+                                      leading: Container(
+                                        height: 50,
+                                        width: 50,
+                                        child: CircleAvatar(
+                                          backgroundImage: AssetImage(
+                                              "lib/Assets/chatHelp.png"),
+                                        ),
+                                      )
+
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+
+                        });
+                  }
+                }
+              )
+            ],
+          ),
+
+        ),
+        ChatGroup(user),
+        ChatAdmin(user)
+
+      ],
+    );
+
+
+  }
+}
+
+class ChatGroup extends StatefulWidget {
+  ChatGroup(this.user);
+  final user;
+  @override
+  _ChatGroupState createState() => _ChatGroupState(this.user);
+}
+
+class _ChatGroupState extends State<ChatGroup> {
+  _ChatGroupState(this.user);
   final DocumentSnapshot user;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Firestore _firestore = Firestore.instance;
   TextEditingController messageController = TextEditingController();
   ScrollController scrollController = ScrollController();
   List <bool> expanded;
-
   bool onPressed = false;
+  PageController pageController;
 
 
 
 
-
+  getData() async {
+    return await Firestore.instance.collection('users').getDocuments();
+  }
 
   Future<void> callback() async {
     if (messageController.text.trim().length > 0 ) {
-      await _firestore.collection('parentAdmin')
-      .where('parentUid', isEqualTo: user.data['uid'])
-      .getDocuments()
-      .then((value) async{ 
-       await  _firestore.collection('parentAdmin')
-            .document(value.documents[0].documentID)
-            .updateData({
-          'photoUrl': user.data['photoUrl'],
-          'text': messageController.text,
-          'from': user.data['firstName'],
-          'date': DateTime.now()
-        });
-      }).catchError((e)async{
-        await Firestore.instance.collection('parentAdmin')
-            .add({
-          "parentUid": user.data['uid'],
-        });
-        await _firestore.collection('parentAdmin')
-            .where('parentUid', isEqualTo: user.data['uid'])
-            .getDocuments()
-            .then((value) async {
-          await _firestore.collection('parentAdmin')
-              .document(value.documents[0].documentID)
-              .updateData({
-            'photoUrl': user.data['photoUrl'],
-            'text': messageController.text,
-            'from': user.data['firstName'],
-            'date': DateTime.now()
-          });
-        });
-
-        
+      await _firestore.collection('parentGroupChat')
+          .add({
+        'photoUrl': user.data['photoUrl'],
+        'text': messageController.text,
+        'from': user.data['firstName'],
+        'date': DateTime.now()
       });
-
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         curve: Curves.easeOut,
@@ -100,9 +231,7 @@ class _ChatAdminState extends State<ChatAdmin> {
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
-                      .collection('parentAdmin')
-                      .document(user.data['uid'])
-                      .collection("messages")
+                      .collection('parentGroupChat')
                       .orderBy('date')
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -460,26 +589,13 @@ class _ImageEditState extends State<ImageEdit> {
 
 
   Future<void> callback(downloadUrl) async {
-
-
-
-     await Firestore.instance.collection('parentAdmin')
-      .where('parentUid', isEqualTo: user.data['uid'])
-     .getDocuments()
-     .then((value) {
-        Firestore.instance.collection('parentAdmin')
-           .document(value.documents[0].documentID)
-           .collection("messages")
-           .add({
-         'imageUrl': downloadUrl,
-
-       });
-     });
-
-
-
-
-
+    await Firestore.instance.collection('parentGroupChat')
+        .add({
+      'imageUrl': downloadUrl,
+      'photoUrl': user.data['photoUrl'],
+      'from': user.data['firstName'],
+      'date': DateTime.now()
+    });
   }
 
   Future<void> _pickImage(ImageSource source) async{
@@ -677,7 +793,7 @@ class _ImageEditState extends State<ImageEdit> {
                       wait = true;
                       FirebaseUser user = await FirebaseAuth.instance.currentUser();
 
-                      filePath = 'parentAdmin/${user.uid}/${DateTime.now()}.png';
+                      filePath = 'parentGroupChat/${DateTime.now()}.png';
                       setState(() {
                         _uploadTask = _storage.ref().child(filePath).putFile(_imageFile);
 
@@ -688,6 +804,11 @@ class _ImageEditState extends State<ImageEdit> {
                       String downloadUrl =  await snapshot.ref.getDownloadURL();
 
                       callback(downloadUrl);
+
+
+
+
+
 
                       Navigator.of(context).pop();
 
