@@ -1,9 +1,9 @@
 
 import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
 
-import 'package:buildabrain/Parent/chatAdmin.dart';
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -31,6 +31,9 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
   final DocumentSnapshot user;
 
 
+  DocumentSnapshot parent;
+
+
 
   TabController _tabController;
   void _toggleTab(index) {
@@ -40,13 +43,13 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
 
   @override
   void initState() {
-    _tabController = TabController(vsync: this, length: 3, initialIndex: index);
+    _tabController = TabController(vsync: this, length: 4, initialIndex: index);
+
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
     return TabBarView(
-
       physics: NeverScrollableScrollPhysics(),
       controller: _tabController,
       children: <Widget>[
@@ -63,7 +66,6 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
                   child: ListTile(
                       onTap: (){
                         _toggleTab(2);
-
                       },
                       title: Text("Teacher group"),
                       leading: Container(
@@ -87,7 +89,6 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
                   child: ListTile(
                       onTap:  (){
                         _toggleTab(1);
-
                       },
 
                       title: Text("Parent group"),
@@ -103,6 +104,7 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
                   ),
                 ),
               ),
+
               StreamBuilder<QuerySnapshot>(
                 stream: Firestore.instance.collection('parentAdmin').snapshots(),
                 builder: (context, snapshot) {
@@ -121,32 +123,44 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
                         itemCount: snapshot.data.documents.length,
                         itemBuilder: (BuildContext context, i) {
 
+                          DocumentSnapshot parentChatDoc = snapshot.data.documents[i];
+
                           return ListView(
                             shrinkWrap: true,
                             scrollDirection: Axis.vertical,
                             physics: NeverScrollableScrollPhysics(),
                             children: [
 
+                              i == 0 ? Center(
+                                child: Container(
+                                  padding: EdgeInsets.only(top: 10, bottom: 5),
+                                  child: Text("Parents", style: TextStyle(
+                                    fontSize: 18
+                                  ),),
+                                ),
+                              ) : Container(),
 
-
-                              SizedBox(
-                                height: 20,
-                              ),
                               Container(
+
                                 child: Card(
                                   color: Colors.white70,
                                   child: ListTile(
                                       onTap: (){
-                                        _toggleTab(2);
+                                        setState(() {
 
+                                          parent = parentChatDoc;
+
+                                          _toggleTab(3);
+                                        });
                                       },
-                                      title: Text("Teacher group"),
+                                      title: Text(parentChatDoc.data['name']),
                                       leading: Container(
+                                        padding: EdgeInsets.all(2),
                                         height: 50,
                                         width: 50,
                                         child: CircleAvatar(
-                                          backgroundImage: AssetImage(
-                                              "lib/Assets/chatHelp.png"),
+                                          backgroundImage: NetworkImage(
+                                              parentChatDoc.data['photoUrl']),
                                         ),
                                       )
 
@@ -165,7 +179,8 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
 
         ),
         ChatGroup(user),
-        ChatAdmin(user)
+        TeacherChatGroup(user),
+        parent != null ? ParentAdminChat(user, parent) : Container(),
 
       ],
     );
@@ -183,6 +198,271 @@ class ChatGroup extends StatefulWidget {
 
 class _ChatGroupState extends State<ChatGroup> {
   _ChatGroupState(this.user);
+  final DocumentSnapshot user;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Firestore _firestore = Firestore.instance;
+  TextEditingController messageController = TextEditingController();
+  ScrollController scrollController = ScrollController();
+  List <bool> expanded;
+  bool onPressed = false;
+  PageController pageController;
+
+
+
+
+  getData() async {
+    return await Firestore.instance.collection('users').getDocuments();
+  }
+
+  Future<void> callback() async {
+    if (messageController.text.trim().length > 0 ) {
+      await _firestore.collection('parentGroupChat')
+          .add({
+        'photoUrl': user.data['photoUrl'],
+        'text': messageController.text,
+        'from': user.data['firstName'],
+        'date': DateTime.now()
+      });
+      scrollController.animateTo(
+        scrollController.position.minScrollExtent,
+
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 300),
+      );
+    }
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    if (user != null) {
+      return Scaffold(
+
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore
+                      .collection('parentGroupChat')
+                      .orderBy('date')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+
+                    List<DocumentSnapshot> docs = snapshot.data.documents;
+
+
+                    List<Widget> messages = docs
+                        .map((doc) =>
+
+                        Message(
+                          date: doc.data['date'],
+                          photoUrl: doc.data['photoUrl'],
+                          from: doc.data['from'],
+                          text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
+                          me: user.data['firstName'] == doc.data['from'],
+                        ))
+                        .toList();
+
+
+                    return ListView(
+                      reverse: true,
+                      controller: scrollController,
+                      children: [
+
+
+                        ListView.builder(
+
+                            physics: NeverScrollableScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: messages.length,
+                            itemBuilder: (BuildContext context, i) {
+                              return new Column(
+                                children: [
+
+                                  i != 0 ?
+                                  DateFormat("yyyy-MM-dd").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch)) ==
+                                      DateFormat("yyyy-MM-dd").format(
+                                          DateTime.fromMicrosecondsSinceEpoch(
+                                              docs[i - 1].data['date']
+                                                  .microsecondsSinceEpoch)) ?
+
+
+                                  docs[i].data["date"]
+                                      .toDate()
+                                      .difference(
+                                      docs[i - 1].data["date"].toDate())
+                                      .inMinutes < 5 ?
+
+
+                                  Container() : Text(DateFormat("Hm").format(
+                                      docs[i].data["date"].toDate())) :
+
+                                  DateFormat("yyyy-MM-dd").format(
+                                      docs[i].data["date"].toDate()) ==
+                                      DateFormat("yyyy-MM-dd").format(
+                                          DateTime.now()) ?
+
+                                  Text("Today, ${DateFormat("Hm").format(
+                                      docs[i].data["date"].toDate())}") :
+
+
+                                  DateTime
+                                      .now()
+                                      .difference(docs[0].data["date"].toDate())
+                                      .inDays >= 6 ?
+
+
+                                  Text("${ DateFormat("EEEE").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}, "
+                                      "${ DateFormat("Hm").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}")
+
+                                      :
+
+
+                                  Text("${ DateFormat("EEEE").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}, "
+                                      "${ DateFormat("Hm").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}") :
+
+                                  Text("${ DateFormat("MMMMd").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}, "
+                                      "${ DateFormat("Hm").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}"),
+
+
+                                  messages[i]
+                                ],
+                              );
+                            })
+                      ],
+                    );
+                  },
+                ),
+              ),
+
+              Container(
+
+
+                child: ListTile(
+
+                    leading:
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    ImageEdit(user)));
+
+                      },
+                      child:
+                      Container(
+
+                        height: 29,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage("lib/Assets/camera.png")
+
+                            )
+                        ),
+                      ),
+                    ),
+                    title: Container(
+                      height: 35,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(
+                            15)),
+                        color: Color.fromRGBO(220, 220, 220, 1),
+                      ),
+                      padding: EdgeInsets.only(left: 15),
+                      child: TextFormField(
+                        controller: messageController,
+
+                        decoration: InputDecoration(
+                          hintText: "Enter a Message...",
+                          hintStyle: TextStyle(
+                              color: Colors.black26
+                          ),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                        ),
+
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Balsamiq'
+                        ),
+                        onChanged: (value) {
+                          if(value.length != 0){
+
+                          }
+                        },
+                      ),
+                    ),
+
+                    trailing: SendButton(
+                      text: "Send",
+                      callback: () {
+                        onPressed = true;
+                        callback();
+                        FocusScopeNode currentFocus = FocusScope.of(context);
+                        if (!currentFocus.hasPrimaryFocus) {
+                          currentFocus.unfocus();
+                        }
+                        messageController.clear();
+                      },
+                    )
+
+                ),
+
+              ),
+            ],
+          ),
+        ),
+      );
+    } else
+      return Center(child: CircularProgressIndicator(),);
+  }
+}
+
+class ParentAdminChat extends StatefulWidget {
+  ParentAdminChat(this.user, this.parent);
+  final user;
+  final parent;
+  @override
+  _ParentAdminChatState createState() => _ParentAdminChatState(this.user, this.parent);
+}
+
+class _ParentAdminChatState extends State<ParentAdminChat> {
+  _ParentAdminChatState(this.user, this.parent);
+  final DocumentSnapshot parent;
   final DocumentSnapshot user;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Firestore _firestore = Firestore.instance;
@@ -231,7 +511,268 @@ class _ChatGroupState extends State<ChatGroup> {
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
-                      .collection('parentGroupChat')
+                      .collection('parentAdmin/${parent.documentID}/messages')
+                      .orderBy('date')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+
+                    List<DocumentSnapshot> docs = snapshot.data.documents;
+
+
+                    List<Widget> messages = docs
+                        .map((doc) =>
+
+                        Message(
+                          date: doc.data['date'],
+                          photoUrl: doc.data['photoUrl'],
+                          from: doc.data['from'],
+                          text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
+                          me: user.data['firstName'] == doc.data['from'],
+                        ))
+                        .toList();
+
+
+                    return ListView(
+                      reverse: true,
+                      controller: scrollController,
+                      children: [
+
+
+                        ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: messages.length,
+                            itemBuilder: (BuildContext context, i) {
+                              return new Column(
+                                children: [
+
+                                  i != 0 ?
+                                  DateFormat("yyyy-MM-dd").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch)) ==
+                                      DateFormat("yyyy-MM-dd").format(
+                                          DateTime.fromMicrosecondsSinceEpoch(
+                                              docs[i - 1].data['date']
+                                                  .microsecondsSinceEpoch)) ?
+
+
+                                  docs[i].data["date"]
+                                      .toDate()
+                                      .difference(
+                                      docs[i - 1].data["date"].toDate())
+                                      .inMinutes < 5 ?
+
+
+                                  Container() : Text(DateFormat("Hm").format(
+                                      docs[i].data["date"].toDate())) :
+
+                                  DateFormat("yyyy-MM-dd").format(
+                                      docs[i].data["date"].toDate()) ==
+                                      DateFormat("yyyy-MM-dd").format(
+                                          DateTime.now()) ?
+
+                                  Text("Today, ${DateFormat("Hm").format(
+                                      docs[i].data["date"].toDate())}") :
+
+
+                                  DateTime
+                                      .now()
+                                      .difference(docs[0].data["date"].toDate())
+                                      .inDays >= 6 ?
+
+
+                                  Text("${ DateFormat("EEEE").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}, "
+                                      "${ DateFormat("Hm").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}")
+
+                                      :
+
+
+                                  Text("${ DateFormat("EEEE").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}, "
+                                      "${ DateFormat("Hm").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}") :
+
+                                  Text("${ DateFormat("MMMMd").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}, "
+                                      "${ DateFormat("Hm").format(
+                                      DateTime.fromMicrosecondsSinceEpoch(
+                                          docs[i].data['date']
+                                              .microsecondsSinceEpoch))}"),
+
+
+                                  messages[i]
+                                ],
+                              );
+                            })
+                      ],
+                    );
+                  },
+                ),
+              ),
+
+              Container(
+
+
+                child: ListTile(
+
+                    leading:
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    ImageEdit(user)));
+
+                      },
+                      child:
+                      Container(
+
+                        height: 29,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage("lib/Assets/camera.png")
+
+                            )
+                        ),
+                      ),
+                    ),
+                    title: Container(
+                      height: 35,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(
+                            15)),
+                        color: Color.fromRGBO(220, 220, 220, 1),
+                      ),
+                      padding: EdgeInsets.only(left: 15),
+                      child: TextFormField(
+                        controller: messageController,
+
+                        decoration: InputDecoration(
+                          hintText: "Enter a Message...",
+                          hintStyle: TextStyle(
+                              color: Colors.black26
+                          ),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                        ),
+
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Balsamiq'
+                        ),
+                        onChanged: (value) {
+                          if(value.length != 0){
+
+                          }
+                        },
+                      ),
+                    ),
+
+                    trailing: SendButton(
+                      text: "Send",
+                      callback: () {
+                        onPressed = true;
+                        callback();
+                        FocusScopeNode currentFocus = FocusScope.of(context);
+                        if (!currentFocus.hasPrimaryFocus) {
+                          currentFocus.unfocus();
+                        }
+                        messageController.clear();
+                      },
+                    )
+
+                ),
+
+              ),
+            ],
+          ),
+        ),
+      );
+    } else
+      return Center(child: CircularProgressIndicator(),);
+  }
+}
+
+class TeacherChatGroup extends StatefulWidget {
+  TeacherChatGroup(this.user);
+  final user;
+  @override
+  _TeacherChatGroupState createState() => _TeacherChatGroupState(this.user);
+}
+
+class _TeacherChatGroupState extends State<TeacherChatGroup> {
+  _TeacherChatGroupState(this.user);
+  final DocumentSnapshot user;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Firestore _firestore = Firestore.instance;
+  TextEditingController messageController = TextEditingController();
+  ScrollController scrollController = ScrollController();
+  List <bool> expanded;
+  bool onPressed = false;
+  PageController pageController;
+
+
+
+
+  getData() async {
+    return await Firestore.instance.collection('users').getDocuments();
+  }
+
+  Future<void> callback() async {
+    if (messageController.text.trim().length > 0 ) {
+      await _firestore.collection('teacherGroupChat')
+          .add({
+        'photoUrl': user.data['photoUrl'],
+        'text': messageController.text,
+        'from': user.data['firstName'],
+        'date': DateTime.now()
+      });
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 300),
+      );
+    }
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    if (user != null) {
+      return Scaffold(
+
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _firestore
+                      .collection('teacherGroupChat')
                       .orderBy('date')
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -480,8 +1021,8 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
 
     // TODO: implement initState
     super.initState();
-
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +1041,7 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
           Container(
 
             child: Row(
-              mainAxisAlignment:  me ? MainAxisAlignment.end : MainAxisAlignment.start,
+              mainAxisAlignment:  me == true ? MainAxisAlignment.end : MainAxisAlignment.start,
 
               children: [
                 SizedBox(
@@ -524,8 +1065,6 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
 
                   constraints: BoxConstraints(minWidth: 100, maxWidth: 170, minHeight: 100, maxHeight: 200),
                   decoration: BoxDecoration(
-
-
 
                       image: DecorationImage(
 

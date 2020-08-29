@@ -112,7 +112,7 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
 
         ),
     ChatGroup(user),
-    ChatAdmin(user)
+    ChatAdmin(user),
 
         ],
       );

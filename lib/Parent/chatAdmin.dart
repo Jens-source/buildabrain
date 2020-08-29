@@ -35,6 +35,8 @@ class _ChatAdminState extends State<ChatAdmin> {
   List <bool> expanded;
 
   bool onPressed = false;
+  String message;
+
 
 
 
@@ -46,15 +48,17 @@ class _ChatAdminState extends State<ChatAdmin> {
       await _firestore.collection('parentAdmin')
       .where('parentUid', isEqualTo: user.data['uid'])
       .getDocuments()
-      .then((value) async{ 
-       await  _firestore.collection('parentAdmin')
-            .document(value.documents[0].documentID)
-            .updateData({
+      .then((value) async{
+        await _firestore.collection('parentAdmin/${value.documents[0].documentID}/messages')
+
+            .add({
           'photoUrl': user.data['photoUrl'],
-          'text': messageController.text,
+          'text': message,
           'from': user.data['firstName'],
           'date': DateTime.now()
         });
+        messageController.clear();
+
       }).catchError((e)async{
         await Firestore.instance.collection('parentAdmin')
             .add({
@@ -64,14 +68,15 @@ class _ChatAdminState extends State<ChatAdmin> {
             .where('parentUid', isEqualTo: user.data['uid'])
             .getDocuments()
             .then((value) async {
-          await _firestore.collection('parentAdmin')
+          await _firestore.collection('parentAdmin/${value.documents[0].documentID}/messages')
               .document(value.documents[0].documentID)
               .updateData({
             'photoUrl': user.data['photoUrl'],
-            'text': messageController.text,
+            'text': message,
             'from': user.data['firstName'],
             'date': DateTime.now()
           });
+          messageController.clear();
         });
 
         
@@ -83,6 +88,24 @@ class _ChatAdminState extends State<ChatAdmin> {
         duration: const Duration(milliseconds: 300),
       );
     }
+  }
+
+  QuerySnapshot parentAdmin;
+
+
+  @override
+  void initState() {
+    _firestore
+        .collection('parentAdmin')
+        .where('parentUid', isEqualTo: user.data['uid'])
+    .getDocuments().then((value) {
+      setState(() {
+        parentAdmin = value;
+
+      });
+    }).asStream();
+    super.initState();
+
   }
 
 
@@ -97,12 +120,11 @@ class _ChatAdminState extends State<ChatAdmin> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
 
+              parentAdmin != null ?
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
-                      .collection('parentAdmin')
-                      .document(user.data['uid'])
-                      .collection("messages")
+                      .collection('parentAdmin/${parentAdmin.documents[0].documentID}/messages')
                       .orderBy('date')
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -110,29 +132,22 @@ class _ChatAdminState extends State<ChatAdmin> {
                       return Center(
                         child: CircularProgressIndicator(),
                       );
-
                     List<DocumentSnapshot> docs = snapshot.data.documents;
-
-
                     List<Widget> messages = docs
                         .map((doc) =>
-
                         Message(
                           date: doc.data['date'],
                           photoUrl: doc.data['photoUrl'],
                           from: doc.data['from'],
                           text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
                           me: user.data['firstName'] == doc.data['from'],
-                        ))
-                        .toList();
-
+                        )
+                    ).toList();
 
                     return ListView(
                       reverse: true,
                       controller: scrollController,
                       children: [
-
-
                         ListView.builder(
                             physics: NeverScrollableScrollPhysics(),
                             scrollDirection: Axis.vertical,
@@ -217,7 +232,7 @@ class _ChatAdminState extends State<ChatAdmin> {
                     );
                   },
                 ),
-              ),
+              ) : Container(),
 
               Container(
 
@@ -290,7 +305,12 @@ class _ChatAdminState extends State<ChatAdmin> {
                         if (!currentFocus.hasPrimaryFocus) {
                           currentFocus.unfocus();
                         }
-                        messageController.clear();
+                        setState(() {
+                          message = messageController.text;
+                          messageController.clear();
+                        });
+
+
                       },
                     )
 

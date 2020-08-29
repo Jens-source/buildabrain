@@ -694,7 +694,7 @@ class _LeaderSignupState extends State<LeaderSignup> {
 
                           Navigator.of(context).pop();
                           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                              BuildContext context) =>  OwnerHome(userFinal)), (route) => false);
+                              BuildContext context) =>  OwnerHome(userFinal, 0)), (route) => false);
 
                         }
                       },

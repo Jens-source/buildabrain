@@ -634,7 +634,7 @@ class _AddClassState extends State<AddClass> {
                                         Navigator.of(context).pop();
                                         Navigator.of(context).pop();
                                         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                                            BuildContext context) =>  OwnerHome(user)), (route) => false);
+                                            BuildContext context) =>  OwnerHome(user, 0)), (route) => false);
 
                                       } else {
                                         showDialog(

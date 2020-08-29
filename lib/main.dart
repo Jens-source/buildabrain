@@ -50,7 +50,7 @@ void main() async {
           }
 
           else if(value.documents[0].data['identity'] == "Leader"){
-            _defaultHome = OwnerHome(value);
+            _defaultHome = OwnerHome(value, 0);
           }
 
           else if(value.documents[0].data['identity'] == "Parent"){
@@ -75,7 +75,7 @@ void main() async {
 
 
       else if(value.documents[0].data['identity'] == "Leader"){
-        _defaultHome = OwnerHome(value)
+        _defaultHome = OwnerHome(value, 0)
       }
 
 

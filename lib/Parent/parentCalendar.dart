@@ -285,12 +285,12 @@ class _ChildState extends State<Child> {
     });
 
 
-    DateTime lastDay = DateTime.parse(previousTimestamps.last);
+    DateTime lastDay = previousTimestamps.length != 0 ? DateTime.parse(previousTimestamps.last) : null;
     int missedDates = 0;
 
 
 
-    while(search == false) {
+    while(search == false && lastDay != null) {
       if (childSchedules.documents.length == 1) {
         if (DateFormat("yyy-MM-dd").format(lastDay) ==
             DateFormat("yyyy-MM-dd").format(DateTime.now())) {

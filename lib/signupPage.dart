@@ -99,7 +99,7 @@ class _SignupPageState extends State<SignupPage> {
       {
         Navigator.push(
             context, MaterialPageRoute(builder: (
-            BuildContext context) => OwnerHome(value)));
+            BuildContext context) => OwnerHome(value, 0)));
       }
       else if(value.documents[0].data['identity'] == "Teacher")
       {
@@ -623,7 +623,7 @@ class _SignupPageState extends State<SignupPage> {
 
                                 else if(value.documents[0].data['identity'] == "Leader")  {
                                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (
-                                      BuildContext context) =>  OwnerHome(value)), (route) => false);
+                                      BuildContext context) =>  OwnerHome(value, 0)), (route) => false);
                                 }
                               });
                             }

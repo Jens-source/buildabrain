@@ -95,7 +95,7 @@ class _WelcomePageState extends State<WelcomePage> {
           Navigator.push(
               context, MaterialPageRoute(builder: (
 
-              BuildContext context) =>  MyApp(OwnerHome(user))));
+              BuildContext context) =>  MyApp(OwnerHome(user, 0))));
         }
       else if(value.documents[0].data['identity'] == "Teacher")
       {

@@ -17,16 +17,19 @@ import 'addClass.dart';
 
 
 class OwnerHome extends StatefulWidget {
-  OwnerHome(this.user);
+  OwnerHome(this.user, this.index);
   final user;
+  final index;
+
   @override
-  _OwnerHome createState() => _OwnerHome(this.user);
+  _OwnerHome createState() => _OwnerHome(this.user, this.index);
 }
 
 class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
 
 
-  _OwnerHome(this.user);
+  _OwnerHome(this.user, this.index);
+  final index;
   final user;
 
 
@@ -46,7 +49,7 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
 
 
 
-    _tabController = new TabController(length: 5, vsync: this);
+    _tabController = new TabController(length: 5, vsync: this, initialIndex: index);
     bottomTabController = new TabController(length: 5, vsync: this);
     tab = _tabController.index;
 
@@ -555,9 +558,25 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
           ),
               ) : Container()
             ],
-            leading:  tab == 1 ?  Icon(Icons.event, color: Colors.white,)
+            leading:
+            tab == 1 ?  Icon(Icons.event, color: Colors.white, size: 30) :
+            tab == 3 ?  IconButton(
 
-             : Container(),
+              onPressed: (){
+                Navigator.pop(context);
+
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                          OwnerHome(user, 3))
+                );
+              },
+
+                icon: Icon(Icons.keyboard_arrow_left, color: Colors.white, size: 30)
+            ) :
+
+            null,
 
             title: Row(
                 children: [

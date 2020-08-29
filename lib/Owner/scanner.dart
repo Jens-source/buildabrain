@@ -75,7 +75,7 @@ class _ScannerState extends State<Scanner> {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        MyApp(OwnerHome(user)))
+                        MyApp(OwnerHome(user, 0)))
             );
             showDialog(
                 context: context,
@@ -268,7 +268,7 @@ class _ScannerState extends State<Scanner> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  MyApp(OwnerHome(user)))
+                                                  MyApp(OwnerHome(user, 0)))
                                       );
                                     }
 
@@ -284,7 +284,7 @@ class _ScannerState extends State<Scanner> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                MyApp(OwnerHome(user)))
+                                                MyApp(OwnerHome(user, 0)))
                                     );
                                   },
                                 )
@@ -316,7 +316,7 @@ class _ScannerState extends State<Scanner> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              MyApp(OwnerHome(user)))
+                                              MyApp(OwnerHome(user, 0)))
                                   );
                                 },
                               )
@@ -354,7 +354,7 @@ class _ScannerState extends State<Scanner> {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        MyApp(OwnerHome(user)))
+                        MyApp(OwnerHome(user, 0)))
             );
             showDialog(
                 context: context,
@@ -399,7 +399,7 @@ class _ScannerState extends State<Scanner> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            MyApp(OwnerHome(user)))
+                                            MyApp(OwnerHome(user, 0)))
                                 );
                               },
                             )
