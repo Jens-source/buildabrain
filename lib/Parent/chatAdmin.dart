@@ -50,7 +50,6 @@ class _ChatAdminState extends State<ChatAdmin> {
       .getDocuments()
       .then((value) async{
         await _firestore.collection('parentAdmin/${value.documents[0].documentID}/messages')
-
             .add({
           'photoUrl': user.data['photoUrl'],
           'text': message,
@@ -63,14 +62,19 @@ class _ChatAdminState extends State<ChatAdmin> {
         await Firestore.instance.collection('parentAdmin')
             .add({
           "parentUid": user.data['uid'],
+          "name" : user.data['firstName'],
+          "photoUrl": user.data['photoUrl'],
+          "created": DateTime.now()
         });
         await _firestore.collection('parentAdmin')
             .where('parentUid', isEqualTo: user.data['uid'])
             .getDocuments()
             .then((value) async {
+              setState(() {
+                parentAdmin = value;
+              });
           await _firestore.collection('parentAdmin/${value.documents[0].documentID}/messages')
-              .document(value.documents[0].documentID)
-              .updateData({
+              .add({
             'photoUrl': user.data['photoUrl'],
             'text': message,
             'from': user.data['firstName'],
@@ -83,7 +87,7 @@ class _ChatAdminState extends State<ChatAdmin> {
       });
 
       scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
+        scrollController.position.minScrollExtent,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 300),
       );
@@ -120,7 +124,7 @@ class _ChatAdminState extends State<ChatAdmin> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
 
-              parentAdmin != null ?
+              parentAdmin != null && parentAdmin.documents.length != 0?
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
@@ -426,7 +430,14 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
                 ) :
                 Material(
                   color: Colors.black12,
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: me ? BorderRadius.only(topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft:  Radius.circular(10),
+                  ) : BorderRadius.only(topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomRight:  Radius.circular(10),
+                  ),
+
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
                     child: Text(

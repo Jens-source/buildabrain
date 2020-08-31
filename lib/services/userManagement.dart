@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/widgets.dart';
@@ -52,7 +53,25 @@ class UserManagement {
       'district': 0,
       'province': 0,
       'status' : 0
-    }).then((value) {}).catchError((e) {
+    }).then((value) {
+      final FirebaseMessaging _messaging = FirebaseMessaging();
+
+      Firestore.instance.document('users/${value.documentID}')
+      .get().then((userDoc) {
+        _messaging.getToken().then((token){
+
+          Firestore.instance.collection('tokens')
+              .add({
+            "uid" : userDoc.data['uid'],
+            "type": "parent",
+            "devToken" : token,
+
+          });
+
+        });
+      });
+
+    }).catchError((e) {
       print(e);
     });
   }
@@ -67,7 +86,24 @@ class UserManagement {
       'uid': user.uid,
       'number': 0,
       'identity': "Leader",
-    }).then((value) {}).catchError((e) {
+    }).then((value) {
+      final FirebaseMessaging _messaging = FirebaseMessaging();
+
+      Firestore.instance.document('users/${value.documentID}')
+          .get().then((userDoc) {
+        _messaging.getToken().then((token){
+
+          Firestore.instance.collection('tokens')
+              .add({
+            "uid" : userDoc.data['uid'],
+            "type": "leader",
+            "devToken" : token,
+
+          });
+
+        });
+      });
+    }).catchError((e) {
       print(e);
     });
   }
@@ -131,7 +167,24 @@ class UserManagement {
       'photoUrl': 0,
       'lastName': 0,
       'qrCodeUrl': downloadUrl,
-    }).then((value) {}).catchError((e) {
+    }).then((value) {
+    final FirebaseMessaging _messaging = FirebaseMessaging();
+
+    Firestore.instance.document('users/${value.documentID}')
+        .get().then((userDoc) {
+      _messaging.getToken().then((token){
+
+        Firestore.instance.collection('tokens')
+            .add({
+          "uid" : userDoc.data['uid'],
+          "type": "teacher",
+          "devToken" : token,
+
+        });
+
+      });
+    });
+  }).catchError((e) {
       print(e);
     });
   }

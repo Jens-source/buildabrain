@@ -8,6 +8,7 @@ import 'package:buildabrain/welcomePage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/material.dart';
 
@@ -135,11 +136,15 @@ SingleTickerProviderStateMixin {
 
   @override
   void initState() {
+    final FirebaseMessaging _messaging = FirebaseMessaging();
+    _messaging.getToken().then((token){
+      print(token);
 
+    });
     super.initState();
     tabController = new TabController(length: 5, vsync: this, initialIndex: index);
     tab = tabController.index;
-
+    
 
       if(parent.documents[0].data['status'] == "Mother"){
         status = "motherUid";

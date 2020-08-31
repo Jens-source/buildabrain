@@ -195,7 +195,6 @@ class ChatGroup extends StatefulWidget {
   @override
   _ChatGroupState createState() => _ChatGroupState(this.user);
 }
-
 class _ChatGroupState extends State<ChatGroup> {
   _ChatGroupState(this.user);
   final DocumentSnapshot user;
@@ -206,8 +205,6 @@ class _ChatGroupState extends State<ChatGroup> {
   List <bool> expanded;
   bool onPressed = false;
   PageController pageController;
-
-
 
 
   getData() async {
@@ -267,7 +264,7 @@ class _ChatGroupState extends State<ChatGroup> {
                           photoUrl: doc.data['photoUrl'],
                           from: doc.data['from'],
                           text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
-                          me: user.data['firstName'] == doc.data['from'],
+                          me: user.data['firstName'] == doc.data['from']? true : false,
                         ))
                         .toList();
 
@@ -298,7 +295,6 @@ class _ChatGroupState extends State<ChatGroup> {
                                               docs[i - 1].data['date']
                                                   .microsecondsSinceEpoch)) ?
 
-
                                   docs[i].data["date"]
                                       .toDate()
                                       .difference(
@@ -322,8 +318,7 @@ class _ChatGroupState extends State<ChatGroup> {
                                       .now()
                                       .difference(docs[0].data["date"].toDate())
                                       .inDays >= 6 ?
-
-
+                                      
                                   Text("${ DateFormat("EEEE").format(
                                       DateTime.fromMicrosecondsSinceEpoch(
                                           docs[i].data['date']
@@ -481,7 +476,7 @@ class _ParentAdminChatState extends State<ParentAdminChat> {
 
   Future<void> callback() async {
     if (messageController.text.trim().length > 0 ) {
-      await _firestore.collection('parentGroupChat')
+      await _firestore.collection('parentAdmin/${parent.documentID}/messages')
           .add({
         'photoUrl': user.data['photoUrl'],
         'text': messageController.text,
@@ -489,7 +484,7 @@ class _ParentAdminChatState extends State<ParentAdminChat> {
         'date': DateTime.now()
       });
       scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
+        scrollController.position.minScrollExtent,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 300),
       );
@@ -531,7 +526,7 @@ class _ParentAdminChatState extends State<ParentAdminChat> {
                           photoUrl: doc.data['photoUrl'],
                           from: doc.data['from'],
                           text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
-                          me: user.data['firstName'] == doc.data['from'],
+                          me: user.data['firstName'] == doc.data['from'] ? true : false,
                         ))
                         .toList();
 
@@ -750,7 +745,7 @@ class _TeacherChatGroupState extends State<TeacherChatGroup> {
         'date': DateTime.now()
       });
       scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
+        scrollController.position.minScrollExtent,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 300),
       );
@@ -792,7 +787,7 @@ class _TeacherChatGroupState extends State<TeacherChatGroup> {
                           photoUrl: doc.data['photoUrl'],
                           from: doc.data['from'],
                           text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
-                          me: user.data['firstName'] == doc.data['from'],
+                          me: user.data['firstName'] == doc.data['from']? true : false,
                         ))
                         .toList();
 
@@ -878,7 +873,6 @@ class _TeacherChatGroupState extends State<TeacherChatGroup> {
                                           docs[i].data['date']
                                               .microsecondsSinceEpoch))}"),
 
-
                                   messages[i]
                                 ],
                               );
@@ -963,7 +957,6 @@ class _TeacherChatGroupState extends State<TeacherChatGroup> {
                         messageController.clear();
                       },
                     )
-
                 ),
 
               ),
@@ -1074,7 +1067,14 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
                 ) :
                 Material(
                   color: Colors.black12,
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: me ? BorderRadius.only(topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft:  Radius.circular(10),
+                  ) : BorderRadius.only(topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomRight:  Radius.circular(10),
+                  ),
+
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
                     child: Text(

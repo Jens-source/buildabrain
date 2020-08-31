@@ -52,6 +52,7 @@ dependencies:
   url_launcher: ^5.4.1
   custom_navigator: ^0.2.0
   flutter_google_maps:
+  firebase_messaging:
 
 
 

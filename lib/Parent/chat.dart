@@ -156,7 +156,7 @@ class _ChatGroupState extends State<ChatGroup> {
         'date': DateTime.now()
       });
       scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
+        scrollController.position.minScrollExtent,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 300),
       );
@@ -482,7 +482,13 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
                     ) :
                 Material(
                   color: Colors.black12,
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: me ? BorderRadius.only(topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft:  Radius.circular(10),
+                  ) : BorderRadius.only(topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomRight:  Radius.circular(10),
+                  ),
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
                     child: Text(

@@ -8,6 +8,7 @@ import 'package:buildabrain/Owner/staffInfo.dart';
 import 'package:buildabrain/Owner/studentInfo.dart';
 import 'package:buildabrain/calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -33,6 +34,9 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
   final user;
 
 
+
+
+
   bool change;
   String scanStudent;
   String scanTeacherIn;
@@ -44,9 +48,16 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
   QuerySnapshot promoQuery;
   String dropdownValue = 'Class';
 
+
+
   @override
   void initState() {
 
+    final FirebaseMessaging _messaging = FirebaseMessaging();
+    _messaging.getToken().then((token){
+      print(token);
+
+    });
 
 
     _tabController = new TabController(length: 5, vsync: this, initialIndex: index);
@@ -65,13 +76,8 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
         timeOfDay = "Good Afternoon";
       }
     });
-
     super.initState();
   }
-
-
-
-
 
   void _scanOutDialog(scanTeacherOut) {
     Duration time;
