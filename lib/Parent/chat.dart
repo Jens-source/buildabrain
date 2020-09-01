@@ -179,7 +179,7 @@ class _ChatGroupState extends State<ChatGroup> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('parentGroupChat')
-                      .orderBy('date')
+                  .limit(10)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData)
@@ -188,6 +188,7 @@ class _ChatGroupState extends State<ChatGroup> {
                       );
 
                     List<DocumentSnapshot> docs = snapshot.data.documents;
+
 
 
                     List<Widget> messages = docs
@@ -285,7 +286,29 @@ class _ChatGroupState extends State<ChatGroup> {
                                               .microsecondsSinceEpoch))}"),
 
 
-                                  messages[i]
+                                  GestureDetector(
+                                    onTap: (){
+                                      setState(() {
+                                        expanded[i] = !expanded[i];
+                                        print(expanded[i]);
+                                      });
+                                    },
+                                    child:
+                                    AnimatedContainer(
+
+                                      duration: Duration(milliseconds: 300),
+                                      height: expanded[i] == false ? 45: 60,
+                                      child: SingleChildScrollView(
+                                          child:
+                                          Column(
+                                            children: [
+                                              messages[i],
+                                              expanded[i] == true ? Text(docs[i].data['from']) : Container()
+                                            ],
+                                          )),
+
+                                    ),
+                                  ),
                                 ],
                               );
                             })
@@ -445,6 +468,7 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
 
 
           Container(
+
 
             child: Row(
               mainAxisAlignment:  me ? MainAxisAlignment.end : MainAxisAlignment.start,

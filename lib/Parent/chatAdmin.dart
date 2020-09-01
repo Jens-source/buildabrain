@@ -137,6 +137,13 @@ class _ChatAdminState extends State<ChatAdmin> {
                         child: CircularProgressIndicator(),
                       );
                     List<DocumentSnapshot> docs = snapshot.data.documents;
+                    if(expanded == null){
+                      expanded = new List(docs.length);
+                      for(int i = 0; i < docs.length; i++){
+                        expanded[i] = false;
+                      }
+                    }
+
                     List<Widget> messages = docs
                         .map((doc) =>
                         Message(
@@ -227,8 +234,29 @@ class _ChatAdminState extends State<ChatAdmin> {
                                           docs[i].data['date']
                                               .microsecondsSinceEpoch))}"),
 
+                                  GestureDetector(
+                                    onTap: (){
+                                      setState(() {
+                                        expanded[i] = !expanded[i];
+                                        print(expanded[i]);
+                                      });
+                                    },
+                                    child:
+                                    AnimatedContainer(
 
-                                  messages[i]
+                                      duration: Duration(milliseconds: 300),
+                                      height: expanded[i] == false ? 45: 60,
+                                      child: SingleChildScrollView(
+                                          child:
+                                          Column(
+                                            children: [
+                                              messages[i],
+                                              expanded[i] == true ? Text(docs[i].data['from']) : Container()
+                                            ],
+                                          )),
+
+                                    ),
+                                  ),
                                 ],
                               );
                             })

@@ -22,6 +22,9 @@ import 'dart:async';
 
 
 void main() async {
+
+
+
   WidgetsFlutterBinding.ensureInitialized();
   final GoogleSignIn googleSignIn = GoogleSignIn();
   GoogleSignInAccount _currentUser;
@@ -116,6 +119,7 @@ class MyApp extends StatelessWidget {
   MyApp(this._defaultHome);
 
   final _defaultHome;
+
 
 
   // This widget is the root of your application.

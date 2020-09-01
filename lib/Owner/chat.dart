@@ -35,6 +35,7 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
 
 
 
+
   TabController _tabController;
   void _toggleTab(index) {
     _tabController.animateTo(index);
@@ -220,6 +221,11 @@ class _ChatGroupState extends State<ChatGroup> {
         'from': user.data['firstName'],
         'date': DateTime.now()
       });
+      setState(() {
+        limitMessageAmount = limitMessageAmount+1;
+      });
+
+
       scrollController.animateTo(
         scrollController.position.minScrollExtent,
 
@@ -231,11 +237,13 @@ class _ChatGroupState extends State<ChatGroup> {
 
 
 
+  int limitMessageAmount = 14;
+
+
   @override
   Widget build(BuildContext context) {
     if (user != null) {
       return Scaffold(
-
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -245,7 +253,10 @@ class _ChatGroupState extends State<ChatGroup> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('parentGroupChat')
-                      .orderBy('date')
+                      .limit(limitMessageAmount)
+                  .orderBy('date', descending: true)
+                  .orderBy('from', descending: true)
+
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData)
@@ -254,6 +265,19 @@ class _ChatGroupState extends State<ChatGroup> {
                       );
 
                     List<DocumentSnapshot> docs = snapshot.data.documents;
+
+                    if(expanded == null){
+                      expanded = new List(docs.length);
+                      for(int i = 0; i < docs.length; i++){
+                        expanded[i] = false;
+                      }
+                    }
+
+
+
+
+
+
 
 
                     List<Widget> messages = docs
@@ -270,13 +294,10 @@ class _ChatGroupState extends State<ChatGroup> {
 
 
                     return ListView(
-                      reverse: true,
+
                       controller: scrollController,
                       children: [
-
-
                         ListView.builder(
-
                             physics: NeverScrollableScrollPhysics(),
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,
@@ -350,7 +371,29 @@ class _ChatGroupState extends State<ChatGroup> {
                                               .microsecondsSinceEpoch))}"),
 
 
-                                  messages[i]
+                                  GestureDetector(
+                                    onTap: (){
+                                      setState(() {
+                                        expanded[i] = !expanded[i];
+                                        print(expanded[i]);
+                                      });
+                                    },
+                                    child:
+                                    AnimatedContainer(
+
+                                      duration: Duration(milliseconds: 300),
+                                      height: 45,
+                                      child: SingleChildScrollView(
+                                          child:
+                                          Column(
+                                            children: [
+                                              messages[i],
+
+                                            ],
+                                          )),
+
+                                    ),
+                                  ),
                                 ],
                               );
                             })

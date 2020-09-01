@@ -219,7 +219,8 @@ SingleTickerProviderStateMixin {
                     leading: tab != 0 ? IconButton(
                       icon: Icon(Icons.arrow_back, color: Colors.white,),
                       onPressed: () {
-                        tab == 3 ?
+                        bool bam = false;
+                        tab == 3 && bam == false?
                         Navigator.push(
                             context, MaterialPageRoute(builder: (
                             BuildContext context) => MyApp(ParentHome(parent, 3, 0)))) :

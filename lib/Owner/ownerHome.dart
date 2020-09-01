@@ -249,8 +249,6 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin{
     });
 
 
-
-
     showDialog(
         context: context,
         builder: (BuildContext context) {
