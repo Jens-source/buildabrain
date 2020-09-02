@@ -115,9 +115,10 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
                     );
                   }
                   else {
-                    print(snapshot.data.documents.length);
+
 
                     return ListView.builder(
+
                         shrinkWrap: true,
                         scrollDirection: Axis.vertical,
                         physics: NeverScrollableScrollPhysics(),
@@ -127,6 +128,7 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
                           DocumentSnapshot parentChatDoc = snapshot.data.documents[i];
 
                           return ListView(
+
                             shrinkWrap: true,
                             scrollDirection: Axis.vertical,
                             physics: NeverScrollableScrollPhysics(),
@@ -203,7 +205,7 @@ class _ChatGroupState extends State<ChatGroup> {
   final Firestore _firestore = Firestore.instance;
   TextEditingController messageController = TextEditingController();
   ScrollController scrollController = ScrollController();
-  List <bool> expanded;
+  List <bool> expanded = new List();
   bool onPressed = false;
   PageController pageController;
 
@@ -221,17 +223,17 @@ class _ChatGroupState extends State<ChatGroup> {
         'from': user.data['firstName'],
         'date': DateTime.now()
       });
-      setState(() {
-        limitMessageAmount = limitMessageAmount+1;
-      });
-
+      messageController.clear();
 
       scrollController.animateTo(
         scrollController.position.minScrollExtent,
-
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 300),
       );
+       setState(() {
+         limitMessageAmount = limitMessageAmount+1;
+
+       });
     }
   }
 
@@ -253,9 +255,10 @@ class _ChatGroupState extends State<ChatGroup> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('parentGroupChat')
+                   
                       .limit(limitMessageAmount)
-                  .orderBy('date', descending: true)
-                  .orderBy('from', descending: true)
+
+
 
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -266,45 +269,27 @@ class _ChatGroupState extends State<ChatGroup> {
 
                     List<DocumentSnapshot> docs = snapshot.data.documents;
 
-                    if(expanded == null){
-                      expanded = new List(docs.length);
-                      for(int i = 0; i < docs.length; i++){
-                        expanded[i] = false;
-                      }
-                    }
-
-
-
-
-
-
-
-
-                    List<Widget> messages = docs
-                        .map((doc) =>
-
-                        Message(
-                          date: doc.data['date'],
-                          photoUrl: doc.data['photoUrl'],
-                          from: doc.data['from'],
-                          text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
-                          me: user.data['firstName'] == doc.data['from']? true : false,
-                        ))
-                        .toList();
-
 
                     return ListView(
 
+                      reverse: true,
                       controller: scrollController,
                       children: [
                         ListView.builder(
+
                             physics: NeverScrollableScrollPhysics(),
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,
-                            itemCount: messages.length,
+                            itemCount: snapshot.data.documents.length,
                             itemBuilder: (BuildContext context, i) {
+
+                              DocumentSnapshot doc = snapshot.data.documents[i];
+
+
+
                               return new Column(
                                 children: [
+
 
                                   i != 0 ?
                                   DateFormat("yyyy-MM-dd").format(
@@ -375,7 +360,7 @@ class _ChatGroupState extends State<ChatGroup> {
                                     onTap: (){
                                       setState(() {
                                         expanded[i] = !expanded[i];
-                                        print(expanded[i]);
+
                                       });
                                     },
                                     child:
@@ -387,7 +372,14 @@ class _ChatGroupState extends State<ChatGroup> {
                                           child:
                                           Column(
                                             children: [
-                                              messages[i],
+                                              Message(
+                                                date: doc.data['date'],
+                                                photoUrl: doc.data['photoUrl'],
+                                                from: doc.data['from'],
+                                                text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
+                                                me: user.data['firstName'] == doc.data['from']? true : false,
+                                              ),
+
 
                                             ],
                                           )),
@@ -474,8 +466,10 @@ class _ChatGroupState extends State<ChatGroup> {
                         if (!currentFocus.hasPrimaryFocus) {
                           currentFocus.unfocus();
                         }
-                        messageController.clear();
+
+
                       },
+
                     )
 
                 ),

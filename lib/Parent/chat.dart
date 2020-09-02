@@ -135,7 +135,7 @@ class _ChatGroupState extends State<ChatGroup> {
   final Firestore _firestore = Firestore.instance;
   TextEditingController messageController = TextEditingController();
   ScrollController scrollController = ScrollController();
-  List <bool> expanded;
+  List <bool> expanded = new List();
   bool onPressed = false;
   PageController pageController;
 
@@ -191,6 +191,7 @@ class _ChatGroupState extends State<ChatGroup> {
 
 
 
+
                     List<Widget> messages = docs
                         .map((doc) =>
 
@@ -216,6 +217,13 @@ class _ChatGroupState extends State<ChatGroup> {
                             shrinkWrap: true,
                             itemCount: messages.length,
                             itemBuilder: (BuildContext context, i) {
+
+                              if(expanded[i] == null){
+                                setState(() {
+                                  expanded[i] = false;
+                                });
+                              }
+
                               return new Column(
                                 children: [
 
