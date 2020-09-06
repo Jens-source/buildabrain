@@ -16,6 +16,7 @@ import 'package:http/http.dart' as http;
 class UserManagement {
 
 
+
   storeNewUser(user, context) {
 
     Firestore.instance.collection('/users').add({
@@ -75,9 +76,7 @@ class UserManagement {
       print(e);
     });
   }
-
-
-
+  
   storeNewLeader(user, context) {
     Firestore.instance.collection('/users').add({
       'firstName': 0,

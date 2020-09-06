@@ -107,75 +107,75 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin{
               ),
 
               StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance.collection('parentAdmin').snapshots(),
-                builder: (context, snapshot) {
-                  if(!snapshot.hasData){
-                    return Center(
-                      child: Container(),
-                    );
-                  }
-                  else {
+                  stream: Firestore.instance.collection('parentAdmin').snapshots(),
+                  builder: (context, snapshot) {
+                    if(!snapshot.hasData){
+                      return Center(
+                        child: Container(),
+                      );
+                    }
+                    else {
 
 
-                    return ListView.builder(
+                      return ListView.builder(
 
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: snapshot.data.documents.length,
-                        itemBuilder: (BuildContext context, i) {
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: snapshot.data.documents.length,
+                          itemBuilder: (BuildContext context, i) {
 
-                          DocumentSnapshot parentChatDoc = snapshot.data.documents[i];
+                            DocumentSnapshot parentChatDoc = snapshot.data.documents[i];
 
-                          return ListView(
+                            return ListView(
 
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            physics: NeverScrollableScrollPhysics(),
-                            children: [
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              physics: NeverScrollableScrollPhysics(),
+                              children: [
 
-                              i == 0 ? Center(
-                                child: Container(
-                                  padding: EdgeInsets.only(top: 10, bottom: 5),
-                                  child: Text("Parents", style: TextStyle(
-                                    fontSize: 18
-                                  ),),
-                                ),
-                              ) : Container(),
+                                i == 0 ? Center(
+                                  child: Container(
+                                    padding: EdgeInsets.only(top: 10, bottom: 5),
+                                    child: Text("Parents", style: TextStyle(
+                                        fontSize: 18
+                                    ),),
+                                  ),
+                                ) : Container(),
 
-                              Container(
+                                Container(
 
-                                child: Card(
-                                  color: Colors.white70,
-                                  child: ListTile(
-                                      onTap: (){
-                                        setState(() {
+                                  child: Card(
+                                    color: Colors.white70,
+                                    child: ListTile(
+                                        onTap: (){
+                                          setState(() {
 
-                                          parent = parentChatDoc;
+                                            parent = parentChatDoc;
 
-                                          _toggleTab(3);
-                                        });
-                                      },
-                                      title: Text(parentChatDoc.data['name']),
-                                      leading: Container(
-                                        padding: EdgeInsets.all(2),
-                                        height: 50,
-                                        width: 50,
-                                        child: CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                              parentChatDoc.data['photoUrl']),
-                                        ),
-                                      )
+                                            _toggleTab(3);
+                                          });
+                                        },
+                                        title: Text(parentChatDoc.data['name']),
+                                        leading: Container(
+                                          padding: EdgeInsets.all(2),
+                                          height: 50,
+                                          width: 50,
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                                parentChatDoc.data['photoUrl']),
+                                          ),
+                                        )
 
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          );
+                              ],
+                            );
 
-                        });
+                          });
+                    }
                   }
-                }
               )
             ],
           ),
@@ -223,23 +223,147 @@ class _ChatGroupState extends State<ChatGroup> {
         'from': user.data['firstName'],
         'date': DateTime.now()
       });
-      messageController.clear();
 
+      messageController.clear();
       scrollController.animateTo(
         scrollController.position.minScrollExtent,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 300),
       );
-       setState(() {
-         limitMessageAmount = limitMessageAmount+1;
-
-       });
     }
   }
 
 
-
   int limitMessageAmount = 14;
+
+  QuerySnapshot querySnapshot;
+
+
+  List<Widget> messages = [];
+
+  @override
+  void initState() {
+
+    scrollController.addListener(() {
+
+      if (scrollController.position.atEdge) {
+        if (scrollController.position.pixels == scrollController.position.maxScrollExtent)
+          setState(() {
+            limitMessageAmount = limitMessageAmount +20;
+
+            Firestore.instance.collection('parentGroupChat')
+            .where('date', isLessThan: querySnapshot.documents[querySnapshot.documents.length-1]
+            .data['date'])
+            .limit(10)
+            .orderBy('date', descending: true)
+            .getDocuments()
+            .then((value) {
+              for(int i = value.documents.length-1; i >= 0; i--){
+                setState(() {
+                  messages.insert(messages.length, Message(
+                    date: value.documents[i].data['date'],
+                    photoUrl: value.documents[i].data['photoUrl'],
+                    from: value.documents[i].data['from'],
+                    text: value.documents[i].data['text'] == null ?
+                    value.documents[i].data['imageUrl'] :
+                    value.documents[i].data['text'],
+                    me: user.data['firstName'] == value.documents[i].data['from'] ? true : false,
+                  )
+                  );
+                });
+              }
+            });
+            
+          });
+      // you are at top position
+
+      // you are at bottom position
+    }
+    });
+
+    Firestore.instance.collection('parentGroupChat')
+        .limit(limitMessageAmount)
+        .orderBy('date', descending: true)
+    .getDocuments()
+    .then((value) {
+      querySnapshot = value;
+
+
+
+        for(int i = 0; i < value.documents.length; i++){
+          setState(() {
+          messages.insert(0,Message(
+            date: value.documents[i].data['date'],
+            photoUrl: value.documents[i].data['photoUrl'],
+            from: value.documents[i].data['from'],
+            text: value.documents[i].data['text'] == null ?
+            value.documents[i].data['imageUrl'] :
+            value.documents[i].data['text'],
+            me: user.data['firstName'] == value.documents[i].data['from'] ? true : false,
+          )
+          );
+          });
+        }
+
+    });
+
+    Firestore.instance.collection('parentGroupChat')
+    .limit(limitMessageAmount)
+    .orderBy('date', descending: true)
+    .snapshots()
+    .listen((event) {
+    }).onData((data) {
+      data.documentChanges.forEach((element) {
+
+
+
+
+        Timestamp j = element.document.data['date'];
+
+
+        print(Timestamp.now().microsecondsSinceEpoch - j.microsecondsSinceEpoch);
+        print(element.document.data['text']);
+
+        if(element.document.data['photoUrl'] != user.data['photoUrl']){
+          if(Timestamp.now().microsecondsSinceEpoch - j.microsecondsSinceEpoch <= 35000000){
+            setState(() {
+              messages.add( Message(
+                date: element.document.data['date'],
+                photoUrl: element.document.data['photoUrl'],
+                from: element.document.data['from'],
+                text: element.document.data['text'] == null ?
+                element.document.data['imageUrl'] :
+                element.document.data['text'],
+                me: user.data['firstName'] == element.document.data['from'] ? true : false,
+              )
+              );
+            });
+          }
+        }
+
+        else
+
+        if(Timestamp.now().microsecondsSinceEpoch - j.microsecondsSinceEpoch <= 1000000){
+          setState(() {
+            messages.add( Message(
+              date: element.document.data['date'],
+              photoUrl: element.document.data['photoUrl'],
+              from: element.document.data['from'],
+              text: element.document.data['text'] == null ?
+              element.document.data['imageUrl'] :
+              element.document.data['text'],
+              me: user.data['firstName'] == element.document.data['from'] ? true : false,
+            )
+            );
+          });
+        }
+      });
+    });
+
+
+
+    super.initState();
+  }
 
 
   @override
@@ -252,148 +376,49 @@ class _ChatGroupState extends State<ChatGroup> {
             children: <Widget>[
 
               Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore
-                      .collection('parentGroupChat')
-                   
-                      .limit(limitMessageAmount)
+                child:
 
 
+                     ListView(
+                       reverse: true,
 
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData)
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-
-                    List<DocumentSnapshot> docs = snapshot.data.documents;
-
-
-                    return ListView(
-
-                      reverse: true,
                       controller: scrollController,
                       children: [
+
+
                         ListView.builder(
+
 
                             physics: NeverScrollableScrollPhysics(),
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,
-                            itemCount: snapshot.data.documents.length,
+                            itemCount: messages.length,
                             itemBuilder: (BuildContext context, i) {
 
-                              DocumentSnapshot doc = snapshot.data.documents[i];
 
 
 
-                              return new Column(
+                              return Column(
                                 children: [
 
 
-                                  i != 0 ?
-                                  DateFormat("yyyy-MM-dd").format(
-                                      DateTime.fromMicrosecondsSinceEpoch(
-                                          docs[i].data['date']
-                                              .microsecondsSinceEpoch)) ==
-                                      DateFormat("yyyy-MM-dd").format(
-                                          DateTime.fromMicrosecondsSinceEpoch(
-                                              docs[i - 1].data['date']
-                                                  .microsecondsSinceEpoch)) ?
 
-                                  docs[i].data["date"]
-                                      .toDate()
-                                      .difference(
-                                      docs[i - 1].data["date"].toDate())
-                                      .inMinutes < 5 ?
-
-
-                                  Container() : Text(DateFormat("Hm").format(
-                                      docs[i].data["date"].toDate())) :
-
-                                  DateFormat("yyyy-MM-dd").format(
-                                      docs[i].data["date"].toDate()) ==
-                                      DateFormat("yyyy-MM-dd").format(
-                                          DateTime.now()) ?
-
-                                  Text("Today, ${DateFormat("Hm").format(
-                                      docs[i].data["date"].toDate())}") :
-
-
-                                  DateTime
-                                      .now()
-                                      .difference(docs[0].data["date"].toDate())
-                                      .inDays >= 6 ?
-                                      
-                                  Text("${ DateFormat("EEEE").format(
-                                      DateTime.fromMicrosecondsSinceEpoch(
-                                          docs[i].data['date']
-                                              .microsecondsSinceEpoch))}, "
-                                      "${ DateFormat("Hm").format(
-                                      DateTime.fromMicrosecondsSinceEpoch(
-                                          docs[i].data['date']
-                                              .microsecondsSinceEpoch))}")
-
-                                      :
-
-
-                                  Text("${ DateFormat("EEEE").format(
-                                      DateTime.fromMicrosecondsSinceEpoch(
-                                          docs[i].data['date']
-                                              .microsecondsSinceEpoch))}, "
-                                      "${ DateFormat("Hm").format(
-                                      DateTime.fromMicrosecondsSinceEpoch(
-                                          docs[i].data['date']
-                                              .microsecondsSinceEpoch))}") :
-
-                                  Text("${ DateFormat("MMMMd").format(
-                                      DateTime.fromMicrosecondsSinceEpoch(
-                                          docs[i].data['date']
-                                              .microsecondsSinceEpoch))}, "
-                                      "${ DateFormat("Hm").format(
-                                      DateTime.fromMicrosecondsSinceEpoch(
-                                          docs[i].data['date']
-                                              .microsecondsSinceEpoch))}"),
-
-
-                                  GestureDetector(
-                                    onTap: (){
-                                      setState(() {
-                                        expanded[i] = !expanded[i];
-
-                                      });
-                                    },
-                                    child:
-                                    AnimatedContainer(
-
-                                      duration: Duration(milliseconds: 300),
-                                      height: 45,
-                                      child: SingleChildScrollView(
-                                          child:
-                                          Column(
-                                            children: [
-                                              Message(
-                                                date: doc.data['date'],
-                                                photoUrl: doc.data['photoUrl'],
-                                                from: doc.data['from'],
-                                                text: doc.data['text'] == null ? doc.data['imageUrl'] : doc.data['text'],
-                                                me: user.data['firstName'] == doc.data['from']? true : false,
-                                              ),
-
-
-                                            ],
-                                          )),
-
-                                    ),
-                                  ),
+                                messages[i]
                                 ],
                               );
-                            })
+
+
+                            }),
+                        Center(
+                          child: Container(
+                            child: Text("Hello"),
+                          ),
+                        ),
                       ],
-                    );
-                  },
+                     )
+
                 ),
-              ),
+
 
               Container(
 
