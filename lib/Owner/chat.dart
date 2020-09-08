@@ -258,9 +258,11 @@ class _ChatGroupState extends State<ChatGroup> {
             .orderBy('date', descending: true)
             .getDocuments()
             .then((value) {
+              List<Message> messageNew =[];
               for(int i = value.documents.length-1; i >= 0; i--){
                 setState(() {
-                  messages.insert(messages.length, Message(
+
+                  messageNew.insert(0,  Message(
                     date: value.documents[i].data['date'],
                     photoUrl: value.documents[i].data['photoUrl'],
                     from: value.documents[i].data['from'],
@@ -268,9 +270,10 @@ class _ChatGroupState extends State<ChatGroup> {
                     value.documents[i].data['imageUrl'] :
                     value.documents[i].data['text'],
                     me: user.data['firstName'] == value.documents[i].data['from'] ? true : false,
-                  )
-                  );
+                  ));
                 });
+
+                messages.insertAll(0, messageNew);
               }
             });
             
@@ -286,6 +289,7 @@ class _ChatGroupState extends State<ChatGroup> {
         .orderBy('date', descending: true)
     .getDocuments()
     .then((value) {
+
       querySnapshot = value;
 
 
@@ -313,16 +317,22 @@ class _ChatGroupState extends State<ChatGroup> {
     .snapshots()
     .listen((event) {
     }).onData((data) {
+
+
+
+
       data.documentChanges.forEach((element) {
 
 
+        setState(() {
+          querySnapshot.documents.add(element.document);
+        });
 
 
         Timestamp j = element.document.data['date'];
 
 
-        print(Timestamp.now().microsecondsSinceEpoch - j.microsecondsSinceEpoch);
-        print(element.document.data['text']);
+
 
         if(element.document.data['photoUrl'] != user.data['photoUrl']){
           if(Timestamp.now().microsecondsSinceEpoch - j.microsecondsSinceEpoch <= 35000000){
@@ -345,6 +355,7 @@ class _ChatGroupState extends State<ChatGroup> {
 
         if(Timestamp.now().microsecondsSinceEpoch - j.microsecondsSinceEpoch <= 1000000){
           setState(() {
+
             messages.add( Message(
               date: element.document.data['date'],
               photoUrl: element.document.data['photoUrl'],
@@ -400,6 +411,23 @@ class _ChatGroupState extends State<ChatGroup> {
 
                               return Column(
                                 children: [
+//                               i == 0 ?
+//                                    Text("${DateFormat("MMMMd").format( querySnapshot.documents[i].data['date'].toDate())}") :
+//
+//
+//                                  DateFormat("MMMMd").format( querySnapshot.documents[i].data['date'].toDate()) ==
+//                                      DateFormat("MMMMd").format( querySnapshot.documents[0].data['date'].toDate()) ?
+//
+//                                Container() :
+//
+//
+//                                  DateFormat("MMMMd").format( querySnapshot.documents[i].data['date'].toDate()) !=
+//                                          DateFormat("MMMMd").format( querySnapshot.documents[i - 1].data['date'].toDate())  ?
+//                                  Text("${DateFormat("MMMMd").format( querySnapshot.documents[i].data['date'].toDate())}") : Container(),
+//
+//
+
+
 
 
 
@@ -1068,7 +1096,7 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
   final String text;
   final bool me;
   final String photoUrl;
-  final date;
+  final Timestamp date;
   _MessageState(this.from, this.text, this.me, this.photoUrl, this.date);
 
   @override
@@ -1137,12 +1165,24 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin{
                     bottomRight:  Radius.circular(10),
                   ),
 
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-                    child: Text(
-                      text,
-                    ),
-                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 5),
+                        child: Text(
+                          text,
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(right: 10, top: 10),
+                        child: Text("${date.toDate().hour}:${date.toDate().minute}", style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.black38
+                        ),),
+                      )
+                    ],
+                  )
+
                 ),
                 SizedBox(
                   width: 15,
