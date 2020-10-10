@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'userManagement.dart';
@@ -7,13 +6,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class SignIn {
   static Future<String> signInWithGoogle(context) async {
-
     final FirebaseAuth _auth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
-    await googleSignInAccount.authentication;
+        await googleSignInAccount.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.getCredential(
       accessToken: googleSignInAuthentication.accessToken,
@@ -31,13 +29,12 @@ class SignIn {
       UserUpdateInfo updateUser = UserUpdateInfo();
       updateUser.displayName = user.displayName;
       updateUser.photoUrl = user.photoUrl;
-      val.updateProfile(updateUser)
-          .then((user) {
-        FirebaseAuth.instance
-            .currentUser()
-            .then((user) {
-          UserManagement()
-              .storeNewUser(user, context,);
+      val.updateProfile(updateUser).then((user) {
+        FirebaseAuth.instance.currentUser().then((user) {
+          UserManagement().storeNewUser(
+            user,
+            context,
+          );
         }).catchError((e) {
           print(e);
         });
@@ -48,15 +45,10 @@ class SignIn {
       print(e);
     });
 
-
     return 'signInWithGoogle succeeded: $user';
   }
 
-
   void signOutGoogle() async {
-
     print("User Sign Out");
   }
-
-
 }

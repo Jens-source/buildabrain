@@ -12,39 +12,39 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
-
 class PromotionManagement {
-
-
-  storePromotion( eventPhoto, name, startDate, endDate, startTime, endTime, host, description, locationUrl,
-      material, dressCode) {
-    Firestore.instance.collection('promotions').add({
-      "photoUrl": eventPhoto,
-      "name": name,
-      "date": startDate,
-      "endDate": endDate,
-      "startTime": startTime,
-      "endTime": endTime,
-      "host": host,
-      "description": description,
-      "locationUrl": locationUrl,
-      "material": material,
-      "dressCode": dressCode,
-    }).then((value) {
-
-    }).catchError((e) {
-      print(e);
-    });
+  storePromotion(eventPhoto, name, startDate, endDate, startTime, endTime, host,
+      description, locationUrl, material, dressCode) {
+    Firestore.instance
+        .collection('promotions')
+        .add({
+          "photoUrl": eventPhoto,
+          "name": name,
+          "date": startDate,
+          "endDate": endDate,
+          "startTime": startTime,
+          "endTime": endTime,
+          "host": host,
+          "description": description,
+          "locationUrl": locationUrl,
+          "material": material,
+          "dressCode": dressCode,
+        })
+        .then((value) {})
+        .catchError((e) {
+          print(e);
+        });
   }
 
-  Future updateSchedule( eventPhoto, name, startDate, endDate, startTime, endTime, host, description, locationUrl,
-      material, dressCode)  async {
+  Future updateSchedule(eventPhoto, name, startDate, endDate, startTime,
+      endTime, host, description, locationUrl, material, dressCode) async {
     await Firestore.instance
         .collection('promotions')
         .where("host", isEqualTo: host)
-    .getDocuments()
-    .then((value) {
-      Firestore.instance.collection('promotions')
+        .getDocuments()
+        .then((value) {
+      Firestore.instance
+          .collection('promotions')
           .document(value.documents[0].documentID)
           .updateData({
         "photoUrl": eventPhoto,
@@ -64,7 +64,7 @@ class PromotionManagement {
     });
   }
 
-   removePromotion(promoID) async{
+  removePromotion(promoID) async {
     await Firestore.instance
         .collection('promotions')
         .document(promoID)

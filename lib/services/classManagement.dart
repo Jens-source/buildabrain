@@ -1,6 +1,3 @@
-
-
-
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +13,6 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class ClassManagement {
-
   storeNewClass(subject, clas, date, startTime, endTime, teacher) {
     Firestore.instance.collection('/schedule').add({
       'timestamp': DateTime.now(),
@@ -32,9 +28,8 @@ class ClassManagement {
     });
   }
 
-
-  Future updateSchedule(day, classType, startTime, endTime, subject, teacher,
-      docID) async {
+  Future updateSchedule(
+      day, classType, startTime, endTime, subject, teacher, docID) async {
     await Firestore.instance
         .collection('/schedule')
         .document(docID)
@@ -51,11 +46,7 @@ class ClassManagement {
     });
   }
 
-
-  Future removeClass(docID)async {
-    await Firestore.instance.collection('schedule')
-        .document(docID)
-        .delete();
-
+  Future removeClass(docID) async {
+    await Firestore.instance.collection('schedule').document(docID).delete();
   }
 }

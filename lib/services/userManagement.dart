@@ -14,31 +14,30 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class UserManagement {
-
-
-
   storeNewUser(user, context) {
-
-    Firestore.instance.collection('/users').add({
-      'signedUpDate': DateFormat("yyyy-MM-dd").format(DateTime.now()),
-      'firstName': 0,
-      'lastName': 0,
-      'email': user.email,
-      'uid': user.uid,
-      'number': 0,
-      'addressLine1' : 0,
-      'addressLine2': 0,
-      'district': 0,
-      'province': 0,
-      'zip': 0,
-      'partnerUid': 0,
-      'relationship': 0,
-      'identity': 0,
-    }).then((value) {}).catchError((e) {
-      print(e);
-    });
+    Firestore.instance
+        .collection('/users')
+        .add({
+          'signedUpDate': DateFormat("yyyy-MM-dd").format(DateTime.now()),
+          'firstName': 0,
+          'lastName': 0,
+          'email': user.email,
+          'uid': user.uid,
+          'number': 0,
+          'addressLine1': 0,
+          'addressLine2': 0,
+          'district': 0,
+          'province': 0,
+          'zip': 0,
+          'partnerUid': 0,
+          'relationship': 0,
+          'identity': 0,
+        })
+        .then((value) {})
+        .catchError((e) {
+          print(e);
+        });
   }
-
 
   storeNewParent(user, context) {
     Firestore.instance.collection('/users').add({
@@ -53,30 +52,27 @@ class UserManagement {
       'street': 0,
       'district': 0,
       'province': 0,
-      'status' : 0
+      'status': 0
     }).then((value) {
       final FirebaseMessaging _messaging = FirebaseMessaging();
 
-      Firestore.instance.document('users/${value.documentID}')
-      .get().then((userDoc) {
-        _messaging.getToken().then((token){
-
-          Firestore.instance.collection('tokens')
-              .add({
-            "uid" : userDoc.data['uid'],
+      Firestore.instance
+          .document('users/${value.documentID}')
+          .get()
+          .then((userDoc) {
+        _messaging.getToken().then((token) {
+          Firestore.instance.collection('tokens').add({
+            "uid": userDoc.data['uid'],
             "type": "parent",
-            "devToken" : token,
-
+            "devToken": token,
           });
-
         });
       });
-
     }).catchError((e) {
       print(e);
     });
   }
-  
+
   storeNewLeader(user, context) {
     Firestore.instance.collection('/users').add({
       'firstName': 0,
@@ -88,18 +84,16 @@ class UserManagement {
     }).then((value) {
       final FirebaseMessaging _messaging = FirebaseMessaging();
 
-      Firestore.instance.document('users/${value.documentID}')
-          .get().then((userDoc) {
-        _messaging.getToken().then((token){
-
-          Firestore.instance.collection('tokens')
-              .add({
-            "uid" : userDoc.data['uid'],
+      Firestore.instance
+          .document('users/${value.documentID}')
+          .get()
+          .then((userDoc) {
+        _messaging.getToken().then((token) {
+          Firestore.instance.collection('tokens').add({
+            "uid": userDoc.data['uid'],
             "type": "leader",
-            "devToken" : token,
-
+            "devToken": token,
           });
-
         });
       });
     }).catchError((e) {
@@ -107,55 +101,43 @@ class UserManagement {
     });
   }
 
-
-
-
-
-
   storeNewTeacher(user, context) async {
     File qr;
-    var uri = (Uri.parse("https://pierre2106j-qrcode.p.rapidapi.com/api")
-    );
+    var uri = (Uri.parse("https://pierre2106j-qrcode.p.rapidapi.com/api"));
     var response1;
-    response1 = await http.get(uri.replace(queryParameters: <String, String>{
-
-      "backcolor": "ffffff",
-      "pixel": "9",
-      "ecl": "L %7C M%7C Q %7C H",
-      "forecolor": "000000",
-      "type": "text %7C url %7C tel %7C sms %7C email",
-      "text": user.uid,
-
-
-    },), headers: {
-      "x-rapidapi-host": "pierre2106j-qrcode.p.rapidapi.com",
-      "x-rapidapi-key": "f9f7a1b65fmsh8040df99eaf90e5p164474jsn2ed53a118bcd"
-    });
-
+    response1 = await http.get(
+        uri.replace(
+          queryParameters: <String, String>{
+            "backcolor": "ffffff",
+            "pixel": "9",
+            "ecl": "L %7C M%7C Q %7C H",
+            "forecolor": "000000",
+            "type": "text %7C url %7C tel %7C sms %7C email",
+            "text": user.uid,
+          },
+        ),
+        headers: {
+          "x-rapidapi-host": "pierre2106j-qrcode.p.rapidapi.com",
+          "x-rapidapi-key": "f9f7a1b65fmsh8040df99eaf90e5p164474jsn2ed53a118bcd"
+        });
 
     print("response.body mother: ${response1.body}");
-
 
     File file = await DefaultCacheManager().getSingleFile(response1.body);
     var time = DateTime.now();
     StorageUploadTask task;
     print("File: ${file}");
 
-
     final StorageReference firebaseStorageRef =
-    FirebaseStorage.instance.ref().child('teacherQrCodes/${user.uid}.png');
+        FirebaseStorage.instance.ref().child('teacherQrCodes/${user.uid}.png');
     task = firebaseStorageRef.putFile(file);
-
 
     StorageTaskSnapshot snapshot = await task.onComplete;
     String downloadUrl = await snapshot.ref.getDownloadURL();
     print("DownloadUrl: ${downloadUrl}");
 
-
-
-
-  Firestore.instance.collection('/users').add({
-    'signedUpDate': DateFormat("yyyy-MM-dd").format(DateTime.now()),
+    Firestore.instance.collection('/users').add({
+      'signedUpDate': DateFormat("yyyy-MM-dd").format(DateTime.now()),
       'email': user.email,
       'uid': user.uid,
       'number': 0,
@@ -167,33 +149,28 @@ class UserManagement {
       'lastName': 0,
       'qrCodeUrl': downloadUrl,
     }).then((value) {
-    final FirebaseMessaging _messaging = FirebaseMessaging();
+      final FirebaseMessaging _messaging = FirebaseMessaging();
 
-    Firestore.instance.document('users/${value.documentID}')
-        .get().then((userDoc) {
-      _messaging.getToken().then((token){
-
-        Firestore.instance.collection('tokens')
-            .add({
-          "uid" : userDoc.data['uid'],
-          "type": "teacher",
-          "devToken" : token,
-
+      Firestore.instance
+          .document('users/${value.documentID}')
+          .get()
+          .then((userDoc) {
+        _messaging.getToken().then((token) {
+          Firestore.instance.collection('tokens').add({
+            "uid": userDoc.data['uid'],
+            "type": "teacher",
+            "devToken": token,
+          });
         });
-
       });
-    });
-  }).catchError((e) {
+    }).catchError((e) {
       print(e);
     });
   }
 
-
   static Future updateProfilePicture(picUrl) async {
     var userInfo = new UserUpdateInfo();
     userInfo.photoUrl = picUrl;
-
-
 
     await FirebaseAuth.instance.currentUser().then((val) {
       val.updateProfile(userInfo).then((user) {
@@ -202,10 +179,9 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'photoUrl': picUrl
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'photoUrl': picUrl}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
@@ -217,73 +193,49 @@ class UserManagement {
     });
   }
 
-
-
-
   static Future updateProfilePictureStudent(picUrl, childID) async {
     var userInfo = new UserUpdateInfo();
-          await Firestore.instance
-              .document('/students/${childID}')
-
-                    .updateData({
-                  'photoUrl': picUrl
-                }).then((val) {
-                  print('Updated');
-
-      }).catchError((e) {
-        print(e);
-      });
-
+    await Firestore.instance
+        .document('/students/${childID}')
+        .updateData({'photoUrl': picUrl}).then((val) {
+      print('Updated');
+    }).catchError((e) {
+      print(e);
+    });
   }
 
   static Future updateFirstNameStudent(firstName, childID) async {
     var userInfo = new UserUpdateInfo();
     await Firestore.instance
         .document('/students/${childID}')
-
-        .updateData({
-      'firstName': firstName
-    }).then((val) {
+        .updateData({'firstName': firstName}).then((val) {
       print('Updated');
-
     }).catchError((e) {
       print(e);
     });
-
   }
+
   static Future updateLastNameStudent(lastName, childID) async {
     var userInfo = new UserUpdateInfo();
     await Firestore.instance
         .document('/students/${childID}')
-
-        .updateData({
-      'lastName': lastName
-    }).then((val) {
+        .updateData({'lastName': lastName}).then((val) {
       print('Updated');
-
     }).catchError((e) {
       print(e);
     });
-
   }
-
 
   static Future updateBirthdayStudent(birthday, childID) async {
     var userInfo = new UserUpdateInfo();
     await Firestore.instance
         .document('/students/${childID}')
-        .updateData({
-      'birthday': birthday
-    }).then((val) {
+        .updateData({'birthday': birthday}).then((val) {
       print('Updated');
-
     }).catchError((e) {
       print(e);
     });
-
   }
-
-
 
   static Future updateBrainstormPicture(id) async {
     var userInfo = new UserUpdateInfo();
@@ -295,7 +247,8 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
               .collection('brainstorms')
               .add({
             'brainstormId': id,
@@ -311,40 +264,31 @@ class UserManagement {
     });
   }
 
-
-
-
-
-
-  static Future updateStudentClass(qrCodeUrl, startTime, endTime, classType, startDate, nickName, firstName) async {
+  static Future updateStudentClass(qrCodeUrl, startTime, endTime, classType,
+      startDate, nickName, firstName) async {
     var userInfo = new UserUpdateInfo();
     String studentId;
 
     List dates = [];
 
-
-
-
-
-
-    await Firestore.instance.collection('schedule')
-    .where('startDate', isEqualTo: startDate)
-    .getDocuments()
-    .then((val) {
+    await Firestore.instance
+        .collection('schedule')
+        .where('startDate', isEqualTo: startDate)
+        .getDocuments()
+        .then((val) {
       for (int i = 0; i < val.documents.length; i++) {
-        if (DateTime.parse(startDate).isAfter(
-            DateTime.parse(val.documents[i]['startDate'])) ||
+        if (DateTime.parse(startDate)
+                .isAfter(DateTime.parse(val.documents[i]['startDate'])) ||
             DateTime.parse(startDate).isAtSameMomentAs(
-                DateTime.parse(val.documents[i]['startDate'])))
-          if (DateTime.parse(startDate).isBefore(
-              DateTime.parse(val.documents[i]['endDate'])) ||
-              DateTime.parse(startDate).isAtSameMomentAs(
-                  DateTime.parse(val.documents[i]['startDate'])))
-            if (DateFormat('EEEE').format(DateTime.parse(startDate)) ==
-                DateFormat("EEEE").format(
-                    DateTime.parse(val.documents[i]['startDate']))) {
-              dates.add(val.documents[i]);
-            }
+                DateTime.parse(val.documents[i]['startDate']))) if (DateTime.parse(
+                    startDate)
+                .isBefore(DateTime.parse(val.documents[i]['endDate'])) ||
+            DateTime.parse(startDate).isAtSameMomentAs(DateTime.parse(val.documents[i]['startDate']))) if (DateFormat('EEEE')
+                .format(DateTime.parse(startDate)) ==
+            DateFormat("EEEE")
+                .format(DateTime.parse(val.documents[i]['startDate']))) {
+          dates.add(val.documents[i]);
+        }
       }
       print(qrCodeUrl);
       Firestore.instance
@@ -353,7 +297,8 @@ class UserManagement {
           .getDocuments()
           .then((docs) {
         studentId = docs.documents[0].documentID;
-        Firestore.instance.document('/students/${docs.documents[0].documentID}')
+        Firestore.instance
+            .document('/students/${docs.documents[0].documentID}')
             .updateData({
           "classStartTime": startTime,
           'classEndTime': endTime,
@@ -362,49 +307,42 @@ class UserManagement {
         }).catchError((e) {
           print(e);
         });
-      }).then((fef){
-
+      }).then((fef) {
         for (int j = 0; j < dates.length; j++) {
           print("Typed in time: ${startTime}");
           print("Db time: ${val.documents[j]['startTime']}");
 
-          if (startTime == val.documents[j]['startTime'])
-            if (classType == val.documents[j]['class'])
-              Firestore.instance.collection('schedule')
-
-                  .document(val.documents[j].documentID)
-                  .collection('students')
-                  .where('firstName', isEqualTo: firstName)
-                  .getDocuments()
-                  .then((docs) {
-                if (docs.documents.length == 0) {
-                  Firestore.instance.collection('schedule')
-
-                      .document(val.documents[j].documentID)
-                      .collection('students')
-                      .add({
-                    'nickName': nickName,
-                    "firstName": firstName,
-                    'studentId': studentId,
-                    'signedIn' : 0,
-                  });
-                }
-              });
+          if (startTime == val.documents[j]['startTime']) if (classType ==
+              val.documents[j]['class'])
+            Firestore.instance
+                .collection('schedule')
+                .document(val.documents[j].documentID)
+                .collection('students')
+                .where('firstName', isEqualTo: firstName)
+                .getDocuments()
+                .then((docs) {
+              if (docs.documents.length == 0) {
+                Firestore.instance
+                    .collection('schedule')
+                    .document(val.documents[j].documentID)
+                    .collection('students')
+                    .add({
+                  'nickName': nickName,
+                  "firstName": firstName,
+                  'studentId': studentId,
+                  'signedIn': 0,
+                });
+              }
+            });
         }
-
-
       });
-
-
-
     });
   }
 
   static Future updateProfilePictureFirstFather(picUrl) async {
     var userInfo = new UserUpdateInfo();
     userInfo.photoUrl = picUrl;
-    List <DocumentSnapshot> kids = new List<DocumentSnapshot>();
-
+    List<DocumentSnapshot> kids = new List<DocumentSnapshot>();
 
     await FirebaseAuth.instance.currentUser().then((val) {
       val.updateProfile(userInfo).then((user) {
@@ -413,24 +351,19 @@ class UserManagement {
             .where('fatherUid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-             for(int i = 0; i < docs.documents.length; i++)
-               {
-                 if(docs.documents[i].data["qrCodeUrl"] == 0 )
-                   {
-                     Firestore.instance.document('/students/${docs.documents[i].documentID}')
-                         .updateData({
-                       'qrCodeUrl': picUrl
-                     });
-                   }
-               }
-
+          for (int i = 0; i < docs.documents.length; i++) {
+            if (docs.documents[i].data["qrCodeUrl"] == 0) {
+              Firestore.instance
+                  .document('/students/${docs.documents[i].documentID}')
+                  .updateData({'qrCodeUrl': picUrl});
+            }
+          }
         });
       }).catchError((e) {
         print(e);
       });
     });
   }
-
 
   static Future updateBirthday(birthday) async {
     var userInfo = new UserUpdateInfo();
@@ -442,21 +375,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'birthday': birthday
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'birthday': birthday}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateProfilePictureFirstMother(picUrl) async {
     var userInfo = new UserUpdateInfo();
@@ -470,18 +399,11 @@ class UserManagement {
             .where('motherUid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-
-          for(int i = 0; i < docs.documents.length; i++)
-          {
-            if(docs.documents[i].data["qrCodeUrl"] == 0 )
-            {
-
-              Firestore.instance.document('/students/${docs.documents[i].documentID}')
-                  .updateData({
-                'qrCodeUrl': picUrl
-
-              }).catchError((e){
-              });
+          for (int i = 0; i < docs.documents.length; i++) {
+            if (docs.documents[i].data["qrCodeUrl"] == 0) {
+              Firestore.instance
+                  .document('/students/${docs.documents[i].documentID}')
+                  .updateData({'qrCodeUrl': picUrl}).catchError((e) {});
             }
           }
         });
@@ -491,11 +413,8 @@ class UserManagement {
     });
   }
 
-
-
   static Future updateTeacherQrCode(picUrl) async {
     var userInfo = new UserUpdateInfo();
-
 
     await FirebaseAuth.instance.currentUser().then((val) {
       val.updateProfile(userInfo).then((user) {
@@ -504,10 +423,9 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'qrCodeUrl': picUrl
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'qrCodeUrl': picUrl}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
@@ -529,21 +447,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'about': about
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'about': about}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateFirstName(firstName) async {
     var userInfo = new UserUpdateInfo();
@@ -555,21 +469,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'firstName': firstName
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'firstName': firstName}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateStatus(parent) async {
     var userInfo = new UserUpdateInfo();
@@ -581,21 +491,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'status': parent
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'status': parent}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateStudentGender(gender, docID) async {
     var userInfo = new UserUpdateInfo();
@@ -604,96 +510,89 @@ class UserManagement {
       val.updateProfile(userInfo).then((user) {
         Firestore.instance
             .document('/students/${docID}')
-
-            .updateData({
-          "gender": gender
-
-          }).then((val) {
-            print('Updated');
-          }).catchError((e) {
-            print(e);
-          });
-
+            .updateData({"gender": gender}).then((val) {
+          print('Updated');
+        }).catchError((e) {
+          print(e);
+        });
       });
-    }
-    );
+    });
   }
 
-  static Future updateEntry(timeStamp, clas, endDate, startDate, endTime, startTime, subject) async {
+  static Future updateEntry(
+      timeStamp, clas, endDate, startDate, endTime, startTime, subject) async {
     var userInfo = new UserUpdateInfo();
-        Firestore.instance
-            .collection('/schedule')
-            .where('timeStamp', isEqualTo: timeStamp)
-            .getDocuments()
-            .then((docs) {
-          Firestore.instance.document('/schedule/${docs.documents[0].documentID}')
-              .updateData({
-            'subject': subject,
-            'class' : clas,
-            'startDate': startDate,
-            'endDate' : endDate,
-            'startTime': startTime,
-            'endTime': endTime,
-
-          }).then((val) {
-            print('Updated');
-          }).catchError((e) {
-            print(e);
-          });
-
-    }
-    );
+    Firestore.instance
+        .collection('/schedule')
+        .where('timeStamp', isEqualTo: timeStamp)
+        .getDocuments()
+        .then((docs) {
+      Firestore.instance
+          .document('/schedule/${docs.documents[0].documentID}')
+          .updateData({
+        'subject': subject,
+        'class': clas,
+        'startDate': startDate,
+        'endDate': endDate,
+        'startTime': startTime,
+        'endTime': endTime,
+      }).then((val) {
+        print('Updated');
+      }).catchError((e) {
+        print(e);
+      });
+    });
   }
+
   static Future deleteEntry(timeStamp, classDay) async {
     var userInfo = new UserUpdateInfo();
-
-
-
 
     await Firestore.instance
         .collection('schedule')
         .where('timeStamp', isEqualTo: timeStamp)
         .getDocuments()
         .then((docs) {
-          Firestore.instance.collection('schedule/${docs.documents[0].documentID}/students')
+      Firestore.instance
+          .collection('schedule/${docs.documents[0].documentID}/students')
           .getDocuments()
-          .then((value) async{
-            for(int i = 0; i < value.documents.length; i++){
-
-              await Firestore.instance.document('students/${value.documents[i].data['uid']}')
-              .updateData({
-                'daysPerWeek': value.documents[i].data['daysPerWeek'] - 1
-              });
-              await Firestore.instance.collection('students/${value.documents[i].data['uid']}/schedules')
+          .then((value) async {
+        for (int i = 0; i < value.documents.length; i++) {
+          await Firestore.instance
+              .document('students/${value.documents[i].data['uid']}')
+              .updateData(
+                  {'daysPerWeek': value.documents[i].data['daysPerWeek'] - 1});
+          await Firestore.instance
+              .collection(
+                  'students/${value.documents[i].data['uid']}/schedules')
               .where('classDay', isEqualTo: classDay)
               .getDocuments()
               .then((value) async => {
-                await Firestore.instance.document('students/${value.documents[i].data['uid']}/schedules/${value.documents[0].documentID}')
-                .delete()
-              });
-            }
-          }).then((vsf)async {
-
-            await Firestore.instance.collection('/schedule/${docs.documents[0].documentID}/students').getDocuments().then((snapshot) {
-              for (DocumentSnapshot doc in snapshot.documents) {
-                doc.reference.delete();
-              }}).then((efe){
-               Firestore.instance.document('/schedule/${docs.documents[0].documentID}')
-                  .delete()
-
-                  .then((val) {
-              print('Deleted');
-              }).catchError((e) {
-              print(e);
-              });
-
-              });
-            });
-
-
-
-    }
-    );
+                    await Firestore.instance
+                        .document(
+                            'students/${value.documents[i].data['uid']}/schedules/${value.documents[0].documentID}')
+                        .delete()
+                  });
+        }
+      }).then((vsf) async {
+        await Firestore.instance
+            .collection('/schedule/${docs.documents[0].documentID}/students')
+            .getDocuments()
+            .then((snapshot) {
+          for (DocumentSnapshot doc in snapshot.documents) {
+            doc.reference.delete();
+          }
+        }).then((efe) {
+          Firestore.instance
+              .document('/schedule/${docs.documents[0].documentID}')
+              .delete()
+              .then((val) {
+            print('Deleted');
+          }).catchError((e) {
+            print(e);
+          });
+        });
+      });
+    });
   }
 
   static Future deleteUser(uid) async {
@@ -703,17 +602,16 @@ class UserManagement {
         .where('uid', isEqualTo: uid)
         .getDocuments()
         .then((docs) {
-      Firestore.instance.document('/users/${docs.documents[0].documentID}')
+      Firestore.instance
+          .document('/users/${docs.documents[0].documentID}')
           .delete()
           .then((val) {
         print('Deleted');
       }).catchError((e) {
         print(e);
       });
-    }
-    );
+    });
   }
-
 
   static Future updateLastName(lastName) async {
     var userInfo = new UserUpdateInfo();
@@ -725,19 +623,16 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'lastName': lastName
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'lastName': lastName}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updatePhoneNumber(phoneNumber) async {
@@ -750,22 +645,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'phoneNumber': phoneNumber
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'phoneNumber': phoneNumber}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
-
 
   static Future updateJobTitle(jobTitle) async {
     var userInfo = new UserUpdateInfo();
@@ -777,19 +667,16 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'jobTitle': jobTitle
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'jobTitle': jobTitle}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateDesiredJobTitles(desiredJobTitle) async {
@@ -802,21 +689,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'desiredJobTitle': desiredJobTitle
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'desiredJobTitle': desiredJobTitle}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateStreet(street) async {
     var userInfo = new UserUpdateInfo();
@@ -828,19 +711,16 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'street': street
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'street': street}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateDesiredSalary(desiredSalary) async {
@@ -853,19 +733,16 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'desiredSalary': desiredSalary
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'desiredSalary': desiredSalary}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateReloacatable(relocatable) async {
@@ -878,19 +755,16 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'relocatable': relocatable
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'relocatable': relocatable}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateEmail(email) async {
@@ -903,19 +777,16 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'email': email
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'email': email}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateDegree(degree) async {
@@ -928,19 +799,16 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'degree': degree
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'degree': degree}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateSchool(school) async {
@@ -953,25 +821,21 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'school': school
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'school': school}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateNickName(displayName) async {
     var userInfo = new UserUpdateInfo();
     userInfo.displayName = displayName;
-
 
     await FirebaseAuth.instance.currentUser().then((val) {
       val.updateProfile(userInfo).then((user) {
@@ -980,48 +844,38 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'displayName': displayName
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'displayName': displayName}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateFieldOfStudy(fieldOfStudy) async {
     var userInfo = new UserUpdateInfo();
 
-    await
-    FirebaseAuth.instance.currentUser()
-        .
-    then
-      ((val) {
+    await FirebaseAuth.instance.currentUser().then((val) {
       val.updateProfile(userInfo).then((user) {
         Firestore.instance
             .collection('/users')
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'fieldOfStudy': fieldOfStudy
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'fieldOfStudy': fieldOfStudy}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 
   static Future updateCountries(country) async {
@@ -1034,20 +888,18 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document(
-              '/users/${docs.documents[0].documentID}')
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
               .collection('countries')
               .where('country', isEqualTo: country)
               .getDocuments()
               .then((vals) {
             print(vals.documents.length);
             if (vals.documents.length == 0) {
-              Firestore.instance.document(
-                  '/users/${docs.documents[0].documentID}')
+              Firestore.instance
+                  .document('/users/${docs.documents[0].documentID}')
                   .collection('countries')
-                  .add({
-                'country': country
-              }).then((val) {
+                  .add({'country': country}).then((val) {
                 print('Updated');
               }).catchError((e) {
                 print(e);
@@ -1059,32 +911,25 @@ class UserManagement {
     });
   }
 
-
   static Future updateNumber(number) async {
     var userInfo = new UserUpdateInfo();
 
     await FirebaseAuth.instance.currentUser().then((val) {
+      Firestore.instance
+          .collection('users')
+          .where('uid', isEqualTo: val.uid)
+          .getDocuments()
+          .then((docs) {
         Firestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: val.uid)
-            .getDocuments()
-            .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'number': number
-          }).then((val) {
-            print('Updated');
-          }).catchError((e) {
-            print(e);
-          });
-        }
-        );
-
-    }
-    );
+            .document('/users/${docs.documents[0].documentID}')
+            .updateData({'number': number}).then((val) {
+          print('Updated');
+        }).catchError((e) {
+          print(e);
+        });
+      });
+    });
   }
-
-
 
   static Future updateAssignedClass(teacherUid, classs) async {
     var userInfo = new UserUpdateInfo();
@@ -1094,19 +939,15 @@ class UserManagement {
         .where('uid', isEqualTo: teacherUid)
         .getDocuments()
         .then((docs) {
-      Firestore.instance.document('/users/${docs.documents[0].documentID}')
-          .updateData({
-        'assignedClass': classs
-      }).then((val) {
+      Firestore.instance
+          .document('/users/${docs.documents[0].documentID}')
+          .updateData({'assignedClass': classs}).then((val) {
         print('Updated');
       }).catchError((e) {
         print(e);
       });
-    }
-    );
-    }
-
-
+    });
+  }
 
   static Future updateAddress1(address1) async {
     var userInfo = new UserUpdateInfo();
@@ -1118,21 +959,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'addressLine1': address1
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'addressLine1': address1}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateAddress2(address2) async {
     var userInfo = new UserUpdateInfo();
@@ -1144,21 +981,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'addressLine2': address2
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'addressLine2': address2}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateDistrict(district) async {
     var userInfo = new UserUpdateInfo();
@@ -1170,21 +1003,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'district': district
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'district': district}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateProvince(province) async {
     var userInfo = new UserUpdateInfo();
@@ -1196,21 +1025,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'province': province
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'province': province}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updateZip(zip) async {
     var userInfo = new UserUpdateInfo();
@@ -1222,21 +1047,17 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'zip': zip
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'zip': zip}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
-
 
   static Future updatePartner(partnerUid) async {
     var userInfo = new UserUpdateInfo();
@@ -1248,20 +1069,15 @@ class UserManagement {
             .where('uid', isEqualTo: val.uid)
             .getDocuments()
             .then((docs) {
-          Firestore.instance.document('/users/${docs.documents[0].documentID}')
-              .updateData({
-            'partnerUid': partnerUid
-          }).then((val) {
+          Firestore.instance
+              .document('/users/${docs.documents[0].documentID}')
+              .updateData({'partnerUid': partnerUid}).then((val) {
             print('Updated');
           }).catchError((e) {
             print(e);
           });
-        }
-        );
+        });
       });
-    }
-    );
+    });
   }
 }
-
-
