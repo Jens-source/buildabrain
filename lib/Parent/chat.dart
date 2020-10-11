@@ -31,14 +31,22 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin {
 
   TabController _tabController;
 
-  void _toggleTab(index) {
-    _tabController.animateTo(index);
+  void _toggleTab(i) {
+    _tabController.animateTo(i);
   }
 
   @override
   void initState() {
     _tabController = TabController(vsync: this, length: 3, initialIndex: index);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _tabController.dispose();
+    _tabController = null;
+    super.dispose();
   }
 
   @override
@@ -61,13 +69,13 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin {
                       onTap: () {
                         _toggleTab(2);
                       },
-                      title: Text("Chat with admin"),
+                      title: Text("Chat with group"),
                       leading: Container(
                         height: 50,
                         width: 50,
                         child: CircleAvatar(
                           backgroundImage:
-                              AssetImage("lib/Assets/chatHelp.png"),
+                              AssetImage("lib/Assets/chatGroup.png"),
                         ),
                       )),
                 ),
@@ -82,13 +90,13 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin {
                       onTap: () {
                         _toggleTab(1);
                       },
-                      title: Text("Chat with group"),
+                      title: Text("Chat with admin"),
                       leading: Container(
                         height: 50,
                         width: 50,
                         child: CircleAvatar(
                           backgroundImage:
-                              AssetImage("lib/Assets/chatGroup.png"),
+                              AssetImage("lib/Assets/chatHelp.png"),
                         ),
                       )),
                 ),
@@ -96,8 +104,8 @@ class _ChatState extends State<Chat> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-        ChatGroup(user),
         ChatAdmin(user),
+        ChatGroup(user),
       ],
     );
   }
@@ -234,24 +242,25 @@ class _ChatGroupState extends State<ChatGroup> {
             querySnapshot = value;
             newQuery = value;
 
-            for (int i = 0; i < value.documents.length; i++) {
-              setState(() {
-                messages.insert(
-                    0,
-                    Message(
-                      date: value.documents[i].data['date'],
-                      photoUrl: value.documents[i].data['photoUrl'],
-                      from: value.documents[i].data['from'],
-                      text: value.documents[i].data['text'] == null
-                          ? value.documents[i].data['imageUrl']
-                          : value.documents[i].data['text'],
-                      me: user.data['firstName'] ==
-                              value.documents[i].data['from']
-                          ? true
-                          : false,
-                    ));
-              });
-            }
+            if (value.documents.length != 0)
+              for (int i = 0; i < value.documents.length; i++) {
+                setState(() {
+                  messages.insert(
+                      0,
+                      Message(
+                        date: value.documents[i].data['date'],
+                        photoUrl: value.documents[i].data['photoUrl'],
+                        from: value.documents[i].data['from'],
+                        text: value.documents[i].data['text'] == null
+                            ? value.documents[i].data['imageUrl']
+                            : value.documents[i].data['text'],
+                        me: user.data['firstName'] ==
+                                value.documents[i].data['from']
+                            ? true
+                            : false,
+                      ));
+                });
+              }
           })
         : null;
 

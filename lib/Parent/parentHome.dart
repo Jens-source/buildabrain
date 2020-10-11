@@ -1,5 +1,6 @@
 import 'package:buildabrain/Parent/parentCalendar.dart';
 import 'package:buildabrain/Parent/parentProfile.dart';
+import 'package:buildabrain/Parent/parentSetting.dart';
 import 'package:buildabrain/Parent/scanChild.dart';
 import 'package:buildabrain/aboutUs.dart';
 import 'package:buildabrain/helpCenter.dart';
@@ -179,24 +180,30 @@ class _ParentHomeState extends State<ParentHome>
                         ),
                         onPressed: () {
                           bool bam = false;
-                          tab == 3 && bam == false
+                          tab == 4
                               ? Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (BuildContext context) =>
-                                          MyApp(ParentHome(parent, 3, 0))))
-                              : chatIndex == 0
+                                          ParentSettings(
+                                              4, childrenSnapshot, parent)))
+                              : tab == 3 && bam == false
                                   ? Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (BuildContext context) =>
-                                              MyApp(ParentHome(parent, 0, 0))))
-                                  : Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              MyApp(ParentHome(
-                                                  parent, index, 0))));
+                                              MyApp(ParentHome(parent, 3, 0))))
+                                  : chatIndex == 0
+                                      ? Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) => MyApp(
+                                                  ParentHome(parent, 0, 0))))
+                                      : Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  MyApp(ParentHome(parent, index, 0))));
                         },
                       )
                     : null,
@@ -780,7 +787,7 @@ class _ParentHomeState extends State<ParentHome>
                   ParentCalendar(childrenSnapshot, child, _tabController, tabs),
                   ScanChild(childrenSnapshot, _tabController, tabs),
                   Chat(parent.documents[0], false, chatIndex),
-                  Container(),
+                  ParentSettings(0, childrenSnapshot, parent)
                 ],
               ));
         });
