@@ -119,6 +119,8 @@ class _ChatGroupState extends State<ChatGroup> {
   ScrollController scrollController = ScrollController();
   List<bool> expanded = new List();
   bool onPressed = false;
+  bool loading = false;
+
   PageController pageController;
 
   getData() async {
@@ -133,12 +135,176 @@ class _ChatGroupState extends State<ChatGroup> {
         'from': user.data['firstName'],
         'date': DateTime.now()
       });
+
+      messageController.clear();
       scrollController.animateTo(
         scrollController.position.minScrollExtent,
         curve: Curves.easeOut,
         duration: const Duration(milliseconds: 300),
       );
     }
+  }
+
+  int limitMessageAmount = 14;
+
+  QuerySnapshot querySnapshot;
+
+  QuerySnapshot newQuery;
+  List<Widget> messages = [];
+
+  @override
+  void initState() {
+    scrollController.addListener(() {
+      if (scrollController.position.atEdge && loading == false) {
+        if (scrollController.position.pixels ==
+            scrollController.position.maxScrollExtent)
+          setState(() {
+            loading = true;
+            Timestamp t = newQuery.documents.last.data["date"];
+            Firestore.instance
+                .collection('parentGroupChat')
+                .where('date', isLessThan: t)
+                .limit(10)
+                .orderBy('date', descending: true)
+                .getDocuments()
+                .then((volue) {
+              newQuery = volue;
+
+              if (volue.documents.length != 0) {
+                List<Widget> messageNew = new List();
+
+                Future.delayed(Duration(milliseconds: 400)).then((value) {
+                  limitMessageAmount =
+                      limitMessageAmount * 2 + volue.documents.length;
+
+                  if (volue.documents.length != 0) {
+                    for (int i = volue.documents.length; i >= 0; i--) {
+                      setState(() {
+                        if (i == volue.documents.length) {
+                          for (int p = 0; p < limitMessageAmount; p++) {
+                            messageNew.add(Container());
+                          }
+                        } else {
+                          messageNew.add(Message(
+                            date: volue.documents[i].data['date'],
+                            photoUrl: volue.documents[i].data['photoUrl'],
+                            from: volue.documents[i].data['from'],
+                            text: volue.documents[i].data['text'] == null
+                                ? volue.documents[i].data['imageUrl']
+                                : volue.documents[i].data['text'],
+                            me: user.data['firstName'] ==
+                                    volue.documents[i].data['from']
+                                ? true
+                                : false,
+                          ));
+                        }
+                      });
+                    }
+                    messageNew.addAll(messages);
+
+                    messages = messageNew;
+
+                    loading = false;
+                  }
+                });
+              } else {
+                setState(() {
+                  loading = false;
+                });
+              }
+            }).catchError((e) {
+              setState(() {
+                loading = false;
+              });
+            });
+          });
+        // you are at top position
+
+        // you are at bottom position
+      }
+    });
+
+    messages.length == 0
+        ? Firestore.instance
+            .collection('parentGroupChat')
+            .limit(limitMessageAmount)
+            .orderBy('date', descending: true)
+            .getDocuments()
+            .then((value) {
+            querySnapshot = value;
+            newQuery = value;
+
+            for (int i = 0; i < value.documents.length; i++) {
+              setState(() {
+                messages.insert(
+                    0,
+                    Message(
+                      date: value.documents[i].data['date'],
+                      photoUrl: value.documents[i].data['photoUrl'],
+                      from: value.documents[i].data['from'],
+                      text: value.documents[i].data['text'] == null
+                          ? value.documents[i].data['imageUrl']
+                          : value.documents[i].data['text'],
+                      me: user.data['firstName'] ==
+                              value.documents[i].data['from']
+                          ? true
+                          : false,
+                    ));
+              });
+            }
+          })
+        : null;
+
+    Firestore.instance
+        .collection('parentGroupChat')
+        .limit(limitMessageAmount)
+        .orderBy('date', descending: true)
+        .snapshots()
+        .listen((event) {})
+        .onData((data) {
+      data.documentChanges.forEach((element) {
+        Timestamp j = element.document.data['date'];
+
+        if (element.document.data['photoUrl'] != user.data['photoUrl']) {
+          if (Timestamp.now().microsecondsSinceEpoch -
+                  j.microsecondsSinceEpoch <=
+              35000000) {
+            setState(() {
+              print("Hello");
+              messages.add(Message(
+                date: element.document.data['date'],
+                photoUrl: element.document.data['photoUrl'],
+                from: element.document.data['from'],
+                text: element.document.data['text'] == null
+                    ? element.document.data['imageUrl']
+                    : element.document.data['text'],
+                me: user.data['firstName'] == element.document.data['from']
+                    ? true
+                    : false,
+              ));
+            });
+          }
+        } else if (Timestamp.now().microsecondsSinceEpoch -
+                j.microsecondsSinceEpoch <=
+            1000000) {
+          setState(() {
+            messages.add(Message(
+              date: element.document.data['date'],
+              photoUrl: element.document.data['photoUrl'],
+              from: element.document.data['from'],
+              text: element.document.data['text'] == null
+                  ? element.document.data['imageUrl']
+                  : element.document.data['text'],
+              me: user.data['firstName'] == element.document.data['from']
+                  ? true
+                  : false,
+            ));
+          });
+        }
+      });
+    });
+
+    super.initState();
   }
 
   @override
@@ -150,108 +316,85 @@ class _ChatGroupState extends State<ChatGroup> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore
-                      .collection('parentGroupChat')
-                      .limit(10)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData)
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                  child: ListView(
+                reverse: true,
+                controller: scrollController,
+                children: [
+                  SizedBox(
+                    height: 5,
+                  ),
+                  ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: messages.length,
+                      itemBuilder: (BuildContext context, i) {
+                        String name;
+                        String nameBefore;
 
-                    List<DocumentSnapshot> docs = snapshot.data.documents;
+                        String finalDate;
+                        int num;
+                        Message m;
+                        Message mBefore;
+                        String t;
+                        String tBefore;
+                        if (messages[i].runtimeType == Message) {
+                          if (i != 0) {
+                            if (messages[i - 1].runtimeType == Message) {
+                              mBefore = messages[i - 1];
+                              nameBefore = mBefore.from;
+                              tBefore = DateTime.fromMicrosecondsSinceEpoch(
+                                      mBefore.date.microsecondsSinceEpoch)
+                                  .day
+                                  .toString();
+                            }
+                          }
+                          m = messages[i];
+                          name = m.from;
+                          t = DateTime.fromMicrosecondsSinceEpoch(
+                                  m.date.microsecondsSinceEpoch)
+                              .day
+                              .toString();
+                          if (m != null && mBefore != null)
+                            num = DateTime.fromMicrosecondsSinceEpoch(
+                                        m.date.microsecondsSinceEpoch)
+                                    .day -
+                                DateTime.fromMicrosecondsSinceEpoch(
+                                        mBefore.date.microsecondsSinceEpoch)
+                                    .day;
+                        }
 
-                    List<Widget> messages = docs
-                        .map((doc) => Message(
-                              date: doc.data['date'],
-                              photoUrl: doc.data['photoUrl'],
-                              from: doc.data['from'],
-                              text: doc.data['text'] == null
-                                  ? doc.data['imageUrl']
-                                  : doc.data['text'],
-                              me: user.data['firstName'] == doc.data['from'],
-                            ))
-                        .toList();
+                        if (num != null && num != 0) {
+                          finalDate = DateFormat("MMMEd").format(
+                              DateTime.fromMicrosecondsSinceEpoch(
+                                  m.date.microsecondsSinceEpoch));
+                        }
 
-                    return ListView(
-                      reverse: true,
-                      controller: scrollController,
-                      children: [
-                        ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            itemCount: messages.length,
-                            itemBuilder: (BuildContext context, i) {
-                              if (expanded[i] == null) {
-                                setState(() {
-                                  expanded[i] = false;
-                                });
-                              }
-
-                              return new Column(
-                                children: [
-                                  i != 0
-                                      ? DateFormat("yyyy-MM-dd").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch)) ==
-                                              DateFormat("yyyy-MM-dd").format(
-                                                  DateTime.fromMicrosecondsSinceEpoch(
-                                                      docs[i - 1]
-                                                          .data['date']
-                                                          .microsecondsSinceEpoch))
-                                          ? docs[i]
-                                                      .data["date"]
-                                                      .toDate()
-                                                      .difference(docs[i - 1]
-                                                          .data["date"]
-                                                          .toDate())
-                                                      .inMinutes <
-                                                  5
-                                              ? Container()
-                                              : Text(DateFormat("Hm").format(docs[i]
-                                                  .data["date"]
-                                                  .toDate()))
-                                          : DateFormat("yyyy-MM-dd").format(docs[i].data["date"].toDate()) ==
-                                                  DateFormat("yyyy-MM-dd")
-                                                      .format(DateTime.now())
-                                              ? Text("Today, ${DateFormat("Hm").format(docs[i].data["date"].toDate())}")
-                                              : DateTime.now().difference(docs[0].data["date"].toDate()).inDays >= 6
-                                                  ? Text("${DateFormat("EEEE").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}, "
-                                                      "${DateFormat("Hm").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}")
-                                                  : Text("${DateFormat("EEEE").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}, "
-                                                      "${DateFormat("Hm").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}")
-                                      : Text("${DateFormat("MMMMd").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}, "
-                                          "${DateFormat("Hm").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}"),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        expanded[i] = !expanded[i];
-                                        print(expanded[i]);
-                                      });
-                                    },
-                                    child: AnimatedContainer(
-                                      duration: Duration(milliseconds: 300),
-                                      height: expanded[i] == false ? 45 : 60,
-                                      child: SingleChildScrollView(
-                                          child: Column(
-                                        children: [
-                                          messages[i],
-                                          expanded[i] == true
-                                              ? Text(docs[i].data['from'])
-                                              : Container()
-                                        ],
-                                      )),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            })
-                      ],
-                    );
-                  },
-                ),
-              ),
+                        return Column(
+                          children: [
+                            finalDate != null
+                                ? Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: Text(finalDate))
+                                : Container(),
+                            name != nameBefore
+                                ? SizedBox(
+                                    height: 8,
+                                  )
+                                : Container(),
+                            messages[i]
+                          ],
+                        );
+                      }),
+                  loading == true
+                      ? Center(
+                          child: Container(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : Container(),
+                ],
+              )),
               Container(
                 child: ListTile(
                     leading: GestureDetector(
@@ -303,7 +446,6 @@ class _ChatGroupState extends State<ChatGroup> {
                         if (!currentFocus.hasPrimaryFocus) {
                           currentFocus.unfocus();
                         }
-                        messageController.clear();
                       },
                     )),
               ),
@@ -318,38 +460,27 @@ class _ChatGroupState extends State<ChatGroup> {
   }
 }
 
-class SendButton extends StatelessWidget {
-  final String text;
-  final VoidCallback callback;
-
-  const SendButton({Key key, this.text, this.callback}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Icons.send,
-        size: 40,
-      ),
-      color: Color.fromRGBO(23, 142, 137, 1),
-      onPressed: callback,
-    );
-  }
-}
-
 class Message extends StatefulWidget {
   final String photoUrl;
   final String from;
   final String text;
+  final dateBefore;
 
   final date;
   final bool me;
   const Message(
-      {Key key, this.from, this.text, this.me, this.photoUrl, this.date})
+      {Key key,
+      this.from,
+      this.text,
+      this.me,
+      this.photoUrl,
+      this.date,
+      this.dateBefore})
       : super(key: key);
 
   @override
-  _MessageState createState() =>
-      _MessageState(this.from, this.text, this.me, this.photoUrl, this.date);
+  _MessageState createState() => _MessageState(
+      this.from, this.text, this.me, this.photoUrl, this.date, this.dateBefore);
 }
 
 class _MessageState extends State<Message> with SingleTickerProviderStateMixin {
@@ -357,8 +488,10 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin {
   final String text;
   final bool me;
   final String photoUrl;
-  final date;
-  _MessageState(this.from, this.text, this.me, this.photoUrl, this.date);
+  final Timestamp date;
+  final dateBefore;
+  _MessageState(
+      this.from, this.text, this.me, this.photoUrl, this.date, this.dateBefore);
 
   @override
   void initState() {
@@ -372,7 +505,7 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin {
       child: Column(
         children: <Widget>[
           SizedBox(
-            height: 5,
+            height: 8,
           ),
           Container(
             child: Row(
@@ -406,39 +539,76 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin {
                           image: NetworkImage(text),
                         )),
                       )
-                    : Material(
-                        color: Colors.black12,
-                        borderRadius: me
-                            ? BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
-                              )
-                            : BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                                bottomRight: Radius.circular(10),
-                              ),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 15.0),
-                          child: Text(
-                            text,
-                          ),
+                    : Container(
+                        child: Material(
+                          color: Colors.black12,
+                          borderRadius: me
+                              ? BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(10),
+                                  bottomLeft: Radius.circular(10),
+                                )
+                              : BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(10),
+                                  bottomRight: Radius.circular(10),
+                                ),
+                          child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 15.0),
+                              child: Row(
+                                children: [
+                                  !me
+                                      ? Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                              "${DateTime.fromMillisecondsSinceEpoch(date.millisecondsSinceEpoch).hour}:${DateTime.fromMillisecondsSinceEpoch(date.millisecondsSinceEpoch).minute}",
+                                              style: TextStyle(
+                                                  color: Colors.black38,
+                                                  fontSize: 10),
+                                            ),
+                                          ],
+                                        )
+                                      : Container(),
+                                  !me
+                                      ? SizedBox(
+                                          width: 5,
+                                        )
+                                      : Container(),
+                                  Container(
+                                    constraints: BoxConstraints(maxWidth: 200),
+                                    child: Text(
+                                      text,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  me
+                                      ? Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                              "${DateTime.fromMillisecondsSinceEpoch(date.millisecondsSinceEpoch).hour}:${DateTime.fromMillisecondsSinceEpoch(date.millisecondsSinceEpoch).minute}",
+                                              style: TextStyle(
+                                                  color: Colors.black38,
+                                                  fontSize: 10),
+                                            ),
+                                          ],
+                                        )
+                                      : Container()
+                                ],
+                              )),
                         ),
                       ),
                 SizedBox(
                   width: 15,
                 ),
-                me
-                    ? Container(
-                        height: 30,
-                        width: 30,
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(photoUrl),
-                        ),
-                      )
-                    : Container(),
                 SizedBox(
                   width: 15,
                 ),
@@ -463,6 +633,7 @@ class ImageEdit extends StatefulWidget {
 
 class _ImageEditState extends State<ImageEdit> {
   _ImageEditState(this.user);
+
   final user;
 
   File _imageFile;

@@ -25,55 +25,26 @@ class _ChatAdminState extends State<ChatAdmin> {
   final Firestore _firestore = Firestore.instance;
   TextEditingController messageController = TextEditingController();
   ScrollController scrollController = ScrollController();
-  List<bool> expanded;
-
+  List<bool> expanded = new List();
   bool onPressed = false;
-  String message;
+  bool loading = false;
+
+  PageController pageController;
+
+  getData() async {
+    return await Firestore.instance.collection('users').getDocuments();
+  }
 
   Future<void> callback() async {
     if (messageController.text.trim().length > 0) {
-      await _firestore
-          .collection('parentAdmin')
-          .where('parentUid', isEqualTo: user.data['uid'])
-          .getDocuments()
-          .then((value) async {
-        await _firestore
-            .collection('parentAdmin/${value.documents[0].documentID}/messages')
-            .add({
-          'photoUrl': user.data['photoUrl'],
-          'text': message,
-          'from': user.data['firstName'],
-          'date': DateTime.now()
-        });
-        messageController.clear();
-      }).catchError((e) async {
-        await Firestore.instance.collection('parentAdmin').add({
-          "parentUid": user.data['uid'],
-          "name": user.data['firstName'],
-          "photoUrl": user.data['photoUrl'],
-          "created": DateTime.now()
-        });
-        await _firestore
-            .collection('parentAdmin')
-            .where('parentUid', isEqualTo: user.data['uid'])
-            .getDocuments()
-            .then((value) async {
-          setState(() {
-            parentAdmin = value;
-          });
-          await _firestore
-              .collection(
-                  'parentAdmin/${value.documents[0].documentID}/messages')
-              .add({
-            'photoUrl': user.data['photoUrl'],
-            'text': message,
-            'from': user.data['firstName'],
-            'date': DateTime.now()
-          });
-          messageController.clear();
-        });
+      await _firestore.collection('parentGroupChat').add({
+        'photoUrl': user.data['photoUrl'],
+        'text': messageController.text,
+        'from': user.data['firstName'],
+        'date': DateTime.now()
       });
 
+      messageController.clear();
       scrollController.animateTo(
         scrollController.position.minScrollExtent,
         curve: Curves.easeOut,
@@ -82,19 +53,165 @@ class _ChatAdminState extends State<ChatAdmin> {
     }
   }
 
-  QuerySnapshot parentAdmin;
+  int limitMessageAmount = 14;
+
+  QuerySnapshot querySnapshot;
+
+  QuerySnapshot newQuery;
+  List<Widget> messages = [];
 
   @override
   void initState() {
-    _firestore
-        .collection('parentAdmin')
-        .where('parentUid', isEqualTo: user.data['uid'])
-        .getDocuments()
-        .then((value) {
-      setState(() {
-        parentAdmin = value;
+    scrollController.addListener(() {
+      if (scrollController.position.atEdge && loading == false) {
+        if (scrollController.position.pixels ==
+            scrollController.position.maxScrollExtent)
+          setState(() {
+            loading = true;
+            Timestamp t = newQuery.documents.last.data["date"];
+            Firestore.instance
+                .collection('parentGroupChat')
+                .where('date', isLessThan: t)
+                .limit(10)
+                .orderBy('date', descending: true)
+                .getDocuments()
+                .then((volue) {
+              newQuery = volue;
+
+              if (volue.documents.length != 0) {
+                List<Widget> messageNew = new List();
+
+                Future.delayed(Duration(milliseconds: 400)).then((value) {
+                  limitMessageAmount =
+                      limitMessageAmount * 2 + volue.documents.length;
+
+                  if (volue.documents.length != 0) {
+                    for (int i = volue.documents.length; i >= 0; i--) {
+                      setState(() {
+                        if (i == volue.documents.length) {
+                          for (int p = 0; p < limitMessageAmount; p++) {
+                            messageNew.add(Container());
+                          }
+                        } else {
+                          messageNew.add(Message(
+                            date: volue.documents[i].data['date'],
+                            photoUrl: volue.documents[i].data['photoUrl'],
+                            from: volue.documents[i].data['from'],
+                            text: volue.documents[i].data['text'] == null
+                                ? volue.documents[i].data['imageUrl']
+                                : volue.documents[i].data['text'],
+                            me: user.data['firstName'] ==
+                                    volue.documents[i].data['from']
+                                ? true
+                                : false,
+                          ));
+                        }
+                      });
+                    }
+                    messageNew.addAll(messages);
+
+                    messages = messageNew;
+
+                    loading = false;
+                  }
+                });
+              } else {
+                setState(() {
+                  loading = false;
+                });
+              }
+            }).catchError((e) {
+              setState(() {
+                loading = false;
+              });
+            });
+          });
+        // you are at top position
+
+        // you are at bottom position
+      }
+    });
+
+    messages.length == 0
+        ? Firestore.instance
+            .collection('parentGroupChat')
+            .limit(limitMessageAmount)
+            .orderBy('date', descending: true)
+            .getDocuments()
+            .then((value) {
+            querySnapshot = value;
+            newQuery = value;
+
+            for (int i = 0; i < value.documents.length; i++) {
+              setState(() {
+                messages.insert(
+                    0,
+                    Message(
+                      date: value.documents[i].data['date'],
+                      photoUrl: value.documents[i].data['photoUrl'],
+                      from: value.documents[i].data['from'],
+                      text: value.documents[i].data['text'] == null
+                          ? value.documents[i].data['imageUrl']
+                          : value.documents[i].data['text'],
+                      me: user.data['firstName'] ==
+                              value.documents[i].data['from']
+                          ? true
+                          : false,
+                    ));
+              });
+            }
+          })
+        : null;
+
+    Firestore.instance
+        .collection('parentGroupChat')
+        .limit(limitMessageAmount)
+        .orderBy('date', descending: true)
+        .snapshots()
+        .listen((event) {})
+        .onData((data) {
+      data.documentChanges.forEach((element) {
+        Timestamp j = element.document.data['date'];
+
+        if (element.document.data['photoUrl'] != user.data['photoUrl']) {
+          if (Timestamp.now().microsecondsSinceEpoch -
+                  j.microsecondsSinceEpoch <=
+              35000000) {
+            setState(() {
+              print("Hello");
+              messages.add(Message(
+                date: element.document.data['date'],
+                photoUrl: element.document.data['photoUrl'],
+                from: element.document.data['from'],
+                text: element.document.data['text'] == null
+                    ? element.document.data['imageUrl']
+                    : element.document.data['text'],
+                me: user.data['firstName'] == element.document.data['from']
+                    ? true
+                    : false,
+              ));
+            });
+          }
+        } else if (Timestamp.now().microsecondsSinceEpoch -
+                j.microsecondsSinceEpoch <=
+            1000000) {
+          setState(() {
+            messages.add(Message(
+              date: element.document.data['date'],
+              photoUrl: element.document.data['photoUrl'],
+              from: element.document.data['from'],
+              text: element.document.data['text'] == null
+                  ? element.document.data['imageUrl']
+                  : element.document.data['text'],
+              me: user.data['firstName'] == element.document.data['from']
+                  ? true
+                  : false,
+            ));
+          });
+        }
       });
-    }).asStream();
+    });
+
     super.initState();
   }
 
@@ -106,114 +223,86 @@ class _ChatAdminState extends State<ChatAdmin> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              parentAdmin != null && parentAdmin.documents.length != 0
-                  ? Expanded(
-                      child: StreamBuilder<QuerySnapshot>(
-                        stream: _firestore
-                            .collection(
-                                'parentAdmin/${parentAdmin.documents[0].documentID}/messages')
-                            .orderBy('date')
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData)
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          List<DocumentSnapshot> docs = snapshot.data.documents;
-                          if (expanded == null) {
-                            expanded = new List(docs.length);
-                            for (int i = 0; i < docs.length; i++) {
-                              expanded[i] = false;
+              Expanded(
+                  child: ListView(
+                reverse: true,
+                controller: scrollController,
+                children: [
+                  SizedBox(
+                    height: 5,
+                  ),
+                  ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: messages.length,
+                      itemBuilder: (BuildContext context, i) {
+                        String name;
+                        String nameBefore;
+
+                        String finalDate;
+                        int num;
+                        Message m;
+                        Message mBefore;
+                        String t;
+                        String tBefore;
+                        if (messages[i].runtimeType == Message) {
+                          if (i != 0) {
+                            if (messages[i - 1].runtimeType == Message) {
+                              mBefore = messages[i - 1];
+                              nameBefore = mBefore.from;
+                              tBefore = DateTime.fromMicrosecondsSinceEpoch(
+                                      mBefore.date.microsecondsSinceEpoch)
+                                  .day
+                                  .toString();
                             }
                           }
+                          m = messages[i];
+                          name = m.from;
+                          t = DateTime.fromMicrosecondsSinceEpoch(
+                                  m.date.microsecondsSinceEpoch)
+                              .day
+                              .toString();
+                          if (m != null && mBefore != null)
+                            num = DateTime.fromMicrosecondsSinceEpoch(
+                                        m.date.microsecondsSinceEpoch)
+                                    .day -
+                                DateTime.fromMicrosecondsSinceEpoch(
+                                        mBefore.date.microsecondsSinceEpoch)
+                                    .day;
+                        }
 
-                          List<Widget> messages = docs
-                              .map((doc) => Message(
-                                    date: doc.data['date'],
-                                    photoUrl: doc.data['photoUrl'],
-                                    from: doc.data['from'],
-                                    text: doc.data['text'] == null
-                                        ? doc.data['imageUrl']
-                                        : doc.data['text'],
-                                    me: user.data['firstName'] ==
-                                        doc.data['from'],
-                                  ))
-                              .toList();
+                        if (num != null && num != 0) {
+                          finalDate = DateFormat("MMMEd").format(
+                              DateTime.fromMicrosecondsSinceEpoch(
+                                  m.date.microsecondsSinceEpoch));
+                        }
 
-                          return ListView(
-                            reverse: true,
-                            controller: scrollController,
-                            children: [
-                              ListView.builder(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  scrollDirection: Axis.vertical,
-                                  shrinkWrap: true,
-                                  itemCount: messages.length,
-                                  itemBuilder: (BuildContext context, i) {
-                                    return new Column(
-                                      children: [
-                                        i != 0
-                                            ? DateFormat("yyyy-MM-dd").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch)) ==
-                                                    DateFormat("yyyy-MM-dd").format(
-                                                        DateTime.fromMicrosecondsSinceEpoch(docs[i - 1]
-                                                            .data['date']
-                                                            .microsecondsSinceEpoch))
-                                                ? docs[i]
-                                                            .data["date"]
-                                                            .toDate()
-                                                            .difference(docs[i - 1]
-                                                                .data["date"]
-                                                                .toDate())
-                                                            .inMinutes <
-                                                        5
-                                                    ? Container()
-                                                    : Text(DateFormat("Hm")
-                                                        .format(docs[i]
-                                                            .data["date"]
-                                                            .toDate()))
-                                                : DateFormat("yyyy-MM-dd").format(docs[i].data["date"].toDate()) ==
-                                                        DateFormat("yyyy-MM-dd")
-                                                            .format(DateTime.now())
-                                                    ? Text("Today, ${DateFormat("Hm").format(docs[i].data["date"].toDate())}")
-                                                    : DateTime.now().difference(docs[0].data["date"].toDate()).inDays >= 6
-                                                        ? Text("${DateFormat("EEEE").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}, "
-                                                            "${DateFormat("Hm").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}")
-                                                        : Text("${DateFormat("EEEE").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}, "
-                                                            "${DateFormat("Hm").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}")
-                                            : Text("${DateFormat("MMMMd").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}, "
-                                                "${DateFormat("Hm").format(DateTime.fromMicrosecondsSinceEpoch(docs[i].data['date'].microsecondsSinceEpoch))}"),
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              expanded[i] = !expanded[i];
-                                              print(expanded[i]);
-                                            });
-                                          },
-                                          child: AnimatedContainer(
-                                            duration:
-                                                Duration(milliseconds: 300),
-                                            height:
-                                                expanded[i] == false ? 45 : 60,
-                                            child: SingleChildScrollView(
-                                                child: Column(
-                                              children: [
-                                                messages[i],
-                                                expanded[i] == true
-                                                    ? Text(docs[i].data['from'])
-                                                    : Container()
-                                              ],
-                                            )),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  })
-                            ],
-                          );
-                        },
-                      ),
-                    )
-                  : Container(),
+                        return Column(
+                          children: [
+                            finalDate != null
+                                ? Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: Text(finalDate))
+                                : Container(),
+                            name != nameBefore
+                                ? SizedBox(
+                                    height: 8,
+                                  )
+                                : Container(),
+                            messages[i]
+                          ],
+                        );
+                      }),
+                  loading == true
+                      ? Center(
+                          child: Container(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : Container(),
+                ],
+              )),
               Container(
                 child: ListTile(
                     leading: GestureDetector(
@@ -265,10 +354,6 @@ class _ChatAdminState extends State<ChatAdmin> {
                         if (!currentFocus.hasPrimaryFocus) {
                           currentFocus.unfocus();
                         }
-                        setState(() {
-                          message = messageController.text;
-                          messageController.clear();
-                        });
                       },
                     )),
               ),
