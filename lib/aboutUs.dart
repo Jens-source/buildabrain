@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'Parent/parentHome.dart';
+
 class AboutUs extends StatefulWidget {
   @override
   _AboutUsState createState() => _AboutUsState();
@@ -11,7 +13,7 @@ class _AboutUsState extends State<AboutUs> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    subBottomNavigationIndex = 1;
     super.initState();
     dragStartBehavior = DragStartBehavior.down;
   }

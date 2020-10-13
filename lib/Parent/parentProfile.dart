@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:buildabrain/Parent/parentHome.dart';
 import 'package:buildabrain/main.dart';
 import 'package:buildabrain/services/userManagement.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -252,6 +253,7 @@ class _ParentProfileState extends State<ParentProfile>
 
   @override
   void initState() {
+    subBottomNavigationIndex = 1;
     setState(() {
       parent = user.documents[0];
       _number = user.documents[0].data['number'];

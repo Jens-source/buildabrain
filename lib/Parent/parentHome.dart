@@ -15,6 +15,9 @@ import 'package:flutter/material.dart';
 
 import 'chat.dart';
 
+int bottomNavigationIndex = 0;
+int subBottomNavigationIndex = 0;
+
 class ParentHome extends StatefulWidget {
   ParentHome(this.parent, this.index, this.chatIndex);
   final parent;
@@ -116,6 +119,7 @@ class _ParentHomeState extends State<ParentHome>
     _messaging.getToken().then((token) {
       print(token);
     });
+    bottomNavigationIndex = 0;
     super.initState();
     tabController =
         new TabController(length: 5, vsync: this, initialIndex: index);
@@ -180,34 +184,47 @@ class _ParentHomeState extends State<ParentHome>
                         ),
                         onPressed: () {
                           bool bam = false;
-                          tab == 4
-                              ? Navigator.push(
+
+                          print(bottomNavigationIndex);
+                          print(subBottomNavigationIndex);
+                          if (bottomNavigationIndex == 4) {
+                            if (subBottomNavigationIndex == 0) {
+                              Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (BuildContext context) =>
-                                          ParentSettings(
-                                              4, childrenSnapshot, parent)))
-                              : tab == 3 && bam == false
-                                  ? Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              MyApp(ParentHome(parent, 3, 0))))
-                                  : chatIndex == 0
-                                      ? Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) => MyApp(
-                                                  ParentHome(parent, 0, 0))))
-                                      : Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  MyApp(ParentHome(parent, index, 0))));
+                                          MyApp(ParentHome(parent, 0, 0))));
+                            } else {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          MyApp(ParentHome(parent, 4, 0))));
+                            }
+                          } else {
+                            tab == 3 && bam == false
+                                ? Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            MyApp(ParentHome(parent, 3, 0))))
+                                : chatIndex == 0
+                                    ? Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                MyApp(
+                                                    ParentHome(parent, 0, 0))))
+                                    : Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                MyApp(ParentHome(
+                                                    parent, index, 0))));
+                          }
                         },
                       )
                     : null,
-                actionsIconTheme: IconThemeData(color: Colors.white),
                 title: Row(children: [
                   tab == 0
                       ? FlatButton(
@@ -354,110 +371,6 @@ class _ParentHomeState extends State<ParentHome>
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              endDrawer: Drawer(
-                child: ListView(
-                  // Important: Remove any padding from the ListView.
-                  padding: EdgeInsets.zero,
-                  children: <Widget>[
-                    DrawerHeader(
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage(
-                        "lib/Assets/bdblogo.png",
-                      ))),
-                    ),
-                    ListTile(
-                      title: Text('Profile'),
-                      trailing: Icon(Icons.account_circle),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    ParentProfile(parent, childrenSnapshot)));
-                      },
-                    ),
-                    ListTile(
-                      title: Text('About Buildabrain'),
-                      trailing: Icon(Icons.info),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) => AboutUs()));
-                      },
-                    ),
-                    ListTile(
-                      title: Text('Help Center'),
-                      trailing: Icon(Icons.help),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    HelpCenter(parent)));
-                      },
-                    ),
-                    ListTile(
-                      title: Text('Contact Us'),
-                      trailing: Icon(Icons.location_on),
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    ListTile(
-                      title: Text("Special Events"),
-                      trailing: Icon(Icons.event),
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    ListTile(
-                      title: Text("Sign Out"),
-                      trailing: Icon(Icons.exit_to_app),
-                      onTap: () {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title:
-                                    Text("Are you sure yuo want to sign out?"),
-                                actions: [
-                                  FlatButton(
-                                    child: Text(
-                                      "OK",
-                                      style: TextStyle(color: Colors.blue),
-                                    ),
-                                    onPressed: () {
-                                      FirebaseAuth.instance.signOut();
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  WelcomePage()),
-                                          (route) => false);
-                                    },
-                                  ),
-                                  FlatButton(
-                                    child: Text(
-                                      "CANCEL",
-                                      style: TextStyle(color: Colors.blue),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              );
-                            });
-                      },
-                    )
                   ],
                 ),
               ),
@@ -787,7 +700,7 @@ class _ParentHomeState extends State<ParentHome>
                   ParentCalendar(childrenSnapshot, child, _tabController, tabs),
                   ScanChild(childrenSnapshot, _tabController, tabs),
                   Chat(parent.documents[0], false, chatIndex),
-                  ParentSettings(0, childrenSnapshot, parent)
+                  ParentSettings(childrenSnapshot, parent)
                 ],
               ));
         });

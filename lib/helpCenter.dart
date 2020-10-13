@@ -14,32 +14,21 @@ class _HelpCenterState extends State<HelpCenter> {
   final user;
 
   @override
+  void initState() {
+    subBottomNavigationIndex = 1;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
     return new Scaffold(
-      appBar: AppBar(
-        actionsIconTheme: IconThemeData(color: Colors.white),
-        title: Text("Support"),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(30),
-        )),
-      ),
       body: SingleChildScrollView(
         child: new Column(
           children: [
-            SizedBox(height: 50),
+            SizedBox(height: 100),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
