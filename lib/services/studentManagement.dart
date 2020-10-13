@@ -18,6 +18,8 @@ class StudentManagement {
     String s;
     await Firestore.instance.collection('students').add({
       'photoUrl': 0,
+      'active': 0,
+      'coursesComplete': 0,
       'qrCodeUrl': 0,
       'firstName': 0,
       'lastName': 0,

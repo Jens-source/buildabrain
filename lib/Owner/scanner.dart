@@ -39,11 +39,13 @@ class _ScannerState extends State<Scanner> {
           });
         });
 
+    DocumentSnapshot userInfo;
     await Firestore.instance
         .collection('users')
         .where('uid', isEqualTo: userScan)
         .getDocuments()
         .then((value) async {
+      userInfo = value.documents[0];
       if (value.documents[0].data['identity'] == "Teacher") {
         print("Teacher");
 
@@ -298,6 +300,9 @@ class _ScannerState extends State<Scanner> {
         }).catchError((e) {});
       }
     }).catchError((error) async {
+      DocumentSnapshot studentInfo =
+          await Firestore.instance.document("students/$userScan").get();
+
       if (error.runtimeType == RangeError) {
         print("Student");
         await Firestore.instance
@@ -309,40 +314,176 @@ class _ScannerState extends State<Scanner> {
             .then((value) async {
           if (value.documents.length == 0) {
             print("No document for this student and day yet");
+            //how many scans has the parent had?
             await Firestore.instance
                 .document('students/${userScan}')
                 .collection('timestamps')
-                .add({
-              'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
-              'time': DateFormat('Hm').format(DateTime.now()),
-            });
-            Navigator.pop(context);
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => MyApp(OwnerHome(user, 0))));
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return StatefulBuilder(builder: (context, setState) {
-                    return new AlertDialog(
-                      title: Text("Success"),
-                      content: Text("Successfully scanned in."),
-                      actions: [
-                        FlatButton(
-                          child: Text(
-                            "OK",
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                        )
-                      ],
-                    );
-                  });
+                .getDocuments()
+                .then((parentTimestamps) async {
+              //normal scan
+              if (parentTimestamps.documents.length < 6) {
+                await Firestore.instance
+                    .document('students/${userScan}')
+                    .collection('timestamps')
+                    .add({
+                  'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                  'time': DateFormat('Hm').format(DateTime.now()),
                 });
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MyApp(OwnerHome(user, 0))));
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return new AlertDialog(
+                          title: Text("Success"),
+                          content: Text("Successfully scanned in."),
+                          actions: [
+                            FlatButton(
+                              child: Text(
+                                "OK",
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        );
+                      });
+                    });
+              }
+              //one more scan left
+              if (parentTimestamps.documents.length == 6) {
+                await Firestore.instance
+                    .document('students/${userScan}')
+                    .collection('timestamps')
+                    .add({
+                  'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                  'time': DateFormat('Hm').format(DateTime.now()),
+                });
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MyApp(OwnerHome(user, 0))));
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return new AlertDialog(
+                          title: Text("Success"),
+                          content: Text(
+                              "${studentInfo.data['nickName']} has 1 more scan left"),
+                          actions: [
+                            FlatButton(
+                              child: Text(
+                                "OK",
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        );
+                      });
+                    });
+              }
+              //Final scan
+              if (parentTimestamps.documents.length == 7) {
+                await Firestore.instance
+                    .document('students/${userScan}')
+                    .collection('timestamps')
+                    .add({
+                  'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                  'time': DateFormat('Hm').format(DateTime.now()),
+                });
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MyApp(OwnerHome(user, 0))));
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return new AlertDialog(
+                          title: Text("Success"),
+                          content: Text(
+                              "${studentInfo.data['nickName']}'s final scan \nDoes he/she want to continue?"),
+                          actions: [
+                            FlatButton(
+                              child: Text(
+                                "Yes",
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              onPressed: () {
+                                Firestore.instance
+                                    .document('students/$userScan')
+                                    .updateData({
+                                  "coursesComplete":
+                                      studentInfo.data['coursesComplete'] + 1,
+                                });
+                                Firestore.instance
+                                    .collection("students/$userScan/timestamps")
+                                    .getDocuments()
+                                    .then((studentTimestamps) async {
+                                  for (int i = 0;
+                                      i < studentTimestamps.documents.length;
+                                      i++) {
+                                    await Firestore.instance
+                                        .document(
+                                            "students/$userScan/timestamps/${studentTimestamps.documents[i].documentID}")
+                                        .delete();
+                                  }
+                                });
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                            ),
+                            FlatButton(
+                              child: Text(
+                                "No",
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              onPressed: () {
+                                Firestore.instance
+                                    .document('students/$userScan')
+                                    .updateData({
+                                  "active": false,
+                                  "coursesComplete":
+                                      studentInfo.data['coursesComplete'] + 1,
+                                });
+                                Firestore.instance
+                                    .collection("students/$userScan/timestamps")
+                                    .getDocuments()
+                                    .then((studentTimestamps) async {
+                                  for (int i = 0;
+                                      i < studentTimestamps.documents.length;
+                                      i++) {
+                                    await Firestore.instance
+                                        .document(
+                                            "students/$userScan/timestamps/${studentTimestamps.documents[i].documentID}")
+                                        .delete();
+                                  }
+                                });
+
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        );
+                      });
+                    });
+              }
+            });
           } else {
             showDialog(
                 context: context,
@@ -350,8 +491,8 @@ class _ScannerState extends State<Scanner> {
                   return StatefulBuilder(builder: (context, setState) {
                     return new AlertDialog(
                       title: Text("Scanning Error"),
-                      content:
-                          Text("This student has already scanned in today."),
+                      content: Text(
+                          "${studentInfo.data['nickName']} has already scanned in today."),
                       actions: [
                         FlatButton(
                           child: Text(

@@ -106,6 +106,10 @@ class _ParentHomeState extends State<ParentHome>
       });
 
       if (childSchedules.documents.length != 0) {
+        print("ChildrenSnap ===> ${childrenSnap.documents[i]}");
+        print("childSchedules ===> ${childSchedules}");
+        print("childTimestamps ===> ${childTimestamps}");
+
         child.add(Tab(
             child: Child(
                 childrenSnap.documents[i], childSchedules, childTimestamps)));

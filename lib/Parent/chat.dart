@@ -589,8 +589,18 @@ class _MessageState extends State<Message> with SingleTickerProviderStateMixin {
                                       : Container(),
                                   Container(
                                     constraints: BoxConstraints(maxWidth: 200),
-                                    child: Text(
+                                    child: SelectableText(
                                       text,
+                                      cursorColor: Colors.blue,
+                                      showCursor: false,
+                                      toolbarOptions: ToolbarOptions(
+                                        copy: true,
+                                        selectAll: true,
+                                        cut: false,
+                                        paste: false,
+                                      ),
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 12),
                                     ),
                                   ),
                                   SizedBox(
