@@ -1,5 +1,6 @@
 import 'package:buildabrain/Owner/addSchedule.dart';
 import 'package:buildabrain/Owner/chat.dart';
+import 'package:buildabrain/Owner/closedDates.dart';
 import 'package:buildabrain/Owner/dashboard.dart';
 import 'package:buildabrain/Owner/ownerCalendar.dart';
 import 'package:buildabrain/Owner/scanner.dart';
@@ -454,6 +455,13 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin {
                               iconEnabledColor: Colors.white,
                               elevation: 16,
                               onChanged: (String newValue) {
+                                if (newValue == "Closed Dates") {
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) {
+                                        return ClosedDates(user);
+                                      }));
+                                }
+
                                 if (newValue == "Class") {
                                   Navigator.of(context).push(
                                       MaterialPageRoute(builder: (context) {
@@ -481,7 +489,8 @@ class _OwnerHome extends State<OwnerHome> with TickerProviderStateMixin {
                               },
                               items: <String>[
                                 'Class',
-                                'Promotion'
+                                'Promotion',
+                                'Closed Dates'
                               ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
