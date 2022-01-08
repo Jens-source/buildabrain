@@ -1,12 +1,13 @@
 # Buildabrain Learning Center
 
 Buildabrain is a cross-platform management application for a learning center used to coordinate students, setup schedules for teachers and parents as well as a payment system. 
- <img src="readme/story_board.png" width="200" > 
+ 
+ <img src="readme/story_board.png" width="700" > 
  
 ## Framework and design
   * **Color scheme**\
     Paletton is an online application located on the internet at Paletton.com. It provides powerfull tool to create color combinations and palettes of colors that work together well. The major advantage of Paletton is it's not using the modern computer and engineering RGB color space, but it's built on a classical artistic color wheel, applies classical color theory and works within a specially created RYB color space. Therefore the color combinations it produces are very different from those you can get in many computer graphic applications.\
-    <img src="readme/about_screen.png" width="300" >
+    <img src="readme/about_screen.jpg" width="300" >
 
   * **Minimize Cognitive Load**\
 Cognitive load refers here to the amount of brain power required to use the app. The human brain has a limited amount of processing power, and when an app provides too much information at once, it might overwhelm the user and make them abandon the task.
@@ -38,6 +39,7 @@ The FirebaseUI Auth component implements best practices for authentication on mo
 ### How does it work? 
 
 You first get authentication credentials from the user. These credentials can be the user's email address and password, or an OAuth token from a federated identity provider. Then, you pass these credentials to the Firebase Authentication SDK. The backend services will then verify those credentials and return a response to the client.
+
 <img src="readme/sign_in_screen.png" width="200" > 
 
 ## **Storage management and CRUD functions**
